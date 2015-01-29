@@ -3,6 +3,9 @@
 
     <string name="app_name">Vamo Junto</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings" translatable="false">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="welcome_string_text">Peça ou ofereça carona para a UFAM agora mesmo.</string>
 
 </resources>
