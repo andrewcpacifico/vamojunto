@@ -2,9 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/welcome_background"
-    tools:context="co.vamojunto.vamojunto.MainActivity$PlaceholderFragment">
+    tools:context="co.vamojunto.MainActivity$PlaceholderFragment">
 
     <LinearLayout
+        android:id="@+id/pnlWelcome"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -44,4 +45,14 @@
             android:gravity="center_horizontal" />
 
     </LinearLayout>
+
+    <com.facebook.widget.LoginButton
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/authButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="50dp"
+        />
 </RelativeLayout>
