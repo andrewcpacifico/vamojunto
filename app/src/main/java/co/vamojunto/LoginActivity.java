@@ -10,16 +10,26 @@
 
 package co.vamojunto;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.facebook.widget.LoginButton;
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
+
+import java.util.Arrays;
 
 
 /**
@@ -57,6 +67,20 @@ public class LoginActivity extends ActionBarActivity {
         if (state.isOpened()) {
             Log.i(TAG, "Logged in...");
 
+            /* Cadastra o usuário na base do Parse */
+            ParseFacebookUtils.logIn(Arrays.asList("email"), this, new LogInCallback() {
+                @Override
+                public void done(ParseUser user, ParseException err) {
+                    if (user == null) {
+                        Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
+                    } else if (user.isNew()) {
+                        Log.d(TAG, "User signed up and logged in through Facebook!");
+                    } else {
+                        Log.d(TAG, "User logged in through Facebook!");
+                    }
+                }
+            });
+
             Intent intent = new Intent(this, MainActivity.class);
             this.startActivity(intent);
             this.finish();
@@ -72,6 +96,9 @@ public class LoginActivity extends ActionBarActivity {
 
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
+
+        LoginButton authButton = (LoginButton) findViewById(R.id.authButton);
+        authButton.setReadPermissions(Arrays.asList("email"));
     }
 
     @Override
