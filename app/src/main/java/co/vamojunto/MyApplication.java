@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
@@ -28,7 +29,12 @@ public class MyApplication extends Application {
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
 
-        Parse.initialize(this, "pry1CBPCYtfTqonbY3sarxqQ4xWO5OQTfMw1GRDS", "5QcfmQFUPRU3gOttwoANgiDqYzULfnouneliLryP");
+        String appId = getResources().getString(R.string.parse_app_id);
+        String clientId = getResources().getString(R.string.parse_client_id);
+
+        Parse.initialize(this, appId, clientId);
+
+        //ParseUser.logOut();
 
         /*Log.i("Parse", "Instanciando...");
         ParseObject testObject = new ParseObject("TestObject");

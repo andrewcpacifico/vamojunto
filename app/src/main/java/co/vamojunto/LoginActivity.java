@@ -19,10 +19,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -44,101 +48,65 @@ public class LoginActivity extends ActionBarActivity {
     /** Usado para identificação nos logs */
     private static final String TAG = "LoginActivity";
 
-    /** Utilizado para gerenciamento da sessão do usuário. */
-    private UiLifecycleHelper uiHelper;
-
-    /** Ouvinte para as alterações no estado da sessão do usuário. */
-    private Session.StatusCallback callback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
-        }
-    };
-
-    /**
-     * Controla as mudanças no estado da sessão do usuário.
-     *
-     * @param session
-     * @param state
-     * @param exception
-     */
-    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-        /* Caso o usuário esteja autenticado, exibe a tela principal do aplicativo.  */
-        if (state.isOpened()) {
-            Log.i(TAG, "Logged in...");
-
-            /* Cadastra o usuário na base do Parse */
-            ParseFacebookUtils.logIn(Arrays.asList("email"), this, new LogInCallback() {
-                @Override
-                public void done(ParseUser user, ParseException err) {
-                    if (user == null) {
-                        Log.d(TAG, "Uh oh. The user cancelled the Facebook login.");
-                    } else if (user.isNew()) {
-                        Log.d(TAG, "User signed up and logged in through Facebook!");
-                    } else {
-                        Log.d(TAG, "User logged in through Facebook!");
-                    }
-                }
-            });
-
-            Intent intent = new Intent(this, MainActivity.class);
-            this.startActivity(intent);
-            this.finish();
-        } else if (state.isClosed()) {
-            Log.i(TAG, "Logged out...");
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        uiHelper = new UiLifecycleHelper(this, callback);
-        uiHelper.onCreate(savedInstanceState);
+        final Button fbAuthButton = (Button) findViewById(R.id.fb_auth_button);
+        fbAuthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fbAuthButtonClick(v);
+            }
+        });
+    }
 
-        LoginButton authButton = (LoginButton) findViewById(R.id.authButton);
-        authButton.setReadPermissions(Arrays.asList("email"));
+    /**
+     * Ação executada ao pressionar o botão de autenticação com Facebook.
+     *
+     * @param v View do botão que foi pressionado.
+     */
+    private void fbAuthButtonClick(View v) {
+        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL),
+                this, new LogInCallback() {
+            @Override
+            public void done(final ParseUser user, ParseException err) {
+                if (user == null) {
+                    Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
+                } else {
+                    if (user.isNew()) {
+                        Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
+
+                        // Requisita os dados adicionais do usuário para serem inseridos no ParseUser
+                        Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
+                            @Override
+                            public void onCompleted(GraphUser graphUser, Response response) {
+                                Log.d(TAG, "Request finalizada");
+
+                                if (graphUser != null) {
+                                    String userEmail = (String) graphUser.getProperty("email");
+
+                                    user.setEmail(userEmail);
+                                    user.saveInBackground();
+                                }
+                            }
+                        }).executeAsync();
+                    } else {
+                        Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
+                    }
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        // For scenarios where the main activity is launched and user
-        // session is not null, the session state change notification
-        // may not be triggered. Trigger it if it's open/closed.
-        Session session = Session.getActiveSession();
-        if (session != null &&
-                (session.isOpened() || session.isClosed()) ) {
-            onSessionStateChange(session, session.getState(), null);
-        }
-
-        uiHelper.onResume();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        uiHelper.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        uiHelper.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        uiHelper.onDestroy();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        uiHelper.onSaveInstanceState(outState);
-    }
-
 }

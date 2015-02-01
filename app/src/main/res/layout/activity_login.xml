@@ -46,13 +46,15 @@
 
     </LinearLayout>
 
-    <com.facebook.widget.LoginButton
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@drawable/fb_login_button"
+        android:text="@string/signin_fb"
+        android:id="@+id/fb_auth_button"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/authButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="50dp"
-        />
+        android:layout_margin="30dp"
+        android:textColor="#ffffffff" />
+
 </RelativeLayout>

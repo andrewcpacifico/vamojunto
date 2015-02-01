@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_id">865170056839482</string>
-    <string name="app_name">Vamo Junto</string>
-    <string name="hello_world">Hello world!</string>
+
     <string name="action_settings" translatable="false">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="welcome_string_text">Peça ou ofereça carona para a UFAM agora mesmo.</string>
+    <string name="app_name">Vamo Junto</string>
+    <string name="fb_app_id">865170056839482</string>
+    <string name="hello_world">Hello world!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="parse_app_id">pry1CBPCYtfTqonbY3sarxqQ4xWO5OQTfMw1GRDS</string>
+    <string name="parse_client_id">5QcfmQFUPRU3gOttwoANgiDqYzULfnouneliLryP</string>
+    <string name="signin_fb">Entre com o facebook</string>
+    <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="welcome_string_text">Peça ou ofereça carona para a UFAM agora mesmo.</string>
 
 </resources>
