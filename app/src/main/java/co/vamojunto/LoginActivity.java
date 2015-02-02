@@ -10,6 +10,7 @@
 
 package co.vamojunto;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -43,7 +44,7 @@ import java.util.Arrays;
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
  */
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends Activity {
 
     /** Usado para identificação nos logs */
     private static final String TAG = "LoginActivity";

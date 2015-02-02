@@ -34,7 +34,7 @@ public class MyApplication extends Application {
 
         Parse.initialize(this, appId, clientId);
 
-        //ParseUser.logOut();
+        ParseUser.logOut();
 
         /*Log.i("Parse", "Instanciando...");
         ParseObject testObject = new ParseObject("TestObject");
