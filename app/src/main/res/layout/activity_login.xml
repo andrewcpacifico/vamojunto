@@ -26,7 +26,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:text="@string/welcome_string_text"
         android:id="@+id/textoTextView"
         android:textColor="#ff000000"
@@ -41,8 +41,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/emailEditText"
         android:layout_below="@+id/textoTextView"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="20dp"
         android:textSize="12sp"
         android:hint="Email"
         android:elegantTextHeight="false" />
@@ -53,7 +54,7 @@
         android:id="@+id/senhaEditText"
         android:inputType="textPassword"
         android:layout_below="@+id/emailEditText"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:textSize="12sp"
@@ -66,6 +67,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/senhaEditText"
         android:layout_marginTop="10dp"
+        android:padding="0dp"
         android:layout_alignLeft="@+id/senhaEditText"
         android:layout_alignRight="@+id/senhaEditText">
         <Button
@@ -90,16 +92,25 @@
     </LinearLayout>
 
     <Button
-        android:layout_width="220dp"
-        android:layout_height="40dp"
+        android:id="@+id/parse_login_help"
+        style="@style/Login.HelpButton"
+        android:layout_marginTop="@dimen/login_small_vertical_spacing"
+        android:layout_marginBottom="@dimen/login_small_vertical_spacing"
+        android:text="@string/forgot_password_button_label"
         android:layout_below="@+id/botoesPanel"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/fb_login_button"
-        android:text="@string/signin_fb"
+        android:layout_centerHorizontal="true"/>
+
+
+    <Button
         android:id="@+id/fb_auth_button"
-        android:layout_centerHorizontal="true"
-        android:textColor="#ffffffff"
-        android:textSize="12sp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/botoesPanel"
+        android:layout_alignRight="@+id/botoesPanel"
+        style="@style/Login.Button.ThirdPartyLogin"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/facebook_login_button_background_selector"
+        android:drawableLeft="@drawable/facebook_login_logo"
+        android:text="@string/signin_fb" />
 
 
 </RelativeLayout>

@@ -13,7 +13,9 @@ package co.vamojunto;
 import android.app.Application;
 import android.util.Log;
 
+import com.facebook.Session;
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -33,6 +35,7 @@ public class MyApplication extends Application {
         String clientId = getResources().getString(R.string.parse_client_id);
 
         Parse.initialize(this, appId, clientId);
+        new Session(this).closeAndClearTokenInformation();
 
         ParseUser.logOut();
 

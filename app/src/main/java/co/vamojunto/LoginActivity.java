@@ -11,24 +11,16 @@
 package co.vamojunto;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.facebook.Request;
 import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -49,6 +41,9 @@ public class LoginActivity extends Activity {
     /** Usado para identificação nos logs */
     private static final String TAG = "LoginActivity";
 
+    /** Janela de diálogo exibida durante o processo de login. */
+    private ProgressDialog mProDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,11 +59,32 @@ public class LoginActivity extends Activity {
     }
 
     /**
+     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(this);
+        mProDialog.setMessage(getString(R.string.loading));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finaliza o diálogo do carregamento da tela principal.
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
+    }
+
+    /**
      * Ação executada ao pressionar o botão de autenticação com Facebook.
      *
      * @param v View do botão que foi pressionado.
      */
     private void fbAuthButtonClick(View v) {
+        startLoading();
+
         ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL),
                 this, new LogInCallback() {
             @Override
@@ -97,6 +113,8 @@ public class LoginActivity extends Activity {
                         Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
                     }
 
+
+                    stopLoading();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
