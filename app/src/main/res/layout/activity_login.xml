@@ -5,88 +5,90 @@
     android:background="#ffffffff">
 
     <ImageView
+        android:id="@+id/logo"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:id="@+id/logo"
-        android:src="@drawable/logo"
         android:layout_marginTop="30dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/logo"/>
 
     <TextView
+        android:id="@+id/titulo_text_view"
+        android:fontFamily="sans-serif-light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/logo"
         android:text="@string/app_name"
-        android:id="@+id/tituloTextView"
         android:textColor="#000000"
         android:textSize="30sp"
-        android:fontFamily="sans-serif-light"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/logo"/>
+        />
 
     <TextView
+        android:id="@+id/texto_text_view"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/titulo_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/welcome_string_text"
-        android:id="@+id/textoTextView"
         android:textColor="#ff000000"
         android:textSize="@dimen/abc_text_size_small_material"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center_horizontal"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/tituloTextView"/>
+        />
 
     <EditText
+        android:id="@+id/email_edit_text"
+        android:inputType="textEmailAddress"
+        android:hint="@string/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/emailEditText"
-        android:layout_below="@+id/textoTextView"
+        android:layout_below="@+id/texto_text_view"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
-        android:textSize="12sp"
-        android:hint="Email"
-        android:elegantTextHeight="false" />
+        android:textSize="14sp" />
 
     <EditText
+        android:id="@+id/senha_edit_text"
+        android:inputType="textPassword"
+        android:hint="@string/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/senhaEditText"
-        android:inputType="textPassword"
-        android:layout_below="@+id/emailEditText"
+        android:layout_below="@+id/email_edit_text"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp"
-        android:textSize="12sp"
-        android:hint="Senha" />
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:textSize="14sp" />
 
     <LinearLayout
-        android:id="@+id/botoesPanel"
+        android:id="@+id/botoes_panel"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/senhaEditText"
+        android:layout_below="@+id/senha_edit_text"
         android:layout_marginTop="10dp"
         android:padding="0dp"
-        android:layout_alignLeft="@+id/senhaEditText"
-        android:layout_alignRight="@+id/senhaEditText">
+        android:layout_alignLeft="@+id/senha_edit_text"
+        android:layout_alignRight="@+id/senha_edit_text">
         <Button
+            android:id="@+id/cadastro_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signup"
-            android:id="@+id/button"
-            android:textSize="12sp"
-            android:layout_weight="1"
+            android:textSize="14sp"
+            android:layout_weight="0.5"
             android:layout_marginRight="5dp"
             android:padding="0dp" />
 
         <Button
+            android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signin"
-            android:id="@+id/button2"
-            android:textSize="12sp"
-            android:layout_weight="1"
+            android:textSize="14sp"
+            android:layout_weight="0.5"
             android:layout_marginLeft="5dp"
             android:padding="0dp" />
     </LinearLayout>
@@ -97,15 +99,15 @@
         android:layout_marginTop="@dimen/login_small_vertical_spacing"
         android:layout_marginBottom="@dimen/login_small_vertical_spacing"
         android:text="@string/forgot_password_button_label"
-        android:layout_below="@+id/botoesPanel"
+        android:layout_below="@+id/botoes_panel"
         android:layout_centerHorizontal="true"/>
 
 
     <Button
         android:id="@+id/fb_auth_button"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/botoesPanel"
-        android:layout_alignRight="@+id/botoesPanel"
+        android:layout_alignLeft="@+id/botoes_panel"
+        android:layout_alignRight="@+id/botoes_panel"
         style="@style/Login.Button.ThirdPartyLogin"
         android:layout_marginBottom="30dp"
         android:background="@drawable/facebook_login_button_background_selector"

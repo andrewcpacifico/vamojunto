@@ -49,36 +49,45 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final Button fbAuthButton = (Button) findViewById(R.id.fb_auth_button);
+        initButtons();
+    }
+
+    /**
+     * Inicializa as propriedades de todos os botões da interface
+     */
+    private void initButtons() {
+        Button fbAuthButton = (Button) findViewById(R.id.fb_auth_button);
         fbAuthButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fbAuthButtonClick(v);
             }
         });
+
+        final Button cadastroButton = (Button) findViewById(R.id.cadastro_button);
+        cadastroButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cadastroButtonOnClick(v);
+            }
+        });
     }
 
     /**
-     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     * Ação executada ao clicar no botão de cadastro, é carregada e exibida a tela de cadastro na
+     * aplicação.
+     *
+     * @param v View do botão que foi pressionado.
      */
-    private void startLoading() {
-        mProDialog = new ProgressDialog(this);
-        mProDialog.setMessage(getString(R.string.loading));
-        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProDialog.setCancelable(false);
-        mProDialog.show();
+    private void cadastroButtonOnClick(View v) {
+        Intent intent = new Intent(this, CadastroActivity.class);
+        startActivity(intent);
     }
 
     /**
-     * Finaliza o diálogo do carregamento da tela principal.
-     */
-    private void stopLoading() {
-        mProDialog.dismiss();
-        mProDialog = null;
-    }
-
-    /**
-     * Ação executada ao pressionar o botão de autenticação com Facebook.
+     * Ação executada ao pressionar o botão de autenticação com Facebook. O usuário é autenticado
+     * com a sua conta do FB, caso o usuário ainda não esteja cadastrado em nossa base de dados,
+     * é criado um novo usuário, com as informações retiradas da conta do Facebook.
      *
      * @param v View do botão que foi pressionado.
      */
@@ -121,6 +130,25 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+    }
+
+    /**
+     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(this);
+        mProDialog.setMessage(getString(R.string.loading));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finaliza o diálogo do carregamento da tela principal.
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
     @Override
