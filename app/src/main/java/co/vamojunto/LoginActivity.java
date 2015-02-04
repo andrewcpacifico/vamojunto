@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015. Vamo Junto Ltda. All Rights Reserved.
+ * Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
  *
- * This software is the confidential and proprietary information of Vamo Junto Ltda,
- * ("Confidential Information"). You shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement you entered into with Vamo Junto Ltda.
+ * Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+ * ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+ * conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
  *
  * See LICENSE.txt
  */

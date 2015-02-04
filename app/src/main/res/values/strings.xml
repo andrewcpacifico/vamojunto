@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+
+  Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+
+  See LICENSE.txt
+-->
 <resources>
 
     <string name="action_settings" translatable="false">Settings</string>
@@ -10,11 +19,15 @@
     <string name="forgot_password_button_label"><u>Esqueceu sua senha?</u></string>
     <string name="hello_world">Hello world!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="invalid_email_error">Por favor forneça um email válido.</string>
+    <string name="invalid_password_error">Sua senha deve conter de 6 a 20 dígitos, e apenas letras ou números.</string>
     <string name="loading">Carregando...</string>
     <string name="parse_app_id">pry1CBPCYtfTqonbY3sarxqQ4xWO5OQTfMw1GRDS</string>
     <string name="parse_client_id">5QcfmQFUPRU3gOttwoANgiDqYzULfnouneliLryP</string>
     <string name="password">Senha</string>
     <string name="password_confirmation">Confirmação da senha</string>
+    <string name="password_not_match">As senhas fornecidas não conferem.</string>
+    <string name="required_field_error">Campo obrigatório</string>
     <string name="signin">Login</string>
     <string name="signin_fb">Entre com o facebook</string>
     <string name="signup">Inscreva-se</string>
