@@ -32,6 +32,8 @@ import com.mobsandgeeks.saripaar.annotation.Regex;
 import com.mobsandgeeks.saripaar.annotation.Required;
 import com.mobsandgeeks.saripaar.annotation.TextRule;
 
+import co.vamojunto.model.Usuario;
+
 
 /**
  * Fragment contendo o formulário de registro de novo usuário.
@@ -105,7 +107,9 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
      */
     @Override
     public void onValidationSucceeded() {
-        Toast.makeText(getActivity(), "Tudo joia", Toast.LENGTH_LONG).show();
+        Usuario u = new Usuario(mNomeEditText.getText().toString(),
+                mEmailEditText.getText().toString(), mSenhaEditText.getText().toString());
+        u.cadastra();
     }
 
     /**
