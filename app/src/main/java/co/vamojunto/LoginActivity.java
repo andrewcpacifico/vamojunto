@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -32,6 +34,9 @@ import java.util.Arrays;
 /**
  * Activity de Login do aplicativo. Redireciona para a tela principal caso o usuário já esteja
  * autenticado no sistema.
+ *
+ * Atualmente utiliza a clase ParseUser para gerenciar os dados dos usuários, assim como gerenciar
+ * a sessão de usuário.
  *
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
@@ -64,11 +69,54 @@ public class LoginActivity extends Activity {
             }
         });
 
-        final Button cadastroButton = (Button) findViewById(R.id.cadastro_button);
+        Button cadastroButton = (Button) findViewById(R.id.cadastro_button);
         cadastroButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 cadastroButtonOnClick(v);
+            }
+        });
+
+        Button loginButton = (Button) findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginButtonOnClick(v);
+            }
+        });
+    }
+
+    /**
+     * Ação executada ao clicar no botão de login. Autentica o usuário utilizando a base de usuários
+     * na nuvem.
+     *
+     * @param v View do botão que foi pressionado.
+     */
+    private void loginButtonOnClick(View v) {
+        startLoading();
+
+        EditText emailEditText = (EditText) findViewById(R.id.email_edit_text);
+        EditText senhaEditText = (EditText) findViewById(R.id.senha_edit_text);
+
+        // Autentica o usuário utilizando o ParseUser
+        ParseUser.logInInBackground(emailEditText.getText().toString(),
+                senhaEditText.getText().toString(), new LogInCallback() {
+            @Override
+            public void done(ParseUser parseUser, ParseException e) {
+                // Login aconteceu normalmente
+                if (parseUser != null ){
+                    // Exibe a tela principal do sistema e finaliza a Activity de login.
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // TODO tratar erro na ação de login manual.
+                    Toast.makeText(LoginActivity.this, "Erro", Toast.LENGTH_LONG).show();
+                }
+
+                stopLoading();
             }
         });
     }
