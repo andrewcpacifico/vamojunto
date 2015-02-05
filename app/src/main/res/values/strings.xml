@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
 
-  Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
-  ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
-  conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
-
-  See LICENSE.txt
--->
 <resources>
 
+    <!-- Organizar -->
     <string name="action_settings" translatable="false">Settings</string>
     <string name="app_name">Vamo Junto</string>
     <string name="complete_name">Nome completo</string>
@@ -35,5 +37,11 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="welcome_string_text">Peça ou ofereça carona para a UFAM agora mesmo.</string>
     <string name="title_activity_cadastro">CadastroActivity</string>
+
+    <!-- FormCadastroFragment -->
+    <string name="error_email_taken">O email fornecido já está cadastrado.</string>
+    <string name="error_invalid_email">O email fornecido é inválido.</string>
+    <string name="error_sign_up">Ocorreu um erro ao realizar o cadastro, por favor tente novamente.</string>
+    <string name="signing_up">Cadastrando usuário.</string>
 
 </resources>

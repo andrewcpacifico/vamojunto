@@ -8,12 +8,15 @@
  * See LICENSE.txt
  */
 
-package co.vamojunto;
+package co.vamojunto.fragment;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,16 +26,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobsandgeeks.saripaar.Rule;
-import com.mobsandgeeks.saripaar.Rules;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
 import com.mobsandgeeks.saripaar.annotation.Email;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Regex;
 import com.mobsandgeeks.saripaar.annotation.Required;
-import com.mobsandgeeks.saripaar.annotation.TextRule;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
-import co.vamojunto.model.Usuario;
+import co.vamojunto.CadastroActivity;
+import co.vamojunto.LoginActivity;
+import co.vamojunto.MainActivity;
+import co.vamojunto.R;
 
 
 /**
@@ -42,6 +50,8 @@ import co.vamojunto.model.Usuario;
  * @since 0.1.0
  */
 public class FormCadastroFragment extends Fragment implements Validator.ValidationListener {
+
+    private static final String TAG = "FormCadastroFragment";
 
     @Required(order = 1, messageResId = R.string.required_field_error)
     private EditText mNomeEditText;
@@ -59,6 +69,9 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
 
     /** Utilizado para validar os valores dos inputs do formulário */
     private Validator mValidator;
+
+    /** Diálogo exibido durante o cadastro do usuário */
+    private ProgressDialog mProDialog;
 
     /**
      * Instancia o Validator durante a criação do formulário.
@@ -107,9 +120,46 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
      */
     @Override
     public void onValidationSucceeded() {
-        Usuario u = new Usuario(mNomeEditText.getText().toString(),
-                mEmailEditText.getText().toString(), mSenhaEditText.getText().toString());
-        u.cadastra();
+        startLoading();
+
+        ParseUser u = new ParseUser();
+        u.put("nome", mNomeEditText.getText().toString());
+        u.setEmail(mEmailEditText.getText().toString());
+        u.setUsername(mEmailEditText.getText().toString());
+        u.setPassword(mSenhaEditText.getText().toString());
+
+        u.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                stopLoading();
+                // Caso nenhum erro tenha ocorrido no cadastro do usuário. A tela principal será
+                // exibida
+                if ( e == null ) {
+                    Activity cadastroActivity = getActivity();
+
+                    Intent intent = new Intent(cadastroActivity, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    //cadastroActivity.finish();
+                } else {
+                    // O email informado pelo usuário não está disponível.
+                    if ( e.getCode() == ParseException.EMAIL_TAKEN  ||
+                            e.getCode() == ParseException.USERNAME_TAKEN) {
+                        mEmailEditText.setError(getString(R.string.error_email_taken));
+                        mEmailEditText.requestFocus();
+                    } else if ( e.getCode() == ParseException.INVALID_EMAIL_ADDRESS ) {
+                        mEmailEditText.setError(getString(R.string.error_invalid_email));
+                        mEmailEditText.requestFocus();
+                    }
+                    else {
+                        // Caso tenha ocorrido qualquer outro erro.
+                        Toast.makeText(getActivity(), R.string.error_sign_up, Toast.LENGTH_LONG).show();
+                        Log.e(TAG, e.getMessage());
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -125,6 +175,25 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
             ((TextView) failedView).setError(failedRule.getFailureMessage());
             failedView.requestFocus();
         }
+    }
+
+    /**
+     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(getActivity());
+        mProDialog.setMessage(getString(R.string.signing_up));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finaliza o diálogo do carregamento da tela principal.
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
 }

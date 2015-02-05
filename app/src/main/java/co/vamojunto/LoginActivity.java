@@ -122,9 +122,9 @@ public class LoginActivity extends Activity {
                         Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
                     }
 
-
                     stopLoading();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     finish();
                 }
