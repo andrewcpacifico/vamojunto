@@ -205,7 +205,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     }
 
     /**
-     * Callback executado quando os dados fornecidos para o formulário são válidos.
+     * Callback executado quando os dados fornecidos para o formulário são válidos. Tenta executar
+     * o login utilizando um objeto ParseUser.
      */
     @Override
     public void onValidationSucceeded() {
@@ -225,8 +226,22 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                             startActivity(intent);
                             finish();
                         } else {
-                            // TODO tratar erro na ação de login manual.
-                            Toast.makeText(LoginActivity.this, "Erro", Toast.LENGTH_LONG).show();
+                            String errorMsg = "";
+
+                            switch (e.getCode()) {
+                                case ParseException.INVALID_EMAIL_ADDRESS:
+                                    errorMsg = getString(R.string.error_invalid_email);
+                                    break;
+
+                                case ParseException.OBJECT_NOT_FOUND:
+                                    errorMsg = getString(R.string.error_wrong_email_pass);
+                                    break;
+
+                                default:
+                                    errorMsg = getString(R.string.error_login);
+                            }
+
+                            Toast.makeText(LoginActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                         }
 
                         stopLoading();
