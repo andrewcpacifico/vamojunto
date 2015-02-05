@@ -18,11 +18,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Email;
+import com.mobsandgeeks.saripaar.annotation.Required;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -41,7 +46,7 @@ import java.util.Arrays;
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements Validator.ValidationListener {
 
     /** Usado para identificação nos logs */
     private static final String TAG = "LoginActivity";
@@ -49,18 +54,36 @@ public class LoginActivity extends Activity {
     /** Janela de diálogo exibida durante o processo de login. */
     private ProgressDialog mProDialog;
 
+    /** Utilizado para validar o formulário de login */
+    private Validator validator;
+
+    // Campos do formulário de login
+    @Required(order = 1, messageResId = R.string.error_required_field)
+    @Email(order = 2, messageResId = R.string.error_invalid_email)
+    private EditText mEmailEditText;
+
+    @Required(order = 3, messageResId = R.string.error_required_field)
+    private EditText mSenhaEditText;
+    // Campos do formulário de login
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        initButtons();
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
+        initComponents();
     }
 
     /**
-     * Inicializa as propriedades de todos os botões da interface
+     * Inicializa as propriedades relacionadas aos componentes da UI.
      */
-    private void initButtons() {
+    private void initComponents() {
+        mEmailEditText = (EditText) findViewById(R.id.email_edit_text);
+        mSenhaEditText = (EditText) findViewById(R.id.senha_edit_text);
+
         Button fbAuthButton = (Button) findViewById(R.id.fb_auth_button);
         fbAuthButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,38 +110,13 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Ação executada ao clicar no botão de login. Autentica o usuário utilizando a base de usuários
-     * na nuvem.
+     * Ao pressionar o botão de login, a UI do formulário é validada, só então a
+     * tentativa de login é realizada.
      *
      * @param v View do botão que foi pressionado.
      */
     private void loginButtonOnClick(View v) {
-        startLoading();
-
-        EditText emailEditText = (EditText) findViewById(R.id.email_edit_text);
-        EditText senhaEditText = (EditText) findViewById(R.id.senha_edit_text);
-
-        // Autentica o usuário utilizando o ParseUser
-        ParseUser.logInInBackground(emailEditText.getText().toString(),
-                senhaEditText.getText().toString(), new LogInCallback() {
-            @Override
-            public void done(ParseUser parseUser, ParseException e) {
-                // Login aconteceu normalmente
-                if (parseUser != null ){
-                    // Exibe a tela principal do sistema e finaliza a Activity de login.
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    // TODO tratar erro na ação de login manual.
-                    Toast.makeText(LoginActivity.this, "Erro", Toast.LENGTH_LONG).show();
-                }
-
-                stopLoading();
-            }
-        });
+        validator.validate();
     }
 
     /**
@@ -204,5 +202,48 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+    }
+
+    /**
+     * Callback executado quando os dados fornecidos para o formulário são válidos.
+     */
+    @Override
+    public void onValidationSucceeded() {
+        startLoading();
+
+        // Autentica o usuário utilizando o ParseUser
+        ParseUser.logInInBackground(mEmailEditText.getText().toString(),
+                mSenhaEditText.getText().toString(), new LogInCallback() {
+                    @Override
+                    public void done(ParseUser parseUser, ParseException e) {
+                        // Login aconteceu normalmente
+                        if (parseUser != null ){
+                            // Exibe a tela principal do sistema e finaliza a Activity de login.
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // TODO tratar erro na ação de login manual.
+                            Toast.makeText(LoginActivity.this, "Erro", Toast.LENGTH_LONG).show();
+                        }
+
+                        stopLoading();
+                    }
+                });
+    }
+
+    /**
+     * Callback executado quando os dados fornecidos para o formulário são inválidos.
+     * @param failedView View onde aconteceu o erro.
+     * @param failedRule Regra de validação que foi quebrada.
+     */
+    @Override
+    public void onValidationFailed(View failedView, Rule<?> failedRule) {
+        if ( failedView instanceof TextView) {
+            ((TextView) failedView).setError(failedRule.getFailureMessage());
+            failedView.requestFocus();
+        }
     }
 }

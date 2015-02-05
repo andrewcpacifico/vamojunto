@@ -17,11 +17,11 @@
     <string name="complete_name">Nome completo</string>
     <string name="create_account">Criar uma conta</string>
     <string name="email">Email</string>
+    <string name="error_required_field">Campo obrigatório</string>
     <string name="fb_app_id">865170056839482</string>
     <string name="forgot_password_button_label"><u>Esqueceu sua senha?</u></string>
     <string name="hello_world">Hello world!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="invalid_email_error">Por favor forneça um email válido.</string>
     <string name="invalid_password_error">Sua senha deve conter de 6 a 20 dígitos, e apenas letras ou números.</string>
     <string name="loading">Carregando...</string>
     <string name="parse_app_id">pry1CBPCYtfTqonbY3sarxqQ4xWO5OQTfMw1GRDS</string>
@@ -29,7 +29,6 @@
     <string name="password">Senha</string>
     <string name="password_confirmation">Confirmação da senha</string>
     <string name="password_not_match">As senhas fornecidas não conferem.</string>
-    <string name="required_field_error">Campo obrigatório</string>
     <string name="signin">Login</string>
     <string name="signin_fb">Entre com o facebook</string>
     <string name="signup">Inscreva-se</string>

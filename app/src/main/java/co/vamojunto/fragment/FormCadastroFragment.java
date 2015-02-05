@@ -32,13 +32,10 @@ import com.mobsandgeeks.saripaar.annotation.Email;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Regex;
 import com.mobsandgeeks.saripaar.annotation.Required;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
-import co.vamojunto.CadastroActivity;
-import co.vamojunto.LoginActivity;
 import co.vamojunto.MainActivity;
 import co.vamojunto.R;
 
@@ -53,11 +50,11 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
 
     private static final String TAG = "FormCadastroFragment";
 
-    @Required(order = 1, messageResId = R.string.required_field_error)
+    @Required(order = 1, messageResId = R.string.error_required_field)
     private EditText mNomeEditText;
 
-    @Required(order = 2, messageResId = R.string.required_field_error)
-    @Email(order = 3, messageResId = R.string.invalid_email_error)
+    @Required(order = 2, messageResId = R.string.error_required_field)
+    @Email(order = 3, messageResId = R.string.error_invalid_email)
     private EditText mEmailEditText;
 
     @Regex(order = 4, pattern = "[A-Za-z0-9]{6,20}", messageResId = R.string.invalid_password_error)
