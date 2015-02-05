@@ -99,6 +99,7 @@ public class LoginActivity extends Activity {
             @Override
             public void done(final ParseUser user, ParseException err) {
                 if (user == null) {
+                    stopLoading();
                     Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
                 } else {
                     if (user.isNew()) {
