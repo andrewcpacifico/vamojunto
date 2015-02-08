@@ -7,8 +7,7 @@
   ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
   ~
   ~ See LICENSE.txt
-  -->
-
+-->
 <resources>
 
     <!-- Organizar -->
@@ -46,5 +45,6 @@
     <string name="error_invalid_email">O email fornecido é inválido.</string>
     <string name="error_sign_up">Ocorreu um erro ao realizar o cadastro, por favor tente novamente.</string>
     <string name="signing_up">Cadastrando usuário.</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

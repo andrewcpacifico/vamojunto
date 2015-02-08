@@ -23,10 +23,10 @@ repositories { mavenCentral() }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(include: 'Parse-*.jar', dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.google.android.gms:play-services:6.5.87'
     compile 'com.facebook.android:facebook-android-sdk:3.22.0'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.mobsandgeeks:android-saripaar:1.0.3'
-    compile fileTree(include: 'Parse-*.jar', dir: 'libs')
+    compile 'com.google.android.gms:play-services:6.5.87'
 }
