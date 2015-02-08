@@ -32,8 +32,12 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 
 import java.util.Arrays;
+
+import bolts.Continuation;
+import bolts.Task;
 
 
 /**
@@ -161,6 +165,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                                     String userEmail = (String) graphUser.getProperty("email");
 
                                     user.setEmail(userEmail);
+                                    user.setUsername(userEmail);
                                     user.saveInBackground();
                                 }
                             }
