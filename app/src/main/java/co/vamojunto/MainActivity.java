@@ -21,6 +21,8 @@ import android.view.MenuItem;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.parse.ParseUser;
 
 /**
@@ -33,6 +35,8 @@ public class MainActivity extends Activity {
 
     /** Usado para identificação nos logs */
     private static final String TAG = "MainActivity";
+
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,11 @@ public class MainActivity extends Activity {
             this.startActivity(intent);
             this.finish();
         }
+
+        if (mMap == null) {
+            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        }
+        mMap.setMyLocationEnabled(true);
     }
 
     @Override
