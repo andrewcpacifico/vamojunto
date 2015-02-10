@@ -35,9 +35,9 @@ public class MyApplication extends Application {
         String clientId = getResources().getString(R.string.parse_client_id);
 
         Parse.initialize(this, appId, clientId);
-        new Session(this).closeAndClearTokenInformation();
+       /* new Session(this).closeAndClearTokenInformation();
 
-        ParseUser.logOut();
+        ParseUser.logOut();*/
 
         /*Log.i("Parse", "Instanciando...");
         ParseObject testObject = new ParseObject("TestObject");
