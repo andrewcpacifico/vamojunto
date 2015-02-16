@@ -140,7 +140,7 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
                     startActivity(intent);
                     //cadastroActivity.finish();
                 } else {
-                    // O email informado pelo usuário não está disponível.
+                    // O mEmailView informado pelo usuário não está disponível.
                     if ( e.getCode() == ParseException.EMAIL_TAKEN  ||
                             e.getCode() == ParseException.USERNAME_TAKEN) {
                         mEmailEditText.setError(getString(R.string.error_email_taken));

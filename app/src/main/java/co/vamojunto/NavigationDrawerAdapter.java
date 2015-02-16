@@ -10,6 +10,7 @@
 
 package co.vamojunto;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,132 +26,164 @@ import android.widget.TextView;
  */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
 
-        private static final int TYPE_HEADER = 0;  // Declaring Variable to Understand which View is being worked on
-        // IF the view under inflation and population is header or Item
-        private static final int TYPE_ITEM = 1;
+    /** Utilizado para indicar que o View que está sendo construído pelo RecyclerView é o cabeçalho */
+    private static final int TYPE_HEADER = 0;
+    /** Utilizado para indicar que o View que está sendo construído pelo RecyclerView é um item da lista */
+    private static final int TYPE_ITEM = 1;
 
-        private String mNavTitles[]; // String Array to store the passed titles Value from MainActivity.java
-        private int mIcons[];       // Int Array to store the passed icons resource value from MainActivity.java
+    /** Array de Strings contendo os títulos de cada um dos itens exibidos no menu */
+    private String mNavTitles[];
+    /** Array de inteiros, contendos os ids dos ícones que serão exibidos em cada um dos itens do menu */
+    private int mIcons[];
 
-        private String name;        //String Resource for header View Name
-        private int profile;        //int Resource for header view profile picture
-        private String email;       //String Resource for header view email
+    /** Nome do usuário autenticado no sistema para ser exibido no cabeçalho */
+    private String mNomeUsuario;
+    /** Resource id da imagem de perfil do usuário */
+    private int mImgUsuario;
+    /** Email do usuário autenticado para ser exibido no cabeçalho */
+    private String mEmailUsuario;
 
+    /**
+     * Sobrescrita do {@link android.support.v7.widget.RecyclerView.ViewHolder}
+     */
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private int mHolderType;
 
-        // Creating a ViewHolder which extends the RecyclerView View Holder
-        // ViewHolder are used to to store the inflated views in order to recycle them
+        // Views dos itens do menu
+        public TextView mTituloView;
+        public ImageView mImagemView;
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-            int Holderid;
+        // Views do cabeçalho
+        public ImageView mImgUsuarioView;
+        public TextView mNomeUsuarioView;
+        public TextView mEmailView;
 
-            TextView textView;
-            ImageView imageView;
-            ImageView profile;
-            TextView Name;
-            TextView email;
+        /**
+         * Construtor do ViewHolder, carrega os Views correspondentes, de acordo com o tipo passado
+         * como parâmetro (item ou cabeçalho).
+         *
+         * @param itemView Layout inflado
+         * @param viewType Tipo de ViewHolder a ser carregado (Item de menu ou cabeçalho).
+         */
+        public ViewHolder(View itemView, int viewType) {
+            super(itemView);
 
+            // Here we set the appropriate view in accordance with the the view type as passed when the holder object is created
 
-            public ViewHolder(View itemView,int ViewType) {                 // Creating ViewHolder Constructor with View and viewType As a parameter
-                super(itemView);
-
-                // Here we set the appropriate view in accordance with the the view type as passed when the holder object is created
-                if(ViewType == TYPE_ITEM) {
-                    textView = (TextView) itemView.findViewById(R.id.rowText); // Creating TextView object with the id of textView from item_row.xml
-                    imageView = (ImageView) itemView.findViewById(R.id.rowIcon);// Creating ImageView object with the id of ImageView from item_row.xml
-                    Holderid = 1;                                               // setting holder id as 1 as the object being populated are of type item row
-                }
-                else{
-                    Name = (TextView) itemView.findViewById(R.id.name);         // Creating Text View object from header.xml for name
-                    email = (TextView) itemView.findViewById(R.id.email);       // Creating Text View object from header.xml for email
-                    //profile = (ImageView) itemView.findViewById(R.id.circleView);// Creating Image view object from header.xml for profile pic
-                    Holderid = 0;                                                // Setting holder id = 0 as the object being populated are of type header view
-                }
-            }
-
-        }
-
-
-
-        NavigationDrawerAdapter(String Titles[],int Icons[],String Name,String Email, int Profile){ // MyAdapter Constructor with titles and icons parameter
-            // titles, icons, name, email, profile pic are passed from the main activity as we
-            mNavTitles = Titles;                //have seen earlier
-            mIcons = Icons;
-            name = Name;
-            email = Email;
-            profile = Profile;                     //here we assign those passed values to the values we declared here
-            //in adapter
-        }
-
-
-
-        //Below first we ovverride the method onCreateViewHolder which is called when the ViewHolder is
-        //Created, In this method we inflate the item_row.xml layout if the viewType is Type_ITEM or else we inflate header.xml
-        // if the viewType is TYPE_HEADER
-        // and pass it to the view holder
-
-        @Override
-        public NavigationDrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
+            // Carrega os views apropriados, de acordo com o tipo de view passado quando o ViewHolder
+            // foi criado.
             if (viewType == TYPE_ITEM) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_list_row,parent,false); //Inflating the layout
-
-                ViewHolder vhItem = new ViewHolder(v,viewType); //Creating ViewHolder and passing the object of type view
-
-                return vhItem; // Returning the created object
-
-                //inflate your layout and pass it to view holder
-
-            } else if (viewType == TYPE_HEADER) {
-
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.header,parent,false); //Inflating the layout
-
-                ViewHolder vhHeader = new ViewHolder(v,viewType); //Creating ViewHolder and passing the object of type view
-
-                return vhHeader; //returning the object created
-
-
-            }
-            return null;
-
-        }
-
-        //Next we override a method which is called when the item in a row is needed to be displayed, here the int position
-        // Tells us item at which position is being constructed to be displayed and the holder id of the holder object tell us
-        // which view type is being created 1 for item row
-        @Override
-        public void onBindViewHolder(NavigationDrawerAdapter.ViewHolder holder, int position) {
-            if(holder.Holderid ==1) {                              // as the list view is going to be called after the header view so we decrement the
-                // position by 1 and pass it to the holder while setting the text and image
-                holder.textView.setText(mNavTitles[position - 1]); // Setting the Text with the array of our Titles
-                //holder.imageView.setImageResource(mIcons[position -1]);// Settimg the image with array of our icons
-                holder.imageView.setImageResource(R.drawable.ic_launcher);
-            }
-            else{
-
-                //holder.profile.setImageResource(profile);           // Similarly we set the resources for header view
-                holder.Name.setText(name);
-                holder.email.setText(email);
+                mTituloView = (TextView) itemView.findViewById(R.id.rowText);
+                mImagemView = (ImageView) itemView.findViewById(R.id.rowIcon);
+                mHolderType = TYPE_ITEM;
+            } else {
+                mNomeUsuarioView = (TextView) itemView.findViewById(R.id.name);
+                mEmailView = (TextView) itemView.findViewById(R.id.email);
+                //mImgUsuarioView = (ImageView) itemView.findViewById(R.id.circleView);
+                mHolderType = TYPE_HEADER;
             }
         }
+    }
 
-        // This method returns the number of items present in the list
-        @Override
-        public int getItemCount() {
-            return mNavTitles.length+1; // the number of items in the list will be +1 the titles including the header view.
+
+    /**
+     * Construtor da classe NavigationDrawerAdapter, inicializa os dados do usuário com os valores
+     * informados por parâmetro. Inicializa os títulos e ícones de cada um dos itens do menu
+     * com valores pré-definidos.
+     *
+     * @param nomeUsuario Nome do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
+     * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
+     * @param imgUsuario Resource Id da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
+     */
+    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, int imgUsuario) {
+        /* Inicializa os dados do usuário */
+        mNomeUsuario = nomeUsuario;
+        mEmailUsuario = emailUsuario;
+        mImgUsuario = imgUsuario;
+
+        /* Inicializa os dados dos itens do menu */
+        mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
+    }
+
+    /**
+     * Sobrescrita do método onCreateViewHolder que é chamado quando o ViewHolder é criado.
+     *
+     * Neste médodo o layout drawer_list_row.xml é inflado se o viewType for igual a Type_ITEM, ou então
+     * o layout drawer_header.xml é inflado caso o viewType seja igual a TYPE_HEADER. Então o View
+     * carregado é passado para o ViewHolder.
+     *
+     * @param parent
+     * @param viewType Define o tipo de View que está sendo criado.
+     *
+     * @return O ViewHolder criado no método, ou null em caso de erro.
+     */
+    @Override
+    public NavigationDrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        if (viewType == TYPE_ITEM) {
+            View v = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.drawer_list_row, parent, false); //Inflating the layout
+
+            ViewHolder vhItem = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
+
+            return vhItem; // Returning the created object
+
+            //inflate your layout and pass it to view holder
+        } else if (viewType == TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false); //Inflating the layout
+
+            ViewHolder vhHeader = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
+
+            return vhHeader; //returning the object created
         }
+        return null;
 
+    }
 
-        // Witht the following method we check what type of view is being passed
-        @Override
-        public int getItemViewType(int position) {
-            if (isPositionHeader(position))
-                return TYPE_HEADER;
-
-            return TYPE_ITEM;
+    /**
+     * Sobrescrita do método onBindViewHolder, que é chamado quando um item em uma linha vai ser exibido,
+     *
+     * @param holder ViewHolder a ser vinculado à informação que será exibida.
+     * @param position Posição do item que será exibido.
+     */
+    @Override
+    public void onBindViewHolder(NavigationDrawerAdapter.ViewHolder holder, int position) {
+        // Verifica se o tipo do holder que vai ser vinculado é um item, ou cabeçalho.
+        if (holder.mHolderType == TYPE_ITEM) {
+            holder.mTituloView.setText(mNavTitles[position - 1]);
+            holder.mImagemView.setImageResource(R.drawable.ic_launcher);
+        } else {
+            //holder.mImgUsuarioView.setImageResource(mImgUsuarioView);           // Similarly we set the resources for drawer_header view
+            holder.mNomeUsuarioView.setText(mNomeUsuario);
+            holder.mEmailView.setText(mEmailUsuario);
         }
+    }
 
-        private boolean isPositionHeader(int position) {
-            return position == 0;
-        }
+    /**
+     * Utilizado para saber a quantidade de itens existentes na lista. O tamanho do array de títulos
+     * representa o total de itens de menu, então o total de itens é igual ao tamanho + 1, por conta
+     * do cabeçalho.
+     *
+     * @return A quantidade de itens da lista.
+     */
+    @Override
+    public int getItemCount() {
+        return mNavTitles.length + 1;
+    }
+
+    /**
+     * Indica o tipo de View, do item que será exibido na lista. Neste caso o único diferente é o
+     * primeiro item da lista (posição 0) que contém o cabeçalho.
+     *
+     * @param position Posição do item na lista.
+     * @return O ViewType correspondente.
+     */
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0)
+            return TYPE_HEADER;
+
+        return TYPE_ITEM;
+    }
 
 }

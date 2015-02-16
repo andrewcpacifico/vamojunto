@@ -119,8 +119,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
         mRecyclerView.setHasFixedSize(true);
 
-        mAdapter = new NavigationDrawerAdapter(new String[] {"Teste 1", "Teste 2"},
-                null,"Andrew","andrewcpacifico@gmail.com", R.drawable.ic_launcher);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        mAdapter = new NavigationDrawerAdapter(this, "Andrew","andrewcpacifico@gmail.com",
+                R.drawable.ic_launcher);
 
         mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
         mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager

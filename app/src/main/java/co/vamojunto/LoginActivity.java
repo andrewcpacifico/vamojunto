@@ -162,7 +162,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                                 Log.d(TAG, "Request finalizada");
 
                                 if (graphUser != null) {
-                                    String userEmail = (String) graphUser.getProperty("email");
+                                    String userEmail = (String) graphUser.getProperty("mEmailView");
 
                                     user.setEmail(userEmail);
                                     user.setUsername(userEmail);
