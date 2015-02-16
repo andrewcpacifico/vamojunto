@@ -19,11 +19,16 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -61,6 +66,13 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     private boolean mResolvingError = false;
 
     private Toolbar mToolbar;
+
+    RecyclerView mRecyclerView;                           // Declaring RecyclerView
+    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
+    RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
+    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+
+    ActionBarDrawerToggle mDrawerToggle;
 
     /**
      * Flag que indica se é o primeiro start da Activity, utilizada para inicializar a localização
@@ -103,6 +115,40 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         mToolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mToolbar);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
+        mRecyclerView.setHasFixedSize(true);
+
+        mAdapter = new NavigationDrawerAdapter(new String[] {"Teste 1", "Teste 2"},
+                null,"Andrew","andrewcpacifico@gmail.com", R.drawable.ic_launcher);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+
+        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
+        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
+        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
+
+        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);        // Drawer object Assigned to the view
+        mDrawerToggle = new ActionBarDrawerToggle(this,Drawer,mToolbar,R.string.openDrawer,R.string.closeDrawer){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
+                // open I am not going to put anything here)
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // Code here will execute once drawer is closed
+            }
+
+
+
+        }; // Drawer Toggle Object Made
+        Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
+        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+
+
     }
 
     @Override

@@ -61,6 +61,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
 
+    <string name="openDrawer">Abrir</string>
+    <string name="closeDrawer">Fechar</string>
+
     <!-- Nav Drawer Menu Items -->
     <string-array name="nav_drawer_items">
         <item >Home</item>
