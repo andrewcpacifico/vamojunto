@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<resources>
+    <string name="google_maps_key_instructions" templateMergeStrategy="replace"><!--
+
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=1D:30:5F:5F:51:CB:33:4D:6C:89:09:89:24:1F:83:87:FB:93:B5:8C%3Bco.vamojunto
+
+    You can also add your credentials to an existing key, using this line:
+    1D:30:5F:5F:51:CB:33:4D:6C:89:09:89:24:1F:83:87:FB:93:B5:8C;co.vamojunto
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    --></string>
+
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyAwRJmjdbve02rtqagRYKrcX2F-Ts-m_UA</string>
+</resources>

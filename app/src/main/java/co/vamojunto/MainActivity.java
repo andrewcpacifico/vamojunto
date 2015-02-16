@@ -19,6 +19,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +42,7 @@ import com.parse.ParseUser;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
+public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     /** Usado para identificação nos logs */
@@ -57,6 +59,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     /** Booleano para verificar se o app está resolvendo algum erro. */
     private boolean mResolvingError = false;
+
+    private Toolbar mToolbar;
 
     /**
      * Flag que indica se é o primeiro start da Activity, utilizada para inicializar a localização
@@ -88,39 +92,42 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         }
 
         // Constrói o GoogleApiClient
-        buildGoogleApiClient();
+        //buildGoogleApiClient();
 
         // Inicializa as configurações do MapFragment
-        initMap();
+        //initMap();
 
 
         // Inicializa o NavigationDrawer da aplicação
-        initDrawer();
+        //initDrawer();
+
+        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mToolbar);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
-        }
+//        if (!mResolvingError) {
+//            mGoogleApiClient.connect();
+//        }
     }
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+//        mGoogleApiClient.disconnect();
         super.onStop();
     }
 
     /**
      * Constrói o NavigationDrawer da aplicação, que contém o menu com as principais funcionalidades.
      */
-    private void initDrawer() {
-        ListView mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item,
-                new String[] {"Teste 1", "Teste 2"}));
-    }
+//    private void initDrawer() {
+//        ListView mDrawerList = (ListView) findViewById(R.id.left_drawer);
+//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item,
+//                new String[] {"Teste 1", "Teste 2"}));
+//    }
 
     /**
      * Exibe um diálogo de alerta para o usuário, indicando que ele deve ativar os serviços de
@@ -154,13 +161,13 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
      */
-    protected void initMap() {
-        if (mMap == null) {
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        }
-
-        mMap.setMyLocationEnabled(true);
-    }
+//    protected void initMap() {
+//        if (mMap == null) {
+//            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+//        }
+//
+//        mMap.setMyLocationEnabled(true);
+//    }
 
     /**
      * Inicializa a localização e o zoom do mapa. Posiciona na localização atual do usuário.
