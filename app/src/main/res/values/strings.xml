@@ -53,5 +53,22 @@
     <string name="no_gps_dialog_text">O Vamo Junto, funciona melhor se você ativar os serviços de localização.
         Por favor, ative o acesso à localização.</string>
     <string name="no_gps_dialog_title">Serviços de localização</string>
+    <string name="title_activity_main_activity_teste">MainActivityTeste</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+
+    <!-- Nav Drawer Menu Items -->
+    <string-array name="nav_drawer_items">
+        <item >Home</item>
+        <item >Find People</item>
+        <item >Photos</item>
+        <item >Communities</item>
+        <item >Pages</item>
+        <item >What\'s Hot</item>
+    </string-array>
 
 </resources>

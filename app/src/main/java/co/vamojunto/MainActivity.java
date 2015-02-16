@@ -22,6 +22,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -90,6 +92,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
         // Inicializa as configurações do MapFragment
         initMap();
+
+
+        // Inicializa o NavigationDrawer da aplicação
+        initDrawer();
     }
 
     @Override
@@ -105,6 +111,15 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
+    }
+
+    /**
+     * Constrói o NavigationDrawer da aplicação, que contém o menu com as principais funcionalidades.
+     */
+    private void initDrawer() {
+        ListView mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item,
+                new String[] {"Teste 1", "Teste 2"}));
     }
 
     /**
