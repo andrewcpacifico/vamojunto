@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:textColor="#ffffff"
-            android:text="Akash Bangad"
+            android:text="Antônio Nunes"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -40,9 +40,18 @@
             android:textColor="#ffffff"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="5dp"
-            android:text="akash.bangad93@gmail.com"
+            android:text="user@domain.com"
             android:textSize="14sp"
             android:textStyle="normal" />
     </LinearLayout>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/ic_launcher"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="38dp"
+        android:id="@+id/circleView"
+        />
 
 </RelativeLayout>

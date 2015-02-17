@@ -10,7 +10,6 @@
 
 package co.vamojunto;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,11 +25,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -70,7 +65,7 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
-    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+    DrawerLayout mDrawerLayout;                                  // Declaring DrawerLayout
 
     ActionBarDrawerToggle mDrawerToggle;
 
@@ -80,100 +75,105 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
      */
     private boolean mFirstStart = true;
 
+    /** Usuário autenticado no sistema */
+    private ParseUser mCurrentUser;
+
+/***************************************************************************************************
+ *
+ * Implementação dos eventos da Activity
+ *
+ **************************************************************************************************/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Verifica se o usuário está autenticado
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if ( currentUser == null ) {
+        mCurrentUser = ParseUser.getCurrentUser();
+        if ( mCurrentUser == null ) {
             Log.i(TAG, "Usuário não autenticado, exibindo tela de login.");
 
             // Caso não haja usuário autenticado exibe a tela de login.
             Intent intent = new Intent(this, LoginActivity.class);
             this.startActivity(intent);
             this.finish();
-        }
+        } else {
 
-        // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
-        // exibe um diálogo para o usuário solicitando que ele ative.
-        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-            buildAlertMessageNoGps();
-        }
-
-        // Constrói o GoogleApiClient
-        //buildGoogleApiClient();
-
-        // Inicializa as configurações do MapFragment
-        //initMap();
-
-
-        // Inicializa o NavigationDrawer da aplicação
-        //initDrawer();
-
-        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
-        setSupportActionBar(mToolbar);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.RecyclerView); // Assigning the RecyclerView Object to the xml View
-        mRecyclerView.setHasFixedSize(true);
-
-        mAdapter = new NavigationDrawerAdapter(this, "Andrew","andrewcpacifico@gmail.com",
-                R.drawable.ic_launcher);
-
-        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
-        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
-        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
-
-        Drawer = (DrawerLayout) findViewById(R.id.DrawerLayout);        // Drawer object Assigned to the view
-        mDrawerToggle = new ActionBarDrawerToggle(this,Drawer,mToolbar,R.string.openDrawer,R.string.closeDrawer){
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
-                // open I am not going to put anything here)
+            // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
+            // exibe um diálogo para o usuário solicitando que ele ative.
+            final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                buildAlertMessageNoGps();
             }
 
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                // Code here will execute once drawer is closed
-            }
+            // Inicializa a AppBar
+            mToolbar = (Toolbar) findViewById(R.id.tool_bar);
+            setSupportActionBar(mToolbar);
 
+            // Constrói o GoogleApiClient
+            buildGoogleApiClient();
 
+            // Inicializa as configurações do MapFragment
+            initMap();
 
-        }; // Drawer Toggle Object Made
-        Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
-        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
-
-
+            // Inicializa o NavigationDrawer da aplicação
+            initDrawer();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-//        if (!mResolvingError) {
-//            mGoogleApiClient.connect();
-//        }
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
     protected void onStop() {
-//        mGoogleApiClient.disconnect();
+        mGoogleApiClient.disconnect();
         super.onStop();
     }
+
+/***************************************************************************************************
+ *
+ * Implementação dos outros métodos criados
+ *
+ **************************************************************************************************/
 
     /**
      * Constrói o NavigationDrawer da aplicação, que contém o menu com as principais funcionalidades.
      */
-//    private void initDrawer() {
-//        ListView mDrawerList = (ListView) findViewById(R.id.left_drawer);
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item,
-//                new String[] {"Teste 1", "Teste 2"}));
-//    }
+    private void initDrawer() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getString("nome"),
+                mCurrentUser.getEmail(), R.drawable.ic_launcher);
+
+        mRecyclerView.setAdapter(mAdapter);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,mToolbar,R.string.openDrawer,R.string.closeDrawer){
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                // Código executado quando o Drawer é aberto. Nada a ser feito por enquanto
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // Código executado quando o Drawer é fechado.
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+    }
 
     /**
      * Exibe um diálogo de alerta para o usuário, indicando que ele deve ativar os serviços de
@@ -207,13 +207,13 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
      */
-//    protected void initMap() {
-//        if (mMap == null) {
-//            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-//        }
-//
-//        mMap.setMyLocationEnabled(true);
-//    }
+    protected void initMap() {
+        if (mMap == null) {
+            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        }
+
+        mMap.setMyLocationEnabled(true);
+    }
 
     /**
      * Inicializa a localização e o zoom do mapa. Posiciona na localização atual do usuário.
@@ -238,6 +238,12 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 .addApi(LocationServices.API)
                 .build();
     }
+
+/***************************************************************************************************
+ *
+ * Implementação dos métodos da interface GoogleApiClient.ConnectionCallbacks
+ *
+ **************************************************************************************************/
 
     /**
      * Executado quando a conexão da GoogleApiClient é finalizada. Obtém a localização atual do
@@ -265,30 +271,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         Log.i(TAG, "onConnectionSuspended");
     }
 
+/***************************************************************************************************
+ *
+ * Implementação dos métodos da interface GoogleApiClient.OnConnectionFailedListener
+ *
+ **************************************************************************************************/
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(TAG, "onConnectionFailed");
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

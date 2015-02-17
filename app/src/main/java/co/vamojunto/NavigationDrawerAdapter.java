@@ -91,9 +91,9 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      * informados por parâmetro. Inicializa os títulos e ícones de cada um dos itens do menu
      * com valores pré-definidos.
      *
-     * @param nomeUsuario Nome do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
-     * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
-     * @param imgUsuario Resource Id da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation Drawer
+     * @param nomeUsuario Nome do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
+     * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
+     * @param imgUsuario Resource Id da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      */
     public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, int imgUsuario) {
         /* Inicializa os dados do usuário */

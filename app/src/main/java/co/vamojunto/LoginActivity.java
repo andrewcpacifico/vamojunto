@@ -13,6 +13,8 @@ package co.vamojunto;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,13 +33,17 @@ import com.mobsandgeeks.saripaar.annotation.Required;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
+import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.helpers.FacebookHelper;
 
 
 /**
@@ -146,40 +152,77 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
         ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL),
                 this, new LogInCallback() {
-            @Override
-            public void done(final ParseUser user, ParseException err) {
-                if (user == null) {
-                    stopLoading();
-                    Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
-                } else {
-                    if (user.isNew()) {
-                        Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
+                    @Override
+                    public void done(final ParseUser user, ParseException err) {
+                        if (user == null) {
+                            stopLoading();
+                            Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
+                        } else {
+                            if (user.isNew()) {
+                                Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
 
-                        // Requisita os dados adicionais do usuário para serem inseridos no ParseUser
-                        Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
-                            @Override
-                            public void onCompleted(GraphUser graphUser, Response response) {
-                                Log.d(TAG, "Request finalizada");
+                                cadastroFacebook(user);
+                            } else {
+                                Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
 
-                                if (graphUser != null) {
-                                    String userEmail = (String) graphUser.getProperty("mEmailView");
-
-                                    user.setEmail(userEmail);
-                                    user.setUsername(userEmail);
-                                    user.saveInBackground();
-                                }
+                                stopLoading();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
                             }
-                        }).executeAsync();
-                    } else {
-                        Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
+                        }
                     }
+                });
+    }
 
-                    stopLoading();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                }
+    /**
+     * Após a autenticação com o facebook, o usuário é criado, mas apenas os dados essenciais são salvos.
+     * Este método obtém os outros dados do usuário a partir da sua conta no Facebook, e salva
+     * na base de dados no Parse.
+     *
+     * Atualmente os dados obtidos da conta do usuário no Facebook são:
+     * <ul>
+     *     <li>Nome</li>
+     *     <li>Email</li>
+     *     <li>Imagem de Perfil</li>
+     * </ul>
+     *
+     * @param parseUser Instância do usuário já salvo na base do Parse.
+     */
+    protected void cadastroFacebook(final ParseUser parseUser) {
+        final Capture<GraphUser> graphUserCapture = new Capture<GraphUser>();
+        FacebookHelper.getGraphUserAsync().continueWithTask(new Continuation<GraphUser, Task<Bitmap>>() {
+            @Override
+            public Task<Bitmap> then(Task<GraphUser> task) throws Exception {
+                GraphUser user = task.getResult();
+
+                parseUser.put("nome", user.getName());
+                parseUser.setEmail((String) user.getProperty("email"));
+                parseUser.setUsername((String) user.getProperty("email"));
+
+                return FacebookHelper.getProfilePictureAsync(user.getId());
+            }
+        }).continueWith(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(Task<Bitmap> task) throws Exception {
+                Bitmap img = task.getResult();
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                img.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
+                ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
+                parseUser.put("img_perfil", pFile);
+
+                parseUser.saveInBackground();
+
+                stopLoading();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+
+                return null;
             }
         });
     }
