@@ -187,6 +187,17 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 super.onDrawerClosed(drawerView);
                 // Código executado quando o Drawer é fechado.
             }
+
+            // Executado quando o Drawer é deslizado.
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+
+                // Código adicionado para corrigir o erro do mapa ficando sobre o menu no
+                // Android 4.0.4
+                mDrawerLayout.bringChildToFront(drawerView);
+                mDrawerLayout.requestLayout();
+            }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
