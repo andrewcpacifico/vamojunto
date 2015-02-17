@@ -154,7 +154,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             holder.mTituloView.setText(mNavTitles[position - 1]);
             holder.mImagemView.setImageResource(R.drawable.ic_launcher);
         } else {
-            holder.mImgUsuarioView.setImageBitmap(mImgUsuario);
+            // Caso o usuário tenha se inscrito direto pelo aplicativo, e não tenha feito upload
+            // de uma imagem de perfil.
+            if ( mImgUsuario != null )
+                holder.mImgUsuarioView.setImageBitmap(mImgUsuario);
+
             holder.mNomeUsuarioView.setText(mNomeUsuario);
             holder.mEmailView.setText(mEmailUsuario);
         }

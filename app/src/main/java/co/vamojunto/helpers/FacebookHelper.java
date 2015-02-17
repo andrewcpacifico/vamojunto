@@ -12,7 +12,6 @@ package co.vamojunto.helpers;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.camera2.CameraCaptureSession;
 import android.util.Log;
 
 import com.facebook.Request;
@@ -20,16 +19,11 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
 
@@ -50,9 +44,6 @@ public class FacebookHelper {
      *
      * @return Um Bitmap contendo a imagem de perfil do usuário
      *
-     * @throws SocketException
-     * @throws SocketTimeoutException
-     * @throws MalformedURLException
      * @throws IOException
      */
     public static Task<Bitmap> getProfilePictureAsync(String userID) throws IOException {
@@ -81,6 +72,13 @@ public class FacebookHelper {
         return tcs.getTask();
     }
 
+    /**
+     * Faz uma requisição do tipo /me à API Graph do Facebook, e retorna um objeto do tipo GraphUser
+     * com os dados do usuário que está autenticado.
+     *
+     * @return A instância da {@link bolts.Task} que contendo como resultado o GraphUser obtido na
+     *         requisição.
+     */
     public static Task<GraphUser> getGraphUserAsync() {
         final Task<GraphUser>.TaskCompletionSource tcs = Task.create();
 

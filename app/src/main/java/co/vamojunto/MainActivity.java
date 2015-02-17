@@ -68,12 +68,11 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private Toolbar mToolbar;
 
-    RecyclerView mRecyclerView;                           // Declaring RecyclerView
-    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
-    RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
-    DrawerLayout mDrawerLayout;                                  // Declaring DrawerLayout
-
-    ActionBarDrawerToggle mDrawerToggle;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     /**
      * Flag que indica se é o primeiro start da Activity, utilizada para inicializar a localização
@@ -158,10 +157,14 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
 
         ParseFile imgUsuarioPFile = mCurrentUser.getParseFile("img_perfil");
         Bitmap imgUsuario = null;
-        try {
-            imgUsuario = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
-        } catch (ParseException e) {
-            e.printStackTrace();
+
+        // Caso o usuário não possua imagem de perfil cadastrada
+        if (imgUsuarioPFile != null) {
+            try {
+                imgUsuario = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getString("nome"),

@@ -191,8 +191,16 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
      * @param parseUser Instância do usuário já salvo na base do Parse.
      */
     protected void cadastroFacebook(final ParseUser parseUser) {
-        final Capture<GraphUser> graphUserCapture = new Capture<GraphUser>();
+        // As tarefas abaixo são executadas de forma asíncrona por exigência do SDK, porém,
+        // como é necessário finalizar estas tarefas para que o aplicativo possa executar normalmente,
+        // as tarefas são executadas em cadeia, o final de cada tarefa dispara o início da segunda,
+        // e só ao final de todas as tarefas a tela inicial do aplicativo é exibida.
         FacebookHelper.getGraphUserAsync().continueWithTask(new Continuation<GraphUser, Task<Bitmap>>() {
+
+            // Obtém um objeto GraphUser com os dados da conta do Facebook do usuário. O objeto é
+            // necessário para que possamos obter o nome e email do usuário, que são dados em nossa
+            // base na nuvem, além do id do usuário no Facebook, que é utilizado para realizar a
+            // requsição para obter a imagem de perfil do usuário.
             @Override
             public Task<Bitmap> then(Task<GraphUser> task) throws Exception {
                 GraphUser user = task.getResult();
@@ -203,9 +211,13 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
                 return FacebookHelper.getProfilePictureAsync(user.getId());
             }
-        }).continueWith(new Continuation<Bitmap, Void>() {
+        }).continueWithTask(new Continuation<Bitmap, Task<Void>>() {
+
+            // Obtém a imagem de perfil do usuário, é gerado um objeto do tipo ParseFile para salvar
+            // a imagem na tabela de usuários na nuvem. Em seguida salva os dados do usuário obtidos
+            // a partir do facebook na tabela de usuários.
             @Override
-            public Void then(Task<Bitmap> task) throws Exception {
+            public Task<Void> then(Task<Bitmap> task) throws Exception {
                 Bitmap img = task.getResult();
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -214,12 +226,18 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                 ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
                 parseUser.put("img_perfil", pFile);
 
-                parseUser.saveInBackground();
+                return parseUser.saveInBackground();
+            }
+        }).continueWith(new Continuation<Void, Void>() {
 
-                stopLoading();
+            // Após salvar todos os dados do usuário, finalmente exibe a tela principal do sistema.
+            // TODO Encontrar uma forma de exibir a tela principal enquanto estes dados ainda são carregados, para um login mais rápido.
+            @Override
+            public Void then(Task<Void> task) throws Exception {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                stopLoading();
                 finish();
 
                 return null;
@@ -299,6 +317,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
     /**
      * Callback executado quando os dados fornecidos para o formulário são inválidos.
+     *
      * @param failedView View onde aconteceu o erro.
      * @param failedRule Regra de validação que foi quebrada.
      */
