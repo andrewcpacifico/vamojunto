@@ -11,6 +11,7 @@
 package co.vamojunto;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,8 +39,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     /** Nome do usuário autenticado no sistema para ser exibido no cabeçalho */
     private String mNomeUsuario;
-    /** Resource id da imagem de perfil do usuário */
-    private int mImgUsuario;
+    /** Bitmap da imagem de perfil do usuário */
+    private Bitmap mImgUsuario;
     /** Email do usuário autenticado para ser exibido no cabeçalho */
     private String mEmailUsuario;
 
@@ -79,7 +80,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             } else {
                 mNomeUsuarioView = (TextView) itemView.findViewById(R.id.name);
                 mEmailView = (TextView) itemView.findViewById(R.id.email);
-                //mImgUsuarioView = (ImageView) itemView.findViewById(R.id.circleView);
+                mImgUsuarioView = (ImageView) itemView.findViewById(R.id.circleView);
                 mHolderType = TYPE_HEADER;
             }
         }
@@ -93,9 +94,9 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      *
      * @param nomeUsuario Nome do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
-     * @param imgUsuario Resource Id da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
+     * @param imgUsuario Bitmap da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      */
-    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, int imgUsuario) {
+    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, Bitmap imgUsuario) {
         /* Inicializa os dados do usuário */
         mNomeUsuario = nomeUsuario;
         mEmailUsuario = emailUsuario;
@@ -153,7 +154,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             holder.mTituloView.setText(mNavTitles[position - 1]);
             holder.mImagemView.setImageResource(R.drawable.ic_launcher);
         } else {
-            //holder.mImgUsuarioView.setImageResource(mImgUsuarioView);           // Similarly we set the resources for drawer_header view
+            holder.mImgUsuarioView.setImageBitmap(mImgUsuario);
             holder.mNomeUsuarioView.setText(mNomeUsuario);
             holder.mEmailView.setText(mEmailUsuario);
         }

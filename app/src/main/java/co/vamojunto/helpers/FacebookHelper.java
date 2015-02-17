@@ -59,6 +59,7 @@ public class FacebookHelper {
         final Task<Bitmap>.TaskCompletionSource tcs = Task.create();
         final String imageURL = "https://graph.facebook.com/" + userID + "/picture?type=large";
 
+        Log.i(TAG, "Iniciando requisição para obtenção da imagem de perfil do usuário");
         Task.callInBackground(new Callable<Bitmap>() {
             public Bitmap call() throws IOException {
                 InputStream in = new URL(imageURL).openConnection().getInputStream();
@@ -69,6 +70,7 @@ public class FacebookHelper {
             new Continuation<Bitmap, Object>() {
                 @Override
                 public Object then(Task<Bitmap> task) throws Exception {
+                    Log.i(TAG, "Requisição para imagem de perfil do usuário finalizada");
                     tcs.setResult(task.getResult());
 
                     return null;

@@ -14,6 +14,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
@@ -34,7 +36,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+
+import java.io.InputStream;
 
 /**
  * Activity principal do sistema.
@@ -150,8 +156,16 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
         mRecyclerView.setHasFixedSize(true);
 
+        ParseFile imgUsuarioPFile = mCurrentUser.getParseFile("img_perfil");
+        Bitmap imgUsuario = null;
+        try {
+            imgUsuario = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getString("nome"),
-                mCurrentUser.getEmail(), R.drawable.ic_launcher);
+                mCurrentUser.getEmail(), imgUsuario);
 
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(this);
