@@ -18,8 +18,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
-import android.provider.Settings;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,8 +39,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
-
-import java.io.InputStream;
 
 /**
  * Activity principal do sistema.
@@ -180,6 +178,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 // Código executado quando o Drawer é aberto. Nada a ser feito por enquanto
+                Intent intent = new Intent(MainActivity.this, NovaOfertaCaronaActivity.class);
+                MainActivity.this.startActivity(intent);
             }
 
             @Override
@@ -240,7 +240,8 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         }
 
-        mMap.setMyLocationEnabled(true);
+        if ( mMap != null )
+            mMap.setMyLocationEnabled(true);
     }
 
     /**
@@ -250,7 +251,9 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
         // Posiciona o mapa na posição atual do usuário, e dá um zoom de 17.0
         if (mLastLocation != null) {
             LatLng coord = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, 17.0f));
+
+            if ( mMap != null )
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, 17.0f));
         } else {
             Log.e(TAG, "mLastLocation ainda não foi inicializado.");
         }

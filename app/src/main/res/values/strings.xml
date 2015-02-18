@@ -60,15 +60,24 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
-
     <string name="openDrawer">Abrir</string>
     <string name="closeDrawer">Fechar</string>
 
     <!-- Nav Drawer Menu Items -->
     <string-array name="nav_drawer_items">
-        <item >Minhas Caronas</item>
-        <item >Amigos</item>
-        <item >UFAM</item>
+        <item>Minhas Caronas</item>
+        <item>Amigos</item>
+        <item>UFAM</item>
     </string-array>
+
+    <!-- Cadastro Carona Activity -->
+    <string name="date">Data</string>
+    <string name="destiny">Destino</string>
+    <string name="more_details">Outras Informações</string>
+    <string name="num_lugares">Lugares disponíveis</string>
+    <string name="origin">Origem</string>
+    <string name="save">Salvar</string>
+    <string name="time">Hora</string>
+    <string name="title_activity_nova_oferta_carona">Nova Carona</string>
 
 </resources>

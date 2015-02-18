@@ -19,6 +19,8 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.util.Date;
+
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
@@ -35,6 +37,7 @@ public class MyApplication extends Application {
         String clientId = getResources().getString(R.string.parse_client_id);
 
         Parse.initialize(this, appId, clientId);
+
        /* new Session(this).closeAndClearTokenInformation();
 
         ParseUser.logOut();*/
