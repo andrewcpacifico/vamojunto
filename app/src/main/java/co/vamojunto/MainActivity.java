@@ -102,7 +102,6 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
             this.startActivity(intent);
             this.finish();
         } else {
-
             // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
             // exibe um diálogo para o usuário solicitando que ele ative.
             final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

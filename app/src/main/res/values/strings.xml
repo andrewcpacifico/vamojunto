@@ -84,5 +84,10 @@
     <string name="title_activity_nova_oferta_carona">Nova Carona</string>
     <string name="time_picker_title">A que horas você vai sair?</string>
     <string name="date_picker_title">Para quando é esta carona?</string>
+    <string name="title_activity_get_location">GetLocationActivity</string>
+
+    <!-- Get Location Activity -->
+    <string name="get_location_activity_title">Selecione um local</string>
+    <string name="type_addr_location">Digite um endereço ou local</string>
 
 </resources>

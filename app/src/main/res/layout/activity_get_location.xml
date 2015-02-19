@@ -1,0 +1,79 @@
+<!--
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    tools:context="co.vamojunto.GetLocationActivity">
+    <include
+        layout="@layout/tool_bar"
+        android:id="@+id/tool_bar" />
+
+    <LinearLayout
+        android:id="@+id/caixa_pesquisa"
+        android:layout_below="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_search"/>
+
+        <EditText
+            android:id="@+id/local_edit_text"
+
+            android:background="#00000000"
+            android:hint="@string/type_addr_location"
+            android:textSize="18sp"
+
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            />
+    </LinearLayout>
+    <View
+        android:id="@+id/separador"
+
+        android:layout_below="@id/caixa_pesquisa"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:background="@color/separator"
+        />
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_below="@+id/separador"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:name="com.google.android.gms.maps.MapFragment"
+        />
+
+    <RelativeLayout
+        android:layout_below="@+id/separador"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent">
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+
+            android:paddingBottom="30dp"
+
+            android:src="@drawable/ic_pin_dest"/>
+    </RelativeLayout>
+</RelativeLayout>

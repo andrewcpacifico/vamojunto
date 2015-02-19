@@ -12,16 +12,13 @@ package co.vamojunto.fragment;
 
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,11 +27,11 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import co.vamojunto.GetLocationActivity;
 import co.vamojunto.R;
 
 /**
@@ -129,8 +126,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param v Instância do EditText clicado.
      */
     private void origemEditTextOnClick(View v) {
-        /*getSupportFragmentManager().beginTransaction()
-                .add(R.)*/
+        Intent intent = new Intent(getActivity(), GetLocationActivity.class);
+        getActivity().startActivity(intent);
     }
 
 /***************************************************************************************************
