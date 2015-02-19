@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
-        android:background="@android:color/darker_gray"
+        android:background="@color/separator"
     />
 
     <LinearLayout
@@ -89,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
-        android:background="@android:color/darker_gray"
+        android:background="@color/separator"
     />
 
     <LinearLayout
@@ -118,6 +118,7 @@
                 android:id="@+id/data_edit_text"
 
                 android:background="#00000000"
+                android:focusable="false"
                 android:hint="@string/date"
                 android:textSize="18sp"
 
@@ -142,6 +143,7 @@
                 android:id="@+id/hora_edit_text"
 
                 android:background="#00000000"
+                android:focusable="false"
                 android:hint="@string/time"
                 android:textSize="18sp"
 
@@ -157,7 +159,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
-        android:background="@android:color/darker_gray"
+        android:background="@color/separator"
         />
 
     <LinearLayout
@@ -185,7 +187,7 @@
 
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            />
+            android:inputType="number" />
     </LinearLayout>
     <View
         android:id="@+id/separador_4"
@@ -194,7 +196,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
-        android:background="@android:color/darker_gray"
+        android:background="@color/separator"
         />
 
     <EditText
@@ -220,11 +222,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:background="@color/ColorPrimary"
         android:layout_margin="0dp"
         android:padding="0dp"
         android:text="@string/save"
         android:textColor="@color/white"
+        style="@style/Save.Button"
         />
 
 </RelativeLayout>

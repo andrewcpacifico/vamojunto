@@ -34,4 +34,6 @@
     <color name="ColorPrimary">#30d26f</color>
     <color name="ColorPrimaryDark">#009e1a</color>
 
+    <color name="separator">#dbdbdb</color>
+
 </resources>

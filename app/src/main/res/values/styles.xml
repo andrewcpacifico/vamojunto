@@ -46,5 +46,12 @@
         <item name="android:paddingRight">24dp</item>
     </style>
 
+    <style name="Save.Button" parent="@android:style/Widget.Button">
+        <item name="android:background">
+            @drawable/save_button_background_selector
+        </item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
 
 </resources>

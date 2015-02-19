@@ -72,12 +72,17 @@
 
     <!-- Cadastro Carona Activity -->
     <string name="date">Data</string>
+    <string name="date_format">dd/MM/yyyy</string>
     <string name="destiny">Destino</string>
+    <string name="error_num_lugares">Apenas números entre 0 e 7 são permitidos neste campo.</string>
     <string name="more_details">Outras Informações</string>
     <string name="num_lugares">Lugares disponíveis</string>
     <string name="origin">Origem</string>
     <string name="save">Salvar</string>
     <string name="time">Hora</string>
+    <string name="time_format">HH:mm</string>
     <string name="title_activity_nova_oferta_carona">Nova Carona</string>
+    <string name="time_picker_title">A que horas você vai sair?</string>
+    <string name="date_picker_title">Para quando é esta carona?</string>
 
 </resources>
