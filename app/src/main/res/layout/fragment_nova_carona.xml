@@ -1,0 +1,228 @@
+<!--
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#ffffff"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/grupo_origem"
+        android:layout_below="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_pin_orig"/>
+
+        <EditText
+            android:id="@+id/origem_edit_text"
+
+            android:background="#00000000"
+            android:focusable="false"
+            android:hint="@string/origin"
+            android:textSize="18sp"
+
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            />
+    </LinearLayout>
+    <View
+        android:id="@+id/separador_1"
+
+        android:layout_below="@id/grupo_origem"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:background="@color/separator"
+        />
+
+    <LinearLayout
+        android:id="@+id/grupo_destino"
+        android:layout_below="@+id/separador_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_pin_dest"/>
+
+        <EditText
+            android:id="@+id/destino_edit_text"
+
+            android:background="#00000000"
+            android:hint="@string/destiny"
+            android:textSize="18sp"
+
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            />
+    </LinearLayout>
+    <View
+        android:id="@+id/separador_2"
+
+        android:layout_below="@id/grupo_destino"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:background="@color/separator"
+        />
+
+    <LinearLayout
+        android:id="@+id/grupo_data"
+        android:layout_below="@+id/separador_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_weight="0.5">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_calendar"/>
+
+            <EditText
+                android:id="@+id/data_edit_text"
+
+                android:background="#00000000"
+                android:focusable="false"
+                android:hint="@string/date"
+                android:textSize="18sp"
+
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_weight="0.5">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_clock"/>
+
+            <EditText
+                android:id="@+id/hora_edit_text"
+
+                android:background="#00000000"
+                android:focusable="false"
+                android:hint="@string/time"
+                android:textSize="18sp"
+
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <View
+        android:id="@+id/separador_3"
+
+        android:layout_below="@id/grupo_data"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:background="@color/separator"
+        />
+
+    <LinearLayout
+        android:id="@+id/grupo_hora"
+        android:layout_below="@+id/separador_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_people"/>
+
+        <EditText
+            android:id="@+id/num_lugares_edit_text"
+
+            android:background="#00000000"
+            android:hint="@string/num_lugares"
+            android:textSize="18sp"
+
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:inputType="number" />
+    </LinearLayout>
+    <View
+        android:id="@+id/separador_4"
+
+        android:layout_below="@id/grupo_hora"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+
+        android:background="@color/separator"
+        />
+
+    <EditText
+        android:id="@+id/detalhes_edit_text"
+
+        android:layout_above="@+id/btn_salvar"
+        android:layout_below="@+id/separador_4"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+
+        android:background="#00000000"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="@string/more_details"
+        android:inputType="textMultiLine"
+        android:padding="10dp"
+        />
+
+    <Button
+        android:id="@+id/btn_salvar"
+
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_margin="0dp"
+        android:padding="0dp"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        style="@style/Save.Button"
+        />
+
+</RelativeLayout>

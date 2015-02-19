@@ -7,22 +7,21 @@
   ~
   ~ See LICENSE.txt
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="#ffffff"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="co.vamojunto.NovaOfertaCaronaActivity">
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="co.vamojunto.fragment.GetLocationFragment">
 
     <include
         layout="@layout/tool_bar"
         android:id="@+id/tool_bar" />
 
-    <FrameLayout
-        android:id="@+id/container"
-
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/map"
+        android:layout_below="@+id/tool_bar"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@+id/tool_bar">
-    </FrameLayout>
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.MapFragment"
+    />
+
+</FrameLayout>
