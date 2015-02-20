@@ -10,6 +10,7 @@
 
 package co.vamojunto;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +20,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.provider.Telephony;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -31,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,6 +47,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import bolts.Continuation;
+import bolts.Task;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -55,6 +62,12 @@ public class GetLocationActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GetLocationActivity";
+
+    public static final String LAT = "lat";
+
+    public static final String LONG = "long";
+
+    public static final int GET_LOCATION_REQUEST_CODE = 3127;
 
     /** Guarda a instância do MapFragment da Activity */
     private GoogleMap mMap;
@@ -68,22 +81,12 @@ public class GetLocationActivity extends ActionBarActivity
     /** Booleano para verificar se o app está resolvendo algum erro. */
     private boolean mResolvingError = false;
 
-    private Geocoder mGeocoder;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_location);
 
-        // Constrói o GoogleApiClient
-        buildGoogleApiClient();
-
-        // Inicializa as configurações do MapFragment
-        initMap();
-
-        initAppBar();
-
-        mGeocoder = new Geocoder(this);
+        initComponents();
     }
 
     @Override
@@ -99,6 +102,38 @@ public class GetLocationActivity extends ActionBarActivity
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
+    }
+
+    /**
+     * Inicializa os componentes da tela
+     */
+    private void initComponents() {
+        // Constrói o GoogleApiClient
+        buildGoogleApiClient();
+
+        // Inicializa as configurações do MapFragment
+        initMap();
+
+        // Inicializa a Application Bar
+        initAppBar();
+
+        Button btnOk = (Button) findViewById(R.id.btn_ok);
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Obtém a posição marcada pelo pin
+                LatLng pos = mMap.getCameraPosition().target;
+
+                Bundle bundle = new Bundle();
+                bundle.putDouble(LAT, pos.latitude);
+                bundle.putDouble(LONG, pos.longitude);
+
+                Intent intent = new Intent();
+                intent.putExtras(bundle);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+            }
+        });
     }
 
     /**
@@ -123,31 +158,6 @@ public class GetLocationActivity extends ActionBarActivity
                 }
 
                 return false;
-            }
-        });
-
-        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                LatLng coord = cameraPosition.target;
-
-                List<Address> endereco = null;
-                try {
-                    endereco = mGeocoder.getFromLocation(coord.latitude, coord.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if ( endereco!= null ) {
-                    Address e = endereco.get(0);
-
-                    EditText txt = (EditText) findViewById(R.id.local_edit_text);
-                    txt.setText(e.getAddressLine(0));
-                } else {
-                    Log.d(TAG, "Não achou nada");
-                }
-
-                Log.d(TAG, coord.toString());
             }
         });
     }

@@ -76,4 +76,18 @@
 
             android:src="@drawable/ic_pin_dest"/>
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_ok"
+
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_margin="0dp"
+        android:padding="0dp"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        style="@style/Save.Button"
+        />
 </RelativeLayout>

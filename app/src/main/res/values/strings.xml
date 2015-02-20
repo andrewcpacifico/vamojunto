@@ -90,4 +90,10 @@
     <string name="get_location_activity_title">Selecione um local</string>
     <string name="type_addr_location">Digite um endereço ou local</string>
 
+    <!-- FetchAddressIntentService -->
+    <string name="service_not_available">Serviço não disponível no momento.</string>
+    <string name="invalid_lat_long_used">Latitude ou longitude inválidas.</string>
+    <string name="no_address_found">Endereço não encontrado.</string>
+    <string name="address_found">Endereço encontrado.</string>
+
 </resources>

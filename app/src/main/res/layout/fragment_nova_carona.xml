@@ -71,6 +71,7 @@
             android:id="@+id/destino_edit_text"
 
             android:background="#00000000"
+            android:focusable="false"
             android:hint="@string/destiny"
             android:textSize="18sp"
 
