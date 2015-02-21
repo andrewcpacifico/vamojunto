@@ -33,16 +33,15 @@
             android:layout_marginRight="5dp"
             android:src="@drawable/ic_search"/>
 
-        <EditText
-            android:id="@+id/local_edit_text"
+        <AutoCompleteTextView
+            android:id="@+id/local_auto_complete"
 
             android:background="#00000000"
             android:hint="@string/type_addr_location"
             android:textSize="18sp"
 
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            />
+            android:layout_width="fill_parent" />
     </LinearLayout>
     <View
         android:id="@+id/separador"

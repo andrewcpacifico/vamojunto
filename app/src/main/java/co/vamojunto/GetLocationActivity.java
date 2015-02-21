@@ -34,6 +34,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -154,7 +156,16 @@ public class GetLocationActivity extends ActionBarActivity
             if( resId != -1 )
                 pinImg.setImageDrawable(getResources().getDrawable(resId));
         }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+        AutoCompleteTextView textView = (AutoCompleteTextView)
+                findViewById(R.id.local_auto_complete);
+        textView.setAdapter(adapter);
     }
+
+    private static final String[] COUNTRIES = new String[] {
+            "Belgium", "France", "Italy", "Germany", "Spain"
+    };
 
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
