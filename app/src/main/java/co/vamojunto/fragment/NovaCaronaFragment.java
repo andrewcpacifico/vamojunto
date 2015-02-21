@@ -213,6 +213,9 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoOrigem = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
+        intent.putExtra(GetLocationActivity.TITLE, "Teste");
+        intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
+
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
     }
 
@@ -228,6 +231,9 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoDestino = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
+        intent.putExtra(GetLocationActivity.TITLE, "Teste Destino");
+        intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
+
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
     }
 

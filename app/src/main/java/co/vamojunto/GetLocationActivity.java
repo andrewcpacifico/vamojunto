@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -35,6 +36,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -63,9 +65,11 @@ public class GetLocationActivity extends ActionBarActivity
 
     private static final String TAG = "GetLocationActivity";
 
-    public static final String LAT = "lat";
-
-    public static final String LONG = "long";
+    private static final String PACKAGE = "co.vamojunto.GetLocationActivity.";
+    public static final String LAT = PACKAGE + "lat";
+    public static final String LONG = PACKAGE + "long";
+    public static final String TITLE = PACKAGE + "title";
+    public static final String PIN_RES_ID = PACKAGE + "pinId";
 
     public static final int GET_LOCATION_REQUEST_CODE = 3127;
 
@@ -134,6 +138,16 @@ public class GetLocationActivity extends ActionBarActivity
                 finish();
             }
         });
+
+        // Verifica se a Activity que chamou esta tela, enviou um extra com o resource id de uma
+        // imagem para o pin de escolha de localização.
+        if ( getIntent().hasExtra(PIN_RES_ID) ) {
+            ImageView pinImg = (ImageView) findViewById(R.id.img_pin);
+            int resId = getIntent().getIntExtra(PIN_RES_ID, -1);
+
+            if( resId != -1 )
+                pinImg.setImageDrawable(getResources().getDrawable(resId));
+        }
     }
 
     /**
@@ -215,10 +229,18 @@ public class GetLocationActivity extends ActionBarActivity
     }
 
 
+    /**
+     * Inicializa as propriedades da Application Bar, o título da barra pode ser personalizado
+     * enviando um Extra contendo uma string, pela Activity que solicitou a exibição desta tela.
+     */
     private void initAppBar() {
         Toolbar appBar = (Toolbar) findViewById(R.id.tool_bar);
 
-        appBar.setTitle(getString(R.string.get_location_activity_title));
+        if ( getIntent().hasExtra(TITLE) )
+            appBar.setTitle(getIntent().getStringExtra(TITLE));
+        else
+            appBar.setTitle(getString(R.string.get_location_activity_title));
+
         appBar.setNavigationIcon(R.drawable.ic_close);
         appBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
