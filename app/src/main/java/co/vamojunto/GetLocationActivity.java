@@ -70,6 +70,7 @@ public class GetLocationActivity extends ActionBarActivity
     public static final String LONG = PACKAGE + "long";
     public static final String TITLE = PACKAGE + "title";
     public static final String PIN_RES_ID = PACKAGE + "pinId";
+    public static final String BUTTON_MSG = PACKAGE + "buttonMsg";
 
     public static final int GET_LOCATION_REQUEST_CODE = 3127;
 
@@ -138,6 +139,11 @@ public class GetLocationActivity extends ActionBarActivity
                 finish();
             }
         });
+
+        // Verifica se um extra contendo a mensagem do botão foi enviado.
+        if ( getIntent().hasExtra(BUTTON_MSG) ) {
+            btnOk.setText(getIntent().getStringExtra(BUTTON_MSG));
+        }
 
         // Verifica se a Activity que chamou esta tela, enviou um extra com o resource id de uma
         // imagem para o pin de escolha de localização.
