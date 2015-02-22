@@ -121,6 +121,8 @@ public class GooglePlacesHelper {
                         tcs.setResult(resultList);
                     } catch (JSONException e) {
                         Log.e(TAG, "Cannot process JSON results", e);
+
+                        tcs.setResult(null);
                     } finally {
                         requesting = false;
                     }
@@ -185,6 +187,8 @@ public class GooglePlacesHelper {
 
                         tcs.setResult(new LatLng(lat, lng));
                     } catch (JSONException e) {
+                        tcs.setResult(null);
+
                         Log.e(TAG, "Cannot process JSON results", e);
                     }
 

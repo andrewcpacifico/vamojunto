@@ -10,13 +10,16 @@
 
 package co.vamojunto.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Modelo de um local geográfico.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class Place {
+public class Place implements Parcelable {
     private String mPlaceId;
     private String mTitulo;
     private String mEndereco;
@@ -50,5 +53,39 @@ public class Place {
     @Override
     public String toString() {
         return mTitulo + ", " + mEndereco;
+    }
+
+/***************************************************************************************************
+ *
+ * Transformando em um Parcelable object
+ *
+ **************************************************************************************************/
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mPlaceId);
+        dest.writeString(mTitulo);
+        dest.writeString(mEndereco);
+    }
+
+    public static final Parcelable.Creator<Place> CREATOR = new Parcelable.Creator<Place>() {
+        public Place createFromParcel(Parcel in) {
+            return new Place(in);
+        }
+
+        public Place[] newArray(int size) {
+            return new Place[size];
+        }
+    };
+
+    private Place(Parcel in) {
+        mPlaceId = in.readString();
+        mTitulo = in.readString();
+        mEndereco = in.readString();
     }
 }

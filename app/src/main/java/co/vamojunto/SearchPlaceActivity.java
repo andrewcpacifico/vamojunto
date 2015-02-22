@@ -1,5 +1,7 @@
 package co.vamojunto;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -9,12 +11,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -25,6 +29,7 @@ import bolts.Task;
 import co.vamojunto.adapters.SearchPlaceAdapter;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
+import co.vamojunto.widgets.OnRecyclerViewItemClickListener;
 
 /**
  * Tela onde o usuário pode buscar por um determinado local. A busca é feita utilizando a Places API
@@ -34,6 +39,11 @@ import co.vamojunto.model.Place;
  * @since 0.1.0
  */
 public class SearchPlaceActivity extends ActionBarActivity {
+
+    public static final int REQUEST_CODE = 1234;
+
+    public static final String PACKAGE = "co.vamojunto.SearchPlaceActivity";
+    public static final String PLACE = PACKAGE + ".place";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,19 +88,33 @@ public class SearchPlaceActivity extends ActionBarActivity {
             return rootView;
         }
 
+        /**
+         * Inicializa os componentes da tela.
+         *
+         * @param rootView View correspondente ao layout do fragment.
+         */
         private void initComponents(View rootView) {
             mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
 
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
-            mRecyclerView.setHasFixedSize(true);
+            //mRecyclerView.setHasFixedSize(true);
 
             // use a linear layout manager
             mLayoutManager = new LinearLayoutManager(rootView.getContext());
             mRecyclerView.setLayoutManager(mLayoutManager);
 
             // specify an adapter (see also next example)
-            mAdapter = new SearchPlaceAdapter(rootView.getContext(), null);
+            mAdapter = new SearchPlaceAdapter(rootView.getContext(), null, new OnRecyclerViewItemClickListener() {
+                @Override
+                public void OnItemClicked(View v, int position) {
+                    Place p = mAdapter.getItem(position);
+                    Intent intent = new Intent();
+                    intent.putExtra(PLACE, p);
+                    getActivity().setResult(Activity.RESULT_OK, intent);
+                    getActivity().finish();
+                }
+            });
             mRecyclerView.setAdapter(mAdapter);
 
             mGooglePlacesHelper = new GooglePlacesHelper(rootView.getContext());
@@ -102,7 +126,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
 
                 @Override
                 public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                    localEditTextOnTextChanged(s, start, before, count);
+                    localEditTextOnTextChanged(s);
                 }
 
                 @Override
@@ -124,12 +148,9 @@ public class SearchPlaceActivity extends ActionBarActivity {
         /**
          * Evento executado quando o valor da caixa de pesquisa é alterado pelo usuário.
          *
-         * @param s
-         * @param start
-         * @param befor
-         * @param count
+         * @param s Texto atualizado.
          */
-        private void localEditTextOnTextChanged(final CharSequence s, int start, int befor, int count) {
+        private void localEditTextOnTextChanged(final CharSequence s) {
             Log.d(TAG, s.toString());
 
             // Oculta o botão para limpar o EditText
@@ -150,20 +171,8 @@ public class SearchPlaceActivity extends ActionBarActivity {
                     mGooglePlacesHelper.autocompleteAsync(s.toString()).
                             continueWith(new Continuation<List<Place>, Void>() {
                                 @Override
-                                public Void then(final Task<List<Place>> task) throws Exception {
+                                public Void then(final Task<List<Place>> task) {
                                     mAdapter.setDataset(task.getResult());
-
-                                    mGooglePlacesHelper.getLocationAsync(task.getResult().get(0)).continueWith(
-                                            new Continuation<LatLng, Object>() {
-                                                @Override
-                                                public Object then(Task<LatLng> task) throws Exception {
-                                                    LatLng latLng = task.getResult();
-                                                    Log.d(TAG, "Lat = " + latLng.latitude + "Lng = " + latLng.longitude);
-
-                                                    return null;
-                                                }
-                                            }
-                                    );
 
                                     mRecyclerView.post(new Runnable() {
                                         @Override

@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -36,6 +37,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+
+import bolts.Continuation;
+import bolts.Task;
+import co.vamojunto.helpers.GooglePlacesHelper;
+import co.vamojunto.model.Place;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -92,6 +98,33 @@ public class GetLocationActivity extends ActionBarActivity
         super.onStop();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SearchPlaceActivity.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Place p = data.getParcelableExtra(SearchPlaceActivity.PLACE);
+
+            GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
+            placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
+                @Override
+                public Void then(final Task<LatLng> task) {
+                    if (task.getResult() != null) {
+                        if (mMap != null) {
+                            Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), 17.0f));
+                                }
+                            });
+                        }
+                    }
+
+                    return null;
+                }
+            });
+        }
+    }
+
     /**
      * Inicializa os componentes da tela
      */
@@ -144,7 +177,7 @@ public class GetLocationActivity extends ActionBarActivity
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), SearchPlaceActivity.class);
-                v.getContext().startActivity(intent);
+                startActivityForResult(intent, SearchPlaceActivity.REQUEST_CODE);
             }
         });
     }
