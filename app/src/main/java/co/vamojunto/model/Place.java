@@ -17,12 +17,18 @@ package co.vamojunto.model;
  * @since 0.1.0
  */
 public class Place {
+    private String mPlaceId;
     private String mTitulo;
     private String mEndereco;
 
-    public Place(String titulo, String endereco) {
+    public Place(String titulo, String endereco, String placeId) {
         this.mTitulo = titulo;
         this.mEndereco = endereco;
+        this.mPlaceId = placeId;
+    }
+
+    public String getPlaceId() {
+        return mPlaceId;
     }
 
     public String getTitulo() {
@@ -39,5 +45,10 @@ public class Place {
 
     public void setmEndereco(String mEndereco) {
         this.mEndereco = mEndereco;
+    }
+
+    @Override
+    public String toString() {
+        return mTitulo + ", " + mEndereco;
     }
 }

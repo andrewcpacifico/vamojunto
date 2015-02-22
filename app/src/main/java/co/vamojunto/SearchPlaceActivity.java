@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.List;
 
 import bolts.Continuation;
@@ -148,8 +150,21 @@ public class SearchPlaceActivity extends ActionBarActivity {
                     mGooglePlacesHelper.autocompleteAsync(s.toString()).
                             continueWith(new Continuation<List<Place>, Void>() {
                                 @Override
-                                public Void then(Task<List<Place>> task) throws Exception {
+                                public Void then(final Task<List<Place>> task) throws Exception {
                                     mAdapter.setDataset(task.getResult());
+
+                                    mGooglePlacesHelper.getLocationAsync(task.getResult().get(0)).continueWith(
+                                            new Continuation<LatLng, Object>() {
+                                                @Override
+                                                public Object then(Task<LatLng> task) throws Exception {
+                                                    LatLng latLng = task.getResult();
+                                                    Log.d(TAG, "Lat = " + latLng.latitude + "Lng = " + latLng.longitude);
+
+                                                    return null;
+                                                }
+                                            }
+                                    );
+
                                     mRecyclerView.post(new Runnable() {
                                         @Override
                                         public void run() {

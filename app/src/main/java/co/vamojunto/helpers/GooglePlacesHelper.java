@@ -13,6 +13,8 @@ package co.vamojunto.helpers;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +46,7 @@ public class GooglePlacesHelper {
 
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
+    private static final String TYPE_DETAILS = "/details";
     private static final String OUT_JSON = "/json";
 
     private final String API_KEY;
@@ -113,52 +116,7 @@ public class GooglePlacesHelper {
                     try {
                         // Create a JSON object hierarchy from the results
                         JSONObject jsonObj = new JSONObject(jsonString);
-                        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
-
-                        // Instancia o arraylist do resultado com o tamanho da quantidade de resultados
-                        // retornados no json.
-                        resultList = new ArrayList<Place>(predsJsonArray.length());
-
-                        for (int i = 0; i < predsJsonArray.length(); i++) {
-                            // Faz o parse do campo terms de cada local
-                            JSONArray jsonTerms = predsJsonArray.getJSONObject(i).getJSONArray("terms");
-
-                            // O primeiro termo é sempre o título do local
-                            String titulo = jsonTerms.getJSONObject(0).getString("value");
-                            int tam = jsonTerms.length();
-
-                            StringBuilder sbEndereco = new StringBuilder();
-                            for (int j = 1; j < tam - 3; j++) {
-                                if (sbEndereco.toString().equals(""))
-                                    sbEndereco.append(jsonTerms.getJSONObject(j).getString("value"));
-                                else
-                                    sbEndereco.append(", " + jsonTerms.getJSONObject(j).getString("value"));
-                            }
-                            // Os três ultimos termos são sempre cidade, estado e país, fiz o parse
-                            // separado para manter o padrão exibido pelo Google na descrição do local
-                            if (tam > 3) {
-                                if (sbEndereco.toString().equals(""))
-                                    sbEndereco.append(jsonTerms.getJSONObject(tam - 3).getString("value"));
-                                else
-                                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam - 3).getString("value"));
-                            }
-
-                            if (tam > 2) {
-                                if (sbEndereco.toString().equals(""))
-                                    sbEndereco.append(jsonTerms.getJSONObject(tam - 2).getString("value"));
-                                else
-                                    sbEndereco.append(" - " + jsonTerms.getJSONObject(tam - 2).getString("value"));
-                            }
-
-                            if ( tam > 1 ) {
-                                if ( sbEndereco.toString().equals("") )
-                                    sbEndereco.append(jsonTerms.getJSONObject(tam-1).getString("value"));
-                                else
-                                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam-1).getString("value"));
-                            }
-
-                            resultList.add(new Place(titulo, sbEndereco.toString()));
-                        }
+                        resultList = parseJSONAutoComplete(jsonObj);
 
                         tcs.setResult(resultList);
                     } catch (JSONException e) {
@@ -176,5 +134,135 @@ public class GooglePlacesHelper {
         }
 
         return tcs.getTask();
+    }
+
+    /**
+     * Obtém as coordenadas de um determinado local.
+     *
+     * @param p Local do qual deseja-se obter as coordenadas.
+     * @return {@link bolts.Task} referente à tarefa realizada
+     */
+    public Task<LatLng> getLocationAsync(Place p) {
+        final Task<LatLng>.TaskCompletionSource tcs = Task.create();
+
+        Log.d(TAG, "[getLocationAsync] Iniciando busca por coordenadas de um local.");
+
+        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_DETAILS + OUT_JSON);
+        sb.append("?key=" + API_KEY);
+        sb.append("&placeid=" + p.getPlaceId());
+
+        HttpURLConnection conn = null;
+
+        try {
+            URL url = new URL(sb.toString());
+            conn = (HttpURLConnection) url.openConnection();
+
+            final HttpURLConnection finalConn = conn;
+            Task.callInBackground(new Callable<JSONObject>() {
+                @Override
+                public JSONObject call() throws Exception {
+                    InputStreamReader reader = new InputStreamReader(finalConn.getInputStream());
+
+                    StringBuilder jsonResult = new StringBuilder();
+                    // Load the results into a StringBuilder
+                    int read;
+                    char[] buff = new char[1024];
+                    while ((read = reader.read(buff)) != -1) {
+                        jsonResult.append(buff, 0, read);
+                    }
+
+                    return new JSONObject(jsonResult.toString());
+                }
+            }).continueWith(new Continuation<JSONObject, Void>() {
+                @Override
+                public Void then(Task<JSONObject> task) throws Exception {
+                    try {
+                        JSONObject jsonObject = task.getResult();
+                        JSONObject jsonGeometry = jsonObject.getJSONObject("result").getJSONObject("geometry");
+
+                        double lat = jsonGeometry.getJSONObject("location").getDouble("lat");
+                        double lng = jsonGeometry.getJSONObject("location").getDouble("lng");
+
+                        tcs.setResult(new LatLng(lat, lng));
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Cannot process JSON results", e);
+                    }
+
+                    Log.d(TAG, "[getLocationAsync] Finalizando busca por coordenadas de um local.");
+                    return null;
+                }
+            });
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "[getLocationAsync] Error processing Places API URL", e);
+        } catch (IOException e) {
+            Log.e(TAG, "[getLocationAsync] Error connecting to Places API", e);
+        } finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+
+        return tcs.getTask();
+    }
+
+    /**
+     *
+     * @param jsonObj
+     * @return
+     * @throws JSONException
+     */
+    private List<Place> parseJSONAutoComplete(JSONObject jsonObj) throws JSONException {
+        List<Place> resultList = null;
+
+        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+
+        // Instancia o arraylist do resultado com o tamanho da quantidade de resultados
+        // retornados no json.
+        resultList = new ArrayList<Place>(predsJsonArray.length());
+
+        for (int i = 0; i < predsJsonArray.length(); i++) {
+            // Obtém o place_id do local
+            String placeId = predsJsonArray.getJSONObject(i).getString("place_id");
+
+            // Faz o parse do campo terms de cada local
+            JSONArray jsonTerms = predsJsonArray.getJSONObject(i).getJSONArray("terms");
+
+            // O primeiro termo é sempre o título do local
+            String titulo = jsonTerms.getJSONObject(0).getString("value");
+            int tam = jsonTerms.length();
+
+            StringBuilder sbEndereco = new StringBuilder();
+            for (int j = 1; j < tam - 3; j++) {
+                if (sbEndereco.toString().equals(""))
+                    sbEndereco.append(jsonTerms.getJSONObject(j).getString("value"));
+                else
+                    sbEndereco.append(", " + jsonTerms.getJSONObject(j).getString("value"));
+            }
+            // Os três ultimos termos são sempre cidade, estado e país, fiz o parse
+            // separado para manter o padrão exibido pelo Google na descrição do local
+            if (tam > 3) {
+                if (sbEndereco.toString().equals(""))
+                    sbEndereco.append(jsonTerms.getJSONObject(tam - 3).getString("value"));
+                else
+                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam - 3).getString("value"));
+            }
+
+            if (tam > 2) {
+                if (sbEndereco.toString().equals(""))
+                    sbEndereco.append(jsonTerms.getJSONObject(tam - 2).getString("value"));
+                else
+                    sbEndereco.append(" - " + jsonTerms.getJSONObject(tam - 2).getString("value"));
+            }
+
+            if (tam > 1) {
+                if (sbEndereco.toString().equals(""))
+                    sbEndereco.append(jsonTerms.getJSONObject(tam - 1).getString("value"));
+                else
+                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam - 1).getString("value"));
+            }
+
+            resultList.add(new Place(titulo, sbEndereco.toString(), placeId));
+        }
+
+        return resultList;
     }
 }
