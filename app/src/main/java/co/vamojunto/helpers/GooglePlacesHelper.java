@@ -31,6 +31,7 @@ import java.util.concurrent.Callable;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Place;
 
 /**
  * Contém as funções que utilizam a Places API do Google.
@@ -59,9 +60,10 @@ public class GooglePlacesHelper {
      * @param input String fornecida como entrada, para ser buscada pela Places API
      * @return {@link bolts.Task} correspondente à tarefa realizada.
      */
-    public Task<List<String>> autocompleteAsync(final String input) {
-        final Task<List<String>>.TaskCompletionSource tcs = Task.create();
+    public Task<List<Place>> autocompleteAsync(final String input) {
+        final Task<List<Place>>.TaskCompletionSource tcs = Task.create();
 
+        Log.d(TAG, "Iniciando consulta por local usando a AutoComplete Places API");
         if ( !requesting ) {
             requesting = true;
 
@@ -75,6 +77,9 @@ public class GooglePlacesHelper {
                         StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
                         sb.append("?key=" + API_KEY);
                         sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+                        sb.append("&components=country:br");
+                        sb.append("&sensor=true");
+                        sb.append("&language=pt");
 
                         URL url = new URL(sb.toString());
                         conn = (HttpURLConnection) url.openConnection();
@@ -102,7 +107,7 @@ public class GooglePlacesHelper {
             }).continueWith(new Continuation<String, Void>() {
                 @Override
                 public Void then(Task<String> task) throws Exception {
-                    List<String> resultList = null;
+                    List<Place> resultList = null;
                     String jsonString = task.getResult();
 
                     try {
@@ -110,10 +115,49 @@ public class GooglePlacesHelper {
                         JSONObject jsonObj = new JSONObject(jsonString);
                         JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
 
-                        // Extract the Place descriptions from the results
-                        resultList = new ArrayList<String>(predsJsonArray.length());
+                        // Instancia o arraylist do resultado com o tamanho da quantidade de resultados
+                        // retornados no json.
+                        resultList = new ArrayList<Place>(predsJsonArray.length());
+
                         for (int i = 0; i < predsJsonArray.length(); i++) {
-                            resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
+                            // Faz o parse do campo terms de cada local
+                            JSONArray jsonTerms = predsJsonArray.getJSONObject(i).getJSONArray("terms");
+
+                            // O primeiro termo é sempre o título do local
+                            String titulo = jsonTerms.getJSONObject(0).getString("value");
+                            int tam = jsonTerms.length();
+
+                            StringBuilder sbEndereco = new StringBuilder();
+                            for (int j = 1; j < tam - 3; j++) {
+                                if (sbEndereco.toString().equals(""))
+                                    sbEndereco.append(jsonTerms.getJSONObject(j).getString("value"));
+                                else
+                                    sbEndereco.append(", " + jsonTerms.getJSONObject(j).getString("value"));
+                            }
+                            // Os três ultimos termos são sempre cidade, estado e país, fiz o parse
+                            // separado para manter o padrão exibido pelo Google na descrição do local
+                            if (tam > 3) {
+                                if (sbEndereco.toString().equals(""))
+                                    sbEndereco.append(jsonTerms.getJSONObject(tam - 3).getString("value"));
+                                else
+                                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam - 3).getString("value"));
+                            }
+
+                            if (tam > 2) {
+                                if (sbEndereco.toString().equals(""))
+                                    sbEndereco.append(jsonTerms.getJSONObject(tam - 2).getString("value"));
+                                else
+                                    sbEndereco.append(" - " + jsonTerms.getJSONObject(tam - 2).getString("value"));
+                            }
+
+                            if ( tam > 1 ) {
+                                if ( sbEndereco.toString().equals("") )
+                                    sbEndereco.append(jsonTerms.getJSONObject(tam-1).getString("value"));
+                                else
+                                    sbEndereco.append(", " + jsonTerms.getJSONObject(tam-1).getString("value"));
+                            }
+
+                            resultList.add(new Place(titulo, sbEndereco.toString()));
                         }
 
                         tcs.setResult(resultList);
@@ -123,9 +167,12 @@ public class GooglePlacesHelper {
                         requesting = false;
                     }
 
+                    Log.d(TAG, "Consulta por local usando a AutoComplete Places API finalizada");
                     return null;
                 }
             });
+        } else {
+            Log.d(TAG, "Uma consulta já está sendo realizada, a consulta foi cancelada.");
         }
 
         return tcs.getTask();

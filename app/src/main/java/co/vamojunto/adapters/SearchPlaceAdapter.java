@@ -17,11 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import co.vamojunto.R;
+import co.vamojunto.model.Place;
 
 /**
  * Adapter referente a lista de locais exibidos durante a busca do usuário.
@@ -33,26 +32,28 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView mTextView;
+        public TextView mTituloTextView;
+        public TextView mDescTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            mTextView = (TextView) itemView.findViewById(R.id.rowText);
+            mTituloTextView = (TextView) itemView.findViewById(R.id.txt_titulo);
+            mDescTextView = (TextView) itemView.findViewById(R.id.txt_descricao);
         }
 
     }
 
-    private List<String> mDataset;
+    private List<Place> mDataset;
 
     private Context mContext;
 
-    public SearchPlaceAdapter(Context c, List<String> dataset) {
+    public SearchPlaceAdapter(Context c, List<Place> dataset) {
         this.mDataset = dataset;
         this.mContext = c;
     }
 
-    public void setDataset(List<String> dataset) {
+    public void setDataset(List<Place> dataset) {
         mDataset = dataset;
     }
 
@@ -71,11 +72,18 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mTextView.setText(mDataset.get(position));
+        holder.mTituloTextView.setText(mDataset.get(position).getTitulo());
+
+        String endereco = mDataset.get(position).getmEndereco();
+
+        holder.mDescTextView.setText(endereco);
     }
 
     @Override
     public int getItemCount() {
+        if ( mDataset == null )
+            return 0;
+
         return mDataset.size();
     }
 

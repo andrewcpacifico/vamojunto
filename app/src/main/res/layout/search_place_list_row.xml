@@ -9,28 +9,52 @@
   ~ See LICENSE.txt
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#ffffff"
-    android:orientation="vertical"
     android:gravity="center_vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="2dp"
+        android:paddingLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/black"
         android:text="Medium Text"
 
-        android:id="@+id/rowText" />
+        android:ellipsize="end"
+        android:singleLine="true"
+
+        android:id="@+id/txt_titulo" />
+
+    <TextView
+        android:layout_below="@+id/txt_titulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:paddingLeft="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="12sp"
+        android:text="Small Text"
+
+        android:ellipsize="end"
+        android:singleLine="true"
+
+        android:id="@+id/txt_descricao" />
+
     <View
         android:id="@+id/separador"
 
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
         android:background="@color/separator"
         />
 
-</LinearLayout>
+</RelativeLayout>

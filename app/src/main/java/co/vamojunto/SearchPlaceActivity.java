@@ -1,7 +1,6 @@
 package co.vamojunto;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,23 +9,28 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.adapters.SearchPlaceAdapter;
 import co.vamojunto.helpers.GooglePlacesHelper;
+import co.vamojunto.model.Place;
 
-
+/**
+ * Tela onde o usuário pode buscar por um determinado local. A busca é feita utilizando a Places API
+ * do Google, os resultados retornados são exibidos em uma lista, onde o usuário pode selecionar um local.
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @since 0.1.0
+ */
 public class SearchPlaceActivity extends ActionBarActivity {
 
     @Override
@@ -35,38 +39,15 @@ public class SearchPlaceActivity extends ActionBarActivity {
         setContentView(R.layout.activity_search_place);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new SearchPlaceFragment())
                     .commit();
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search_place, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class SearchPlaceFragment extends Fragment {
         private static final String TAG = "SearchPlaceFragment";
 
         private RecyclerView mRecyclerView;
@@ -74,7 +55,15 @@ public class SearchPlaceActivity extends ActionBarActivity {
         private RecyclerView.LayoutManager mLayoutManager;
         private GooglePlacesHelper mGooglePlacesHelper;
 
-        public PlaceholderFragment() {
+        private ImageButton mBtnClear;
+        private EditText mLocalEditText;
+        private ProgressBar mProgressBar;
+        private ImageView mSearchIcon;
+
+        /** Evita que sejam realizadas consultas em paralelo */
+        private static boolean isSearching = false;
+
+        public SearchPlaceFragment() {
         }
 
         @Override
@@ -99,43 +88,84 @@ public class SearchPlaceActivity extends ActionBarActivity {
             mRecyclerView.setLayoutManager(mLayoutManager);
 
             // specify an adapter (see also next example)
-            mAdapter = new SearchPlaceAdapter(rootView.getContext(), Arrays.asList("Item 1", "Item 2", "Item 1", "Item 2", "Item 1", "Item 2", "Item 1", "Item 2", "Item 1", "Item 2"));
+            mAdapter = new SearchPlaceAdapter(rootView.getContext(), null);
             mRecyclerView.setAdapter(mAdapter);
 
             mGooglePlacesHelper = new GooglePlacesHelper(rootView.getContext());
 
-            EditText localEditText = (EditText) rootView.findViewById(R.id.local_edit_text);
-            localEditText.addTextChangedListener(new TextWatcher() {
+            mLocalEditText = (EditText) rootView.findViewById(R.id.local_edit_text);
+            mLocalEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
                 @Override
                 public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                    Log.d(TAG, s.toString());
-
-                    if ( s.length() > 2 ) {
-                        mGooglePlacesHelper.autocompleteAsync(s.toString()).
-                                continueWith(new Continuation<List<String>, Void>() {
-                            @Override
-                            public Void then(Task<List<String>> task) throws Exception {
-                                Log.d(TAG, "Finalizou a consulta");
-                                mAdapter.setDataset(task.getResult());
-                                mRecyclerView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mAdapter.notifyDataSetChanged();
-                                    }
-                                });
-
-                                return null;
-                            }
-                        });
-                    }
+                    localEditTextOnTextChanged(s, start, before, count);
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) { }
             });
+
+            mBtnClear = (ImageButton) rootView.findViewById(R.id.clear_button);
+            mBtnClear.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mLocalEditText.setText("");
+                }
+            });
+
+            mProgressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
+            mSearchIcon = (ImageView) rootView.findViewById(R.id.img_search);
+        }
+
+        /**
+         * Evento executado quando o valor da caixa de pesquisa é alterado pelo usuário.
+         *
+         * @param s
+         * @param start
+         * @param befor
+         * @param count
+         */
+        private void localEditTextOnTextChanged(final CharSequence s, int start, int befor, int count) {
+            Log.d(TAG, s.toString());
+
+            // Oculta o botão para limpar o EditText
+            if ( s.length() == 0)
+                mBtnClear.setVisibility(View.GONE);
+            else
+                mBtnClear.setVisibility(View.VISIBLE);
+
+            // Faz a busca apenas se uma outra não estiver sendo realizada.
+            if ( !isSearching ) {
+                // Inicia a busca apenas após o usuário ter digitado pelo menos 3 caracteres.
+                if (s.length() > 2) {
+                    isSearching = true;
+
+                    mSearchIcon.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.VISIBLE);
+
+                    mGooglePlacesHelper.autocompleteAsync(s.toString()).
+                            continueWith(new Continuation<List<Place>, Void>() {
+                                @Override
+                                public Void then(Task<List<Place>> task) throws Exception {
+                                    mAdapter.setDataset(task.getResult());
+                                    mRecyclerView.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mAdapter.notifyDataSetChanged();
+
+                                            mProgressBar.setVisibility(View.GONE);
+                                            mSearchIcon.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+
+                                    isSearching = false;
+                                    return null;
+                                }
+                            });
+                }
+            }
         }
 
     }

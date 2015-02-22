@@ -248,7 +248,7 @@ public class GetLocationActivity extends ActionBarActivity
         else
             appBar.setTitle(getString(R.string.get_location_activity_title));
 
-        appBar.setNavigationIcon(R.drawable.ic_close);
+        appBar.setNavigationIcon(R.drawable.ic_light_close);
         appBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
