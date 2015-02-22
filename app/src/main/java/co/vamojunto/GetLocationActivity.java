@@ -15,29 +15,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.provider.Settings;
-import android.provider.Telephony;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -45,16 +33,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import bolts.Continuation;
-import bolts.Task;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -156,41 +137,50 @@ public class GetLocationActivity extends ActionBarActivity
             if( resId != -1 )
                 pinImg.setImageDrawable(getResources().getDrawable(resId));
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+
         AutoCompleteTextView textView = (AutoCompleteTextView)
                 findViewById(R.id.local_auto_complete);
-        textView.setAdapter(adapter);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), SearchPlaceActivity.class);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
-
-    private static final String[] COUNTRIES = new String[] {
-            "Belgium", "France", "Italy", "Germany", "Spain"
-    };
 
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
      */
     protected void initMap() {
         if (mMap == null) {
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        }
+            SupportMapFragment mapFragment = SupportMapFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.container, mapFragment);
+            transaction.commit();
 
-        if ( mMap != null )
-            mMap.setMyLocationEnabled(true);
+            // Obtém a instância do GoogleMap
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    mMap = googleMap;
+                    mMap.setMyLocationEnabled(true);
+                    mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                        @Override
+                        public boolean onMyLocationButtonClick() {
+                            // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
+                            // exibe um diálogo para o usuário solicitando que ele ative.
+                            final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                                buildAlertMessageNoGps();
+                            }
 
-        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
-                // exibe um diálogo para o usuário solicitando que ele ative.
-                final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    buildAlertMessageNoGps();
+                            return false;
+                        }
+                    });
                 }
-
-                return false;
-            }
-        });
+            });
+        }
     }
 
     /**

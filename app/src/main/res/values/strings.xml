@@ -97,5 +97,6 @@
     <string name="type_addr_location">Digite um endereço ou local</string>
     <string name="set_start_point">Definir ponto de partida.</string>
     <string name="set_destiny">Definir destino</string>
+    <string name="title_activity_search_place">SearchPlaceActivity</string>
 
 </resources>

@@ -37,6 +37,8 @@
             android:id="@+id/local_auto_complete"
 
             android:background="#00000000"
+            android:dropDownHeight="0dp"
+            android:dropDownWidth="0dp"
             android:hint="@string/type_addr_location"
             android:textSize="18sp"
 
@@ -53,14 +55,13 @@
         android:background="@color/separator"
         />
 
-    <fragment
-        android:id="@+id/map"
+    <FrameLayout
+        android:id="@+id/container"
+
         android:layout_below="@+id/separador"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:name="com.google.android.gms.maps.MapFragment"
-        />
-
+        android:layout_height="wrap_content">
+    </FrameLayout>
     <RelativeLayout
         android:layout_below="@+id/separador"
         android:layout_width="match_parent"
@@ -76,7 +77,7 @@
             android:paddingBottom="30dp"
 
             android:src="@drawable/ic_pin_dest"/>
-    </RelativeLayout>
+    </RelativeLayout>        
 
     <Button
         android:id="@+id/btn_ok"
