@@ -12,6 +12,7 @@ package co.vamojunto.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,10 +30,17 @@ import static co.vamojunto.R.color.black;
 /**
  * Adapter referente a lista de locais exibidos durante a busca do usuário.
  *
+ * Utiliza um objeto {@link List}<{@link Place}> como dataset para exibição.Foi um implementado um
+ * método chamado setDataset responsável por alterar o dataset, e exibir novos dados. Caso o dataset
+ * informado seja null, nada é exibido na tela. Um dataset contendo uma lista vazia, é visto como
+ * uma consulta que não retornou nenhum resultado, neste caso uma mensagem é exibida ao usuário.
+ *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
 public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.ViewHolder> {
+
+    private static final String TAG = "SearchPlaceAdapter";
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -58,6 +66,7 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
         }
     }
 
+    /** Lista de locais utilizada como dataset para o RecyclerView */
     private List<Place> mDataset;
 
     private OnRecyclerViewItemClickListener mOnItemClickListener;
@@ -77,11 +86,23 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
         this.mOnItemClickListener = onItemClickListener;
     }
 
+    /**
+     * Retorna a instância de um determinado local no dataset.
+     * @param position posição do local no dataset.
+     * @return Uma instância de {@link Place}, ou null, caso o dataset seja menor que a posição desejada.
+     */
     public Place getItem(int position) {
         if (this.mDataset == null)
             return null;
 
-        return this.mDataset.get(position);
+        Place p = null;
+        try {
+            p = this.mDataset.get(position);
+        } catch (IndexOutOfBoundsException e) {
+            Log.d(TAG, "[getItem] Erro ao obter local do dataset " + e);
+        }
+
+        return p;
     }
 
     public void setDataset(List<Place> dataset) {
@@ -106,19 +127,28 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        holder.mTituloTextView.setText(mDataset.get(position).getTitulo());
+        // Verifica se o dataset possui algum item para ser exibido, caso contrário, a mensagem
+        // de erro é exibida ao usuário.
+        if ( mDataset.size() > 0) {
+            holder.mTituloTextView.setText(mDataset.get(position).getTitulo());
 
-        String endereco = mDataset.get(position).getmEndereco();
-
-        holder.mDescTextView.setText(endereco);
+            String endereco = mDataset.get(position).getmEndereco();
+            holder.mDescTextView.setText(endereco);
+        } else {
+            holder.mTituloTextView.setText(R.string.no_results_found);
+            holder.mDescTextView.setText("");
+        }
     }
 
     @Override
     public int getItemCount() {
         if ( mDataset == null )
             return 0;
+
+        // Caso o dataset esteja vazio, o tamanho 1 é retornado, para que seja exibido um item
+        // com a mensagem de erro.
+        if ( mDataset.size() == 0 )
+            return 1;
 
         return mDataset.size();
     }

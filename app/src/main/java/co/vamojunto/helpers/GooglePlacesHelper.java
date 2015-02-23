@@ -82,7 +82,8 @@ public class GooglePlacesHelper {
                         sb.append("&input=" + URLEncoder.encode(input, "utf8"));
                         sb.append("&components=country:br");
                         sb.append("&sensor=true");
-                        sb.append("&language=pt");
+                        sb.append("&language=pt_BR");
+                        sb.append("&location=-3.065635,-59.995240&radius=25000"); // Utilizado para priorizar os resultados em Manaus
 
                         URL url = new URL(sb.toString());
                         conn = (HttpURLConnection) url.openConnection();
@@ -209,10 +210,12 @@ public class GooglePlacesHelper {
     }
 
     /**
+     * Faz o parse do JSON retornado após uma consulta do tipo Autocomplete à Google Places API.
      *
-     * @param jsonObj
-     * @return
-     * @throws JSONException
+     * @param jsonObj JSONObject contendo o retorno da requisição.
+     * @return A lista de lugares retornados pela requisição, ou uma List vazia, caso nenhum lugar tenha sido retornado.
+     * @throws JSONException Caso o JSON enviado para o método seja inválido, uma JSONException é
+     *          repassada para o método chamador.
      */
     private List<Place> parseJSONAutoComplete(JSONObject jsonObj) throws JSONException {
         List<Place> resultList = null;

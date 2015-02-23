@@ -98,7 +98,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
 
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
-            //mRecyclerView.setHasFixedSize(true);
+            mRecyclerView.setHasFixedSize(true);
 
             // use a linear layout manager
             mLayoutManager = new LinearLayoutManager(rootView.getContext());
@@ -109,10 +109,14 @@ public class SearchPlaceActivity extends ActionBarActivity {
                 @Override
                 public void OnItemClicked(View v, int position) {
                     Place p = mAdapter.getItem(position);
-                    Intent intent = new Intent();
-                    intent.putExtra(PLACE, p);
-                    getActivity().setResult(Activity.RESULT_OK, intent);
-                    getActivity().finish();
+
+                    if ( p != null ) {
+                        Intent intent = new Intent();
+                        intent.putExtra(PLACE, p);
+
+                        getActivity().setResult(Activity.RESULT_OK, intent);
+                        getActivity().finish();
+                    }
                 }
             });
             mRecyclerView.setAdapter(mAdapter);

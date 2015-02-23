@@ -101,28 +101,39 @@ public class GetLocationActivity extends ActionBarActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SearchPlaceActivity.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Place p = data.getParcelableExtra(SearchPlaceActivity.PLACE);
+            if ( data.hasExtra(SearchPlaceActivity.PLACE)) {
+                Place p = data.getParcelableExtra(SearchPlaceActivity.PLACE);
 
-            GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
-            placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
-                @Override
-                public Void then(final Task<LatLng> task) {
-                    if (task.getResult() != null) {
-                        if (mMap != null) {
-                            Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), 17.0f));
-                                }
-                            });
-                        }
-                    }
-
-                    return null;
-                }
-            });
+                posicionaMapaLocal(p);
+            }
         }
+    }
+
+    /**
+     * Posiciona o mapa da tela, em um local passado por parâmetro.
+     *
+     * @param p Instância de {@link Place} representando o local onde o mapa deve ser posicionado.
+     */
+    private void posicionaMapaLocal(Place p) {
+        GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
+        placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
+            @Override
+            public Void then(final Task<LatLng> task) {
+                if (task.getResult() != null) {
+                    if (mMap != null) {
+                        Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), 17.0f));
+                            }
+                        });
+                    }
+                }
+
+                return null;
+            }
+        });
     }
 
     /**

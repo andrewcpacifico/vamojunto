@@ -99,4 +99,7 @@
     <string name="set_destiny">Definir destino</string>
     <string name="title_activity_search_place">SearchPlaceActivity</string>
 
+    <!-- Genérico -->
+    <string name="no_results_found">Nenhum resultado foi encontrado.</string>
+
 </resources>
