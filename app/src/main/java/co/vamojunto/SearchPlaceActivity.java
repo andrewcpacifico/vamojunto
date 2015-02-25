@@ -1,6 +1,7 @@
 package co.vamojunto;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -77,7 +79,13 @@ public class SearchPlaceActivity extends ActionBarActivity {
         /** Evita que sejam realizadas consultas em paralelo */
         private static boolean isSearching = false;
 
+        /** Armazena o último valor buscado pelo usuário, é utilizado para ao final da consulta,
+         * verificar se o valor na caixa de texto ainda é o mesmo, caso não seja, uma nova busca é
+         * realizada. */
+        private String mUltimaBusca;
+
         public SearchPlaceFragment() {
+            mUltimaBusca = "";
         }
 
         @Override
@@ -165,22 +173,45 @@ public class SearchPlaceActivity extends ActionBarActivity {
             else
                 mBtnClear.setVisibility(View.VISIBLE);
 
+            buscaLocal(s.toString());
+        }
+
+        /**
+         * Chamado sempre que o usuário altera o conteúdo do campo de busca. Recebe como parâmetro
+         * o conteúdo digitado pelo usuário, e repassa para o método que busca os locais utilizando
+         * a API do Google Places.
+         *
+         * @param strBusca String digitada pelo usuário, representando a busca que ele deseja realizar.
+         */
+        private void buscaLocal(String strBusca) {
             // Faz a busca apenas se uma outra não estiver sendo realizada.
             if ( !isSearching ) {
                 // Inicia a busca apenas após o usuário ter digitado pelo menos 3 caracteres.
-                if (s.length() > 2) {
+                if (strBusca.length() > 2) {
+                    // Bloqueia outras buscas, enquanto esta ainda não for finalizada.
                     isSearching = true;
 
+                    // Caso a busca vá ser efetuada, armazena o valor que foi buscado para ser comparado
+                    // com o valor do campo de busca no final
+                    mUltimaBusca = strBusca;
+
+                    // Exibe a ProgressBar no lugar do ícone de busca.
                     mSearchIcon.setVisibility(View.GONE);
                     mProgressBar.setVisibility(View.VISIBLE);
 
-                    mGooglePlacesHelper.autocompleteAsync(s.toString()).
+                    // Faz uma chamada asíncrona à busca utilizando a Google Places API
+                    mGooglePlacesHelper.autocompleteAsync(strBusca).
                             continueWith(new Continuation<List<Place>, Void>() {
                                 @Override
                                 public Void then(final Task<List<Place>> task) {
+                                    // Desbloqueia a busca
+                                    isSearching = false;
+
+                                    // Utilizado para executar os trechos de código que devem roda ipreterivelmente na Thread principal
                                     Handler handler = new Handler(getActivity().getMainLooper());
 
                                     // Verifica se a tarefa foi executada com sucesso
+                                    // TODO Exibir essa mensagem de erro na tela, e não apenas em um Toast
                                     if (task.isFaulted()) {
                                         handler.post(new Runnable() {
                                             @Override
@@ -188,7 +219,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
                                                 Toast.makeText(getActivity(), R.string.search_error, Toast.LENGTH_LONG).show();
                                             }
                                         });
-                                    } else if ( !task.isCancelled()) {
+                                    } else if (!task.isCancelled()) {
                                         mAdapter.setDataset(task.getResult());
 
                                         handler.post(new Runnable() {
@@ -199,16 +230,22 @@ public class SearchPlaceActivity extends ActionBarActivity {
                                         });
                                     }
 
-                                    // Troca o status do ícone de busca
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
+                                            // Restaura o ícone de busca
                                             mProgressBar.setVisibility(View.GONE);
                                             mSearchIcon.setVisibility(View.VISIBLE);
+
+                                            // Verifica se o usuário alterou o valor do campo de busca enquanto
+                                            // a última busca era processada. Caso tenha alterado, realiza
+                                            // uma outra busca.
+                                            if (!mLocalEditText.getText().toString().equals(mUltimaBusca)) {
+                                                buscaLocal(mLocalEditText.getText().toString());
+                                            }
                                         }
                                     });
 
-                                    isSearching = false;
                                     return null;
                                 }
                             });
