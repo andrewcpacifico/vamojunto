@@ -2,6 +2,7 @@ package co.vamojunto;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
@@ -176,13 +178,31 @@ public class SearchPlaceActivity extends ActionBarActivity {
                             continueWith(new Continuation<List<Place>, Void>() {
                                 @Override
                                 public Void then(final Task<List<Place>> task) {
-                                    mAdapter.setDataset(task.getResult());
+                                    Handler handler = new Handler(getActivity().getMainLooper());
 
-                                    mRecyclerView.post(new Runnable() {
+                                    // Verifica se a tarefa foi executada com sucesso
+                                    if (task.isFaulted()) {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getActivity(), R.string.search_error, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    } else if ( !task.isCancelled()) {
+                                        mAdapter.setDataset(task.getResult());
+
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mAdapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+
+                                    // Troca o status do ícone de busca
+                                    handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            mAdapter.notifyDataSetChanged();
-
                                             mProgressBar.setVisibility(View.GONE);
                                             mSearchIcon.setVisibility(View.VISIBLE);
                                         }

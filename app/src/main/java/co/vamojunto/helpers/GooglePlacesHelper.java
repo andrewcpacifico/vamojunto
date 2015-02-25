@@ -110,7 +110,7 @@ public class GooglePlacesHelper {
                 }
             }).continueWith(new Continuation<String, Void>() {
                 @Override
-                public Void then(Task<String> task) throws Exception {
+                public Void then(Task<String> task) {
                     List<Place> resultList = null;
                     String jsonString = task.getResult();
 
@@ -123,7 +123,7 @@ public class GooglePlacesHelper {
                     } catch (JSONException e) {
                         Log.e(TAG, "Cannot process JSON results", e);
 
-                        tcs.setResult(null);
+                        tcs.setError(e);
                     } finally {
                         requesting = false;
                     }
