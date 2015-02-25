@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -104,6 +105,9 @@ public class SearchPlaceActivity extends ActionBarActivity {
          * @param rootView View correspondente ao layout do fragment.
          */
         private void initComponents(View rootView) {
+            // Exibe o teclado automaticamente.
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
             mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
 
             // use this setting to improve performance if you know that changes
