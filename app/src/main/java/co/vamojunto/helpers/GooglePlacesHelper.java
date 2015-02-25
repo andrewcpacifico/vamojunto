@@ -34,6 +34,7 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Place;
+import co.vamojunto.util.Globals;
 
 /**
  * Contém as funções que utilizam a Places API do Google.
@@ -83,7 +84,7 @@ public class GooglePlacesHelper {
                         sb.append("&components=country:br");
                         sb.append("&sensor=true");
                         sb.append("&language=pt_BR");
-                        sb.append("&location=-3.065635,-59.995240&radius=25000"); // Utilizado para priorizar os resultados em Manaus
+                        sb.append("&location=" + Globals.MANAUS_LAT + "," + Globals.MANAUS_LNG + "&radius=25000"); // Utilizado para priorizar os resultados em Manaus
 
                         URL url = new URL(sb.toString());
                         conn = (HttpURLConnection) url.openConnection();

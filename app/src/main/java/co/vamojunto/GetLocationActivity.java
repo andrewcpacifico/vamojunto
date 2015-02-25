@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -34,14 +35,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
+import co.vamojunto.util.Globals;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -81,6 +85,24 @@ public class GetLocationActivity extends ActionBarActivity
         setContentView(R.layout.activity_get_location);
 
         initComponents();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Salvando as configurações da posição do mapa.
+        CameraPosition position = mMap.getCameraPosition();
+        double lat = position.target.latitude;
+        double lng = position.target.longitude;
+        float zoom = position.zoom;
+
+        SharedPreferences settings = getSharedPreferences(Globals.DEFAULT_PREF_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong(Globals.LAT_PREF_KEY, Double.doubleToRawLongBits(lat));
+        editor.putLong(Globals.LNG_PREF_KEY, Double.doubleToRawLongBits(lng));
+        editor.putFloat(Globals.ZOOM_PREF_KEY, zoom);
+        editor.commit();
     }
 
     @Override
@@ -198,7 +220,21 @@ public class GetLocationActivity extends ActionBarActivity
      */
     protected void initMap() {
         if (mMap == null) {
-            SupportMapFragment mapFragment = SupportMapFragment.newInstance();
+            // Obtém as últimas configurações do mapa do usuário.
+            SharedPreferences settings = getSharedPreferences(Globals.DEFAULT_PREF_NAME, MODE_PRIVATE);
+            double lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
+            double lng = Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+            float zoom = settings.getFloat(Globals.ZOOM_PREF_KEY, Globals.DEFAULT_ZOOM_LEVEL);
+
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(lat, lng))
+                    .zoom(zoom)
+                    .build();
+
+            GoogleMapOptions mapOptions = new GoogleMapOptions()
+                    .camera(position);
+
+            SupportMapFragment mapFragment = SupportMapFragment.newInstance(mapOptions);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.container, mapFragment);
             transaction.commit();
