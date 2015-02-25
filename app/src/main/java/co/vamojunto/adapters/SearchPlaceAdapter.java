@@ -14,7 +14,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -24,8 +23,6 @@ import java.util.List;
 import co.vamojunto.R;
 import co.vamojunto.model.Place;
 import co.vamojunto.widgets.OnRecyclerViewItemClickListener;
-
-import static co.vamojunto.R.color.black;
 
 /**
  * Adapter referente a lista de locais exibidos durante a busca do usuário.
@@ -132,7 +129,7 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
         if ( mDataset.size() > 0) {
             holder.mTituloTextView.setText(mDataset.get(position).getTitulo());
 
-            String endereco = mDataset.get(position).getmEndereco();
+            String endereco = mDataset.get(position).getEndereco();
             holder.mDescTextView.setText(endereco);
         } else {
             holder.mTituloTextView.setText(R.string.no_results_found);

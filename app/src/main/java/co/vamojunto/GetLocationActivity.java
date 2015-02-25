@@ -12,6 +12,7 @@ package co.vamojunto;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -46,6 +47,7 @@ import bolts.Task;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
 import co.vamojunto.util.Globals;
+import co.vamojunto.util.NumberUtil;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -59,8 +61,11 @@ public class GetLocationActivity extends ActionBarActivity
     private static final String TAG = "GetLocationActivity";
 
     private static final String PACKAGE = "co.vamojunto.GetLocationActivity.";
-    public static final String LAT = PACKAGE + "lat";
-    public static final String LONG = PACKAGE + "long";
+
+    public static final String RES_LAT = PACKAGE + "lat";
+    public static final String RES_LNG = PACKAGE + "lng";
+    public static final String RES_TITULO = PACKAGE + "titulo";
+
     public static final String TITLE = PACKAGE + "title";
     public static final String PIN_RES_ID = PACKAGE + "pinId";
     public static final String BUTTON_MSG = PACKAGE + "buttonMsg";
@@ -78,6 +83,11 @@ public class GetLocationActivity extends ActionBarActivity
 
     /** Booleano para verificar se o app está resolvendo algum erro. */
     private boolean mResolvingError = false;
+
+    /** Guarda uma instância de um local, caso o usuário tenha feito uma busca. */
+    private Place mLocal;
+
+    private ProgressDialog mProDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,9 +134,9 @@ public class GetLocationActivity extends ActionBarActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SearchPlaceActivity.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if ( data.hasExtra(SearchPlaceActivity.PLACE)) {
-                Place p = data.getParcelableExtra(SearchPlaceActivity.PLACE);
+                mLocal = data.getParcelableExtra(SearchPlaceActivity.PLACE);
 
-                posicionaMapaLocal(p);
+                posicionaMapaLocal(mLocal);
             }
         }
     }
@@ -138,16 +148,41 @@ public class GetLocationActivity extends ActionBarActivity
      */
     private void posicionaMapaLocal(Place p) {
         GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
+
+        // Utilizado para gerenciar a execução da tarefa de busca pelas coordenadas, e posicionamento
+        // do mapa. Criando um TaskCompletionSource, é possível fornecer ao usuário uma opção para
+        // cancelar a operação caso a conexão esteja muito lenta, evitando do app ficar travado
+        // com a ProgressDialog.
+        final Task<LatLng>.TaskCompletionSource tcs = Task.create();
+
+        startLoading("Posicionando mapa no local selecionado...", tcs);
+
         placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
             @Override
             public Void then(final Task<LatLng> task) {
-                if (task.getResult() != null) {
-                    if (mMap != null) {
+                tcs.setResult(task.getResult());
+
+                return null;
+            }
+        });
+
+        // Trata o resultado da operação de busca e posicionamento do mapa.
+        tcs.getTask().continueWith(new Continuation<LatLng, Void>() {
+            @Override
+            public Void then(final Task<LatLng> task) throws Exception {
+                if (task.isCancelled()) {
+                    Log.d(TAG, "Busca cancelada");
+                } else if (!task.isFaulted()) {
+                    if (task.getResult() != null && mMap != null) {
                         Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), 17.0f));
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), Globals.DEFAULT_ZOOM_LEVEL));
+
+                                mLocal.setLatitude(task.getResult().latitude);
+                                mLocal.setLongitude(task.getResult().longitude);
+                                stopLoading();
                             }
                         });
                     }
@@ -171,21 +206,13 @@ public class GetLocationActivity extends ActionBarActivity
         // Inicializa a Application Bar
         initAppBar();
 
+        mLocal = null;
+
         Button btnOk = (Button) findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Obtém a posição marcada pelo pin
-                LatLng pos = mMap.getCameraPosition().target;
-
-                Bundle bundle = new Bundle();
-                bundle.putDouble(LAT, pos.latitude);
-                bundle.putDouble(LONG, pos.longitude);
-
-                Intent intent = new Intent();
-                intent.putExtras(bundle);
-                setResult(Activity.RESULT_OK, intent);
-                finish();
+                btnOkOnClick(v);
             }
         });
 
@@ -222,8 +249,14 @@ public class GetLocationActivity extends ActionBarActivity
         if (mMap == null) {
             // Obtém as últimas configurações do mapa do usuário.
             SharedPreferences settings = getSharedPreferences(Globals.DEFAULT_PREF_NAME, MODE_PRIVATE);
-            double lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
-            double lng = Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+            double lat = Globals.MANAUS_LAT;
+            if (settings.contains(Globals.LAT_PREF_KEY))
+                lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
+
+            double lng = Globals.MANAUS_LNG;
+            if (settings.contains(Globals.LNG_PREF_KEY))
+                Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+
             float zoom = settings.getFloat(Globals.ZOOM_PREF_KEY, Globals.DEFAULT_ZOOM_LEVEL);
 
             CameraPosition position = new CameraPosition.Builder()
@@ -335,6 +368,65 @@ public class GetLocationActivity extends ActionBarActivity
                 finish();
             }
         });
+    }
+
+    /**
+     * Executado quando o botão da parte de baixo da tela é clicado.Verifica se o usuário fez uma busca
+     * por um local, então retorna o resultado.
+     *
+     * @param v Instância do botão
+     */
+    private void btnOkOnClick(View v) {
+        // Obtém a posição marcada pelo pin
+        LatLng pos = mMap.getCameraPosition().target;
+
+        // Trunca as coordenadas para apenas 5 casas decimais para poder fazer a comparação com as
+        // coordenadas do local retornado pela Google Places API
+        double lat = NumberUtil.truncate(pos.latitude, 5);
+        double lng = NumberUtil.truncate(pos.longitude, 5);
+
+        Bundle bundle = new Bundle();
+        bundle.putDouble(RES_LAT, pos.latitude);
+        bundle.putDouble(RES_LNG, pos.longitude);
+
+        // Verifica se o usuário fez uma busca por local, e se modificou a posição do mapa, após a busca
+        if (mLocal != null) {
+            double latMLocal = NumberUtil.truncate(mLocal.getLatitude(), 5);
+            double lngMLocal = NumberUtil.truncate(mLocal.getLongitude(), 5);
+
+            if (lat == latMLocal && lng == lngMLocal)
+                bundle.putString(RES_TITULO, mLocal.getTitulo());
+        }
+
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
+
+    /**
+     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     */
+    private void startLoading(String msg, final Task.TaskCompletionSource task) {
+        mProDialog = new ProgressDialog(this);
+        mProDialog.setMessage(msg);
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(true);
+        mProDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                task.setCancelled();
+            }
+        });
+        mProDialog.show();
+    }
+
+    /**
+     * Finaliza o diálogo do carregamento da tela principal.
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
 

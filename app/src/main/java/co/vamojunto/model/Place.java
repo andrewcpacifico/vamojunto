@@ -20,14 +20,37 @@ import android.os.Parcelable;
  * @since 0.1.0
  */
 public class Place implements Parcelable {
+    public double NOT_SET_LAT = -9999;
+    public double NOT_SET_LNG = -9999;
+
     private String mPlaceId;
     private String mTitulo;
     private String mEndereco;
+    private double mLatitude;
+    private double mLongitude;
 
     public Place(String titulo, String endereco, String placeId) {
         this.mTitulo = titulo;
         this.mEndereco = endereco;
         this.mPlaceId = placeId;
+        this.mLatitude = NOT_SET_LAT;
+        this.mLongitude = NOT_SET_LNG;
+    }
+
+    public double getLatitude() {
+        return mLatitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.mLatitude = latitude;
+    }
+
+    public double getLongitude() {
+        return mLongitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.mLongitude = longitude;
     }
 
     public String getPlaceId() {
@@ -42,11 +65,11 @@ public class Place implements Parcelable {
         this.mTitulo = titulo;
     }
 
-    public String getmEndereco() {
+    public String getEndereco() {
         return mEndereco;
     }
 
-    public void setmEndereco(String mEndereco) {
+    public void setEndereco(String mEndereco) {
         this.mEndereco = mEndereco;
     }
 
