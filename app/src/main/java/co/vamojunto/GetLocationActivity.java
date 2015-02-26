@@ -62,11 +62,9 @@ public class GetLocationActivity extends ActionBarActivity
 
     private static final String PACKAGE = "co.vamojunto.GetLocationActivity.";
 
-    public static final String RES_LAT = PACKAGE + "lat";
-    public static final String RES_LNG = PACKAGE + "lng";
-    public static final String RES_TITULO = PACKAGE + "titulo";
-
-    public static final String TITLE = PACKAGE + "title";
+    public static final String RES_PLACE = PACKAGE + "res_place";
+    public static final String INITIAL_PLACE = PACKAGE + "place";
+    public static final String TITULO = PACKAGE + "title";
     public static final String PIN_RES_ID = PACKAGE + "pinId";
     public static final String BUTTON_MSG = PACKAGE + "buttonMsg";
 
@@ -247,17 +245,29 @@ public class GetLocationActivity extends ActionBarActivity
      */
     protected void initMap() {
         if (mMap == null) {
-            // Obtém as últimas configurações do mapa do usuário.
-            SharedPreferences settings = getSharedPreferences(Globals.DEFAULT_PREF_NAME, MODE_PRIVATE);
             double lat = Globals.MANAUS_LAT;
-            if (settings.contains(Globals.LAT_PREF_KEY))
-                lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
-
             double lng = Globals.MANAUS_LNG;
-            if (settings.contains(Globals.LNG_PREF_KEY))
-                Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+            float zoom = Globals.DEFAULT_ZOOM_LEVEL;
 
-            float zoom = settings.getFloat(Globals.ZOOM_PREF_KEY, Globals.DEFAULT_ZOOM_LEVEL);
+            // Verifica se foi passada uma localização inicial
+            if (getIntent().hasExtra(INITIAL_PLACE)) {
+                Place p = getIntent().getParcelableExtra(INITIAL_PLACE);
+
+                if (p.hasCoord()) {
+                    lat = p.getLatitude();
+                    lng = p.getLongitude();
+                }
+            } else {
+                // Obtém as últimas configurações do mapa do usuário.
+                SharedPreferences settings = getSharedPreferences(Globals.DEFAULT_PREF_NAME, MODE_PRIVATE);
+                if (settings.contains(Globals.LAT_PREF_KEY))
+                    lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
+
+                if (settings.contains(Globals.LNG_PREF_KEY))
+                    Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+
+                zoom = settings.getFloat(Globals.ZOOM_PREF_KEY, Globals.DEFAULT_ZOOM_LEVEL);
+            }
 
             CameraPosition position = new CameraPosition.Builder()
                     .target(new LatLng(lat, lng))
@@ -356,8 +366,8 @@ public class GetLocationActivity extends ActionBarActivity
     private void initAppBar() {
         Toolbar appBar = (Toolbar) findViewById(R.id.tool_bar);
 
-        if ( getIntent().hasExtra(TITLE) )
-            appBar.setTitle(getIntent().getStringExtra(TITLE));
+        if ( getIntent().hasExtra(TITULO) )
+            appBar.setTitle(getIntent().getStringExtra(TITULO));
         else
             appBar.setTitle(getString(R.string.get_location_activity_title));
 
@@ -379,27 +389,17 @@ public class GetLocationActivity extends ActionBarActivity
     private void btnOkOnClick(View v) {
         // Obtém a posição marcada pelo pin
         LatLng pos = mMap.getCameraPosition().target;
-
-        // Trunca as coordenadas para apenas 5 casas decimais para poder fazer a comparação com as
-        // coordenadas do local retornado pela Google Places API
-        double lat = NumberUtil.truncate(pos.latitude, 5);
-        double lng = NumberUtil.truncate(pos.longitude, 5);
-
-        Bundle bundle = new Bundle();
-        bundle.putDouble(RES_LAT, pos.latitude);
-        bundle.putDouble(RES_LNG, pos.longitude);
+        Place resPlace = new Place(pos.latitude, pos.longitude);
 
         // Verifica se o usuário fez uma busca por local, e se modificou a posição do mapa, após a busca
-        if (mLocal != null) {
-            double latMLocal = NumberUtil.truncate(mLocal.getLatitude(), 5);
-            double lngMLocal = NumberUtil.truncate(mLocal.getLongitude(), 5);
-
-            if (lat == latMLocal && lng == lngMLocal)
-                bundle.putString(RES_TITULO, mLocal.getTitulo());
+        if (resPlace.equals(mLocal)) {
+            resPlace.setTitulo(mLocal.getTitulo());
+            resPlace.setEndereco(mLocal.getEndereco());
+            resPlace.setGooglePlaceId(mLocal.getGooglePlaceId());
         }
 
         Intent intent = new Intent();
-        intent.putExtras(bundle);
+        intent.putExtra(RES_PLACE, resPlace);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

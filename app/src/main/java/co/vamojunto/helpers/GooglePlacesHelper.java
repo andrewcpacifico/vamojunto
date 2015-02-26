@@ -20,7 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -153,7 +152,7 @@ public class GooglePlacesHelper {
 
         StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_DETAILS + OUT_JSON);
         sb.append("?key=" + API_KEY);
-        sb.append("&placeid=" + p.getPlaceId());
+        sb.append("&placeid=" + p.getGooglePlaceId());
 
         HttpURLConnection conn = null;
 

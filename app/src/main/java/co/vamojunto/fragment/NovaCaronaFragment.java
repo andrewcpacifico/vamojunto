@@ -17,7 +17,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +38,7 @@ import bolts.Task;
 import co.vamojunto.GetLocationActivity;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
+import co.vamojunto.model.Place;
 
 /**
  * {@link android.support.v4.app.Fragment} com a interface padrão da tela de cadastro de carona.
@@ -65,7 +65,10 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
     private EditText mHoraEditText;
     private EditText mDataEditText;
 
-    /***************************************************************************************************
+    private Place mOrigem;
+    private Place mDestino;
+
+/***************************************************************************************************
  *
  * Ciclo de vida do Fragment.
  *
@@ -77,11 +80,10 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         if (requestCode == GetLocationActivity.GET_LOCATION_REQUEST_CODE) {
             if ( resultCode == Activity.RESULT_OK ) {
                 Bundle extras = data.getExtras();
-                double lat = extras.getDouble(GetLocationActivity.RES_LAT);
-                double lng = extras.getDouble(GetLocationActivity.RES_LNG);
-                String titulo = extras.getString(GetLocationActivity.RES_TITULO, null);
+                Place p = extras.getParcelable(GetLocationActivity.RES_PLACE);
 
-                traduzCoordenadas(lat, lng, titulo);
+                if (p.hasCoord())
+                    traduzCoordenadas(p);
             }
         }
     }
@@ -160,9 +162,13 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoOrigem = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITLE, "Teste");
+        intent.putExtra(GetLocationActivity.TITULO, "Teste");
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
+
+        if (mOrigem != null) {
+            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mOrigem);
+        }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
     }
@@ -174,14 +180,17 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      *
      * @param v Instância do EditText clicado.
      */
-
     private void destinoEditTextOnclick(View v) {
         mEditandoDestino = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITLE, "Teste Destino");
+        intent.putExtra(GetLocationActivity.TITULO, "Teste Destino");
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destiny));
+
+        if (mDestino != null) {
+            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mDestino);
+        }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
     }
@@ -198,6 +207,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private void initComponents(View rootView) {
         mEditandoDestino = mEditandoOrigem = false;
+        mOrigem = mDestino = null;
 
         mOrigemEditText = (EditText) rootView.findViewById(R.id.origem_edit_text);
         mDestinoEditText = (EditText) rootView.findViewById(R.id.destino_edit_text);
@@ -398,12 +408,10 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
     /**
      * Converte o par de coordenadas recebidos da GetLocationActivity, em um endereço.
      *
-     * @param lat Latitude
-     * @param lng Longitude
-     * @param titulo Tìtulo do local escolhido
+     * @param p Instância de Place retornada, caso o usuário tenha feito uma busca por local, ou null.
      */
-    private void traduzCoordenadas(double lat, double lng, String titulo) {
-        String coord = lat + ", " + lng;
+    private void traduzCoordenadas(Place p) {
+        String coord = p.getLatitude() + ", " + p.getLongitude();
 
         // Verifica qual localização está sendo editada para poder atribuir o valor ao campo correto
         // Em seguida converte as coordenadas para o endereço por escrito. Essa solução tá
@@ -412,13 +420,14 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         // maneira mais bonita de fazer essa parte.
         if ( mEditandoOrigem ) {
             mEditandoOrigem = false;
+            mOrigem = p;
 
-            if ( titulo != null ) {
-                mOrigemEditText.setText(titulo);
+            if ( p.isGooglePlace() ) {
+                mOrigemEditText.setText(p.getTitulo());
             } else {
                 mOrigemEditText.setText(coord);
 
-                LatLng latLng = new LatLng(lat, lng);
+                LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
                 GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
                     new Continuation<Address, Void>() {
                         @Override
@@ -439,13 +448,14 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
             }
         } else if ( mEditandoDestino ) {
             mEditandoDestino = false;
+            mDestino = p;
 
-            if ( titulo != null ) {
-                mDestinoEditText.setText(titulo);
+            if ( p.isGooglePlace() ) {
+                mDestinoEditText.setText(p.getTitulo());
             } else {
                 mDestinoEditText.setText(coord);
 
-                LatLng latLng = new LatLng(lat, lng);
+                LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
                 GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
                     new Continuation<Address, Void>() {
                         @Override
