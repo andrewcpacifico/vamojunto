@@ -71,6 +71,7 @@
     </string-array>
 
     <!-- Cadastro Carona Activity -->
+    <string name="loading_address">Carregando endereço...</string>
     <string name="date">Data</string>
     <string name="date_format">dd/MM/yyyy</string>
     <string name="destiny">Destino</string>
@@ -84,7 +85,9 @@
     <string name="title_activity_nova_oferta_carona">Nova Carona</string>
     <string name="time_picker_title">A que horas você vai sair?</string>
     <string name="date_picker_title">Para quando é esta carona?</string>
-    <string name="title_activity_get_location">GetLocationActivity</string>
+    <string name="title_activity_get_location">Selecione uma localização no mapa.</string>
+    <string name="choose_starting_point">Escolha o ponto de origem.</string>
+    <string name="search_place">Digite o local que deseja procurar</string>
 
     <!-- FetchAddressIntentService -->
     <string name="service_not_available">Serviço não disponível no momento.</string>
@@ -97,12 +100,13 @@
     <string name="type_addr_location">Digite um endereço ou local</string>
     <string name="set_start_point">Definir ponto de partida.</string>
     <string name="set_destiny">Definir destino</string>
-    <string name="title_activity_search_place">SearchPlaceActivity</string>
+    <string name="title_activity_search_place">Busque por um local.</string>
 
     <!-- SearchPlaceActivity -->
     <string name="search_error">Erro ao realizar busca, você está conectado a Internet?</string>
 
     <!-- Genérico -->
     <string name="no_results_found">Nenhum resultado foi encontrado.</string>
+
 
 </resources>

@@ -28,6 +28,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseUser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,7 +38,9 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.GetLocationActivity;
 import co.vamojunto.R;
+import co.vamojunto.dao.CaronaDAO;
 import co.vamojunto.helpers.GeocodingHelper;
+import co.vamojunto.model.Carona;
 import co.vamojunto.model.Place;
 
 /**
@@ -64,11 +67,13 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
     private EditText mDestinoEditText;
     private EditText mHoraEditText;
     private EditText mDataEditText;
+    private EditText mNumLugaresEditText;
+    private EditText mDetalhesEditText;
 
     private Place mOrigem;
     private Place mDestino;
 
-/***************************************************************************************************
+    /***************************************************************************************************
  *
  * Ciclo de vida do Fragment.
  *
@@ -146,8 +151,22 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param v Instância do botão salvar clicado.
      */
     private void btnSalvarOnClick(View v) {
-        if ( validaNumLugares() ) {
-            Toast.makeText(getActivity(), "Show", Toast.LENGTH_LONG).show();
+        if ( validaNumLugares() && mOrigem != null && mDestino != null ) {
+            Carona c = new Carona(
+                    leDataEditText(),
+                    leHoraEditText(),
+                    ParseUser.getCurrentUser(),
+                    Integer.parseInt(mNumLugaresEditText.getText().toString()),
+                    mDetalhesEditText.getText().toString(),
+                    mOrigem,
+                    mDestino
+            );
+            CaronaDAO dao = new CaronaDAO();
+            dao.novo(c);
+
+            Toast.makeText(getActivity(), "Carona cadastrada", Toast.LENGTH_LONG).show();
+
+            getActivity().finish();
         }
     }
 
@@ -162,7 +181,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoOrigem = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITULO, "Teste");
+        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.choose_starting_point));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
@@ -184,7 +203,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoDestino = true;
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITULO, "Teste Destino");
+        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.search_place));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destiny));
 
@@ -213,6 +232,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mDestinoEditText = (EditText) rootView.findViewById(R.id.destino_edit_text);
         mHoraEditText = (EditText) rootView.findViewById(R.id.hora_edit_text);
         mDataEditText = (EditText) rootView.findViewById(R.id.data_edit_text);
+        mNumLugaresEditText = (EditText) rootView.findViewById(R.id.num_lugares_edit_text);
+        mDetalhesEditText = (EditText) rootView.findViewById(R.id.detalhes_edit_text);
 
         // Obtém a data e hora atuais, e utiliza para inicializar os campos data e hora do formulário.
         Calendar agora = Calendar.getInstance();
@@ -411,8 +432,6 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param p Instância de Place retornada, caso o usuário tenha feito uma busca por local, ou null.
      */
     private void traduzCoordenadas(Place p) {
-        String coord = p.getLatitude() + ", " + p.getLongitude();
-
         // Verifica qual localização está sendo editada para poder atribuir o valor ao campo correto
         // Em seguida converte as coordenadas para o endereço por escrito. Essa solução tá
         // muito feia, mas são 00:00 do dia 19/02/2015, eu estou programando desde as 7:00
@@ -425,7 +444,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
             if ( p.isGooglePlace() ) {
                 mOrigemEditText.setText(p.getTitulo());
             } else {
-                mOrigemEditText.setText(coord);
+                mOrigemEditText.setText(getString(R.string.loading_address));
 
                 LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
                 GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
@@ -438,6 +457,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
                                 @Override
                                 public void run() {
                                     mOrigemEditText.setText(e);
+                                    mOrigem.setTitulo(e);
+                                    mOrigem.setEndereco(e);
                                 }
                             });
 
@@ -453,7 +474,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
             if ( p.isGooglePlace() ) {
                 mDestinoEditText.setText(p.getTitulo());
             } else {
-                mDestinoEditText.setText(coord);
+                mDestinoEditText.setText(getString(R.string.loading_address));
 
                 LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
                 GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
@@ -466,6 +487,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
                                 @Override
                                 public void run() {
                                     mDestinoEditText.setText(e);
+                                    mDestino.setTitulo(e);
+                                    mDestino.setEndereco(e);
                                 }
                             });
 
