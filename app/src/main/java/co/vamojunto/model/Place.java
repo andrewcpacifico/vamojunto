@@ -10,6 +10,7 @@
 
 package co.vamojunto.model;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -101,6 +102,7 @@ public class Place implements Parcelable {
     public String toString() {
         return mTitulo + ", " + mEndereco;
     }
+
 
     @Override
     public boolean equals(Object o) {

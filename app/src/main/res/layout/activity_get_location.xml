@@ -39,6 +39,7 @@
             android:background="#00000000"
             android:dropDownHeight="0dp"
             android:dropDownWidth="0dp"
+            android:focusable="false"
             android:hint="@string/type_addr_location"
             android:textSize="18sp"
 

@@ -10,8 +10,13 @@
 
 package co.vamojunto.util;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+
+import co.vamojunto.NovaOfertaCaronaActivity;
 
 /**
  * Classe utilitária com funções relacionadas a números
@@ -23,14 +28,14 @@ public class NumberUtil {
 
     public static double truncate(double num, int numCasasDecimais) {
         StringBuilder sbFormato = new StringBuilder("##.#");
-        for ( int i = 1; i < numCasasDecimais; i++ ) {
+        for (int i = 1; i < numCasasDecimais; i++) {
             sbFormato.append("#");
         }
 
         DecimalFormat df = new DecimalFormat(sbFormato.toString());
         df.setRoundingMode(RoundingMode.DOWN);
 
-        return Double.parseDouble(df.format(num));
+        return Double.parseDouble(df.format(num).replace(",", ""));
     }
 
 }
