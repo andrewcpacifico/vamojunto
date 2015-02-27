@@ -340,7 +340,7 @@ public class GetLocationActivity extends ActionBarActivity
         if (mLastLocation != null) {
             LatLng coord = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            if ( mMap != null )
+            if (mMap != null)
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, 17.0f));
         } else {
             Log.e(TAG, "mLastLocation ainda não foi inicializado.");

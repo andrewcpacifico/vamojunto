@@ -1,31 +1,25 @@
 package co.vamojunto;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -34,7 +28,6 @@ import bolts.Task;
 import co.vamojunto.adapters.SearchPlaceAdapter;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
-import co.vamojunto.widgets.OnRecyclerViewItemClickListener;
 
 /**
  * Tela onde o usuário pode buscar por um determinado local. A busca é feita utilizando a Places API
@@ -119,7 +112,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
             mRecyclerView.setLayoutManager(mLayoutManager);
 
             // specify an adapter (see also next example)
-            mAdapter = new SearchPlaceAdapter(rootView.getContext(), null, new OnRecyclerViewItemClickListener() {
+            mAdapter = new SearchPlaceAdapter(rootView.getContext(), null, new SearchPlaceAdapter.OnItemClickListener() {
                 @Override
                 public void OnItemClicked(View v, int position) {
                     Place p = mAdapter.getItem(position);

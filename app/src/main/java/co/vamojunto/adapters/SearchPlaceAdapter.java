@@ -22,7 +22,6 @@ import java.util.List;
 
 import co.vamojunto.R;
 import co.vamojunto.model.Place;
-import co.vamojunto.widgets.OnRecyclerViewItemClickListener;
 
 /**
  * Adapter referente a lista de locais exibidos durante a busca do usuário.
@@ -51,7 +50,7 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
             mDescTextView = (TextView) itemView.findViewById(R.id.txt_descricao);
         }
 
-        public ViewHolder(final View itemView, final OnRecyclerViewItemClickListener onClickListener) {
+        public ViewHolder(final View itemView, final OnItemClickListener onClickListener) {
             this(itemView);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -63,10 +62,14 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
         }
     }
 
+    public static interface OnItemClickListener {
+        public void OnItemClicked(View v, int position);
+    }
+
     /** Lista de locais utilizada como dataset para o RecyclerView */
     private List<Place> mDataset;
 
-    private OnRecyclerViewItemClickListener mOnItemClickListener;
+    private OnItemClickListener mOnItemClickListener;
 
     private Context mContext;
 
@@ -77,7 +80,7 @@ public class SearchPlaceAdapter extends RecyclerView.Adapter<SearchPlaceAdapter.
     }
 
     public SearchPlaceAdapter(Context c, List<Place> dataset,
-                              OnRecyclerViewItemClickListener onItemClickListener) {
+                              OnItemClickListener onItemClickListener) {
         this.mDataset = dataset;
         this.mContext = c;
         this.mOnItemClickListener = onItemClickListener;
