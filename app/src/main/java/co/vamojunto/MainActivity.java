@@ -81,6 +81,8 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         // Verifica se o usuário está autenticado
         mCurrentUser = ParseUser.getCurrentUser();
         if (mCurrentUser == null) {
@@ -91,7 +93,6 @@ public class MainActivity extends ActionBarActivity {
             this.startActivity(intent);
             this.finish();
         } else {
-            super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
             if (savedInstanceState == null) {
@@ -147,9 +148,8 @@ public class MainActivity extends ActionBarActivity {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
 
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.add(R.id.container, new MinhasCaronasFragment());
-                transaction.commit();
+                Intent intent = new Intent(MainActivity.this, NovaOfertaCaronaActivity.class);
+                startActivity(intent);
 
                 mDrawerLayout.closeDrawers();
             }

@@ -47,7 +47,6 @@ import bolts.Task;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
 import co.vamojunto.util.Globals;
-import co.vamojunto.util.NumberUtil;
 
 /**
  * Tela utilizada para o usuário buscar uma localização no mapa.
@@ -195,6 +194,8 @@ public class GetLocationActivity extends ActionBarActivity
      * Inicializa os componentes da tela
      */
     private void initComponents() {
+        mLocal = null;
+
         // Constrói o GoogleApiClient
         buildGoogleApiClient();
 
@@ -203,8 +204,6 @@ public class GetLocationActivity extends ActionBarActivity
 
         // Inicializa a Application Bar
         initAppBar();
-
-        mLocal = null;
 
         Button btnOk = (Button) findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -252,6 +251,7 @@ public class GetLocationActivity extends ActionBarActivity
             // Verifica se foi passada uma localização inicial
             if (getIntent().hasExtra(INITIAL_PLACE)) {
                 Place p = getIntent().getParcelableExtra(INITIAL_PLACE);
+                mLocal = p;
 
                 if (p.hasCoord()) {
                     lat = p.getLatitude();
@@ -264,7 +264,7 @@ public class GetLocationActivity extends ActionBarActivity
                     lat = Double.longBitsToDouble(settings.getLong(Globals.LAT_PREF_KEY, 0));
 
                 if (settings.contains(Globals.LNG_PREF_KEY))
-                    Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
+                    lng = Double.longBitsToDouble(settings.getLong(Globals.LNG_PREF_KEY, 0));
 
                 zoom = settings.getFloat(Globals.ZOOM_PREF_KEY, Globals.DEFAULT_ZOOM_LEVEL);
             }
