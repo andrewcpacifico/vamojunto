@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/lista_caronas_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:scrollbars="vertical"
+    ></android.support.v7.widget.RecyclerView>
+</LinearLayout>

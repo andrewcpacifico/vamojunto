@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~
+  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
+  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
+  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_pesquisa"
+
+        android:layout_margin="5dp"
+        android:layout_marginBottom="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        card_view:cardCornerRadius="4dp">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:padding="10dp">
+            <LinearLayout
+                android:id="@+id/header"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_motorista"
+
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+
+                    android:src="@drawable/no_profile_pic"
+                    />
+
+                <TextView
+                    android:id="@+id/nome_motorista_text_view"
+
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginLeft="10dp"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/abc_text_size_title_material"
+                    android:text="Marechal Deodoro"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/origem_text_view"
+
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="De: Universidade Federal do Amazonas"
+                android:textSize="@dimen/abc_text_size_small_material"/>
+
+            <TextView
+                android:id="@+id/destino_text_view"
+
+                android:layout_alignLeft="@+id/origem_text_view"
+                android:layout_below="@+id/origem_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Para: Samsung Instituto de Desenvolvimento de Informática do Amazonas"
+                android:textSize="@dimen/abc_text_size_small_material"/>
+
+            <TextView
+                android:id="@+id/data_text_view"
+
+                android:layout_alignLeft="@+id/destino_text_view"
+                android:layout_below="@+id/destino_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Data: 28/02/2015"
+                android:textSize="@dimen/abc_text_size_small_material"/>
+
+            <TextView
+                android:id="@+id/hora_text_view"
+
+                android:layout_marginLeft="20dp"
+                android:layout_alignTop="@+id/data_text_view"
+                android:layout_toRightOf="@+id/data_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Hora: 13:30"
+                android:textSize="@dimen/abc_text_size_small_material"/>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

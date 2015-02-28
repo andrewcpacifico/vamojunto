@@ -13,14 +13,16 @@ package co.vamojunto.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import co.vamojunto.R;
+import co.vamojunto.adapters.ListaCaronasRecyclerViewAdapter;
 import co.vamojunto.view.SlidingTabLayout;
 
 /**
@@ -42,7 +44,7 @@ public class MinhasCaronasFragment extends Fragment {
 
         // Assigning ViewPager View and setting the adapter
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
-        pager.setAdapter(new SampleAdapter(getChildFragmentManager()));
+        pager.setAdapter(new MyPagerAdapter());
 
         // Assiging the Sliding Tab Layout View
         SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
@@ -62,32 +64,55 @@ public class MinhasCaronasFragment extends Fragment {
         return rootView;
     }
 
-    class SampleAdapter extends FragmentPagerAdapter {
+    public class MyPagerAdapter extends PagerAdapter {
+        private RecyclerView mRecyclerView;
+        private LinearLayoutManager mLayoutManager;
+        private ListaCaronasRecyclerViewAdapter mAdapter;
 
-        public SampleAdapter(FragmentManager fm) {
-            super(fm);
+        @Override
+        public int getCount() {
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (position == 0)
+            if ( position == 0 )
                 return "Motorista";
 
             return "Passageiro";
         }
 
         @Override
-        public Fragment getItem(int position) {
-            if ( position == 0 )
-                return new NovaCaronaFragment();
-
-            return new FormCadastroFragment();
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
         }
 
         @Override
-        public int getCount() {
-            return 2;
+        public Object instantiateItem(ViewGroup container, int position) {
+            // Inflate a new layout from our resources
+            View rootView = LayoutInflater.from(container.getContext())
+                    .inflate(R.layout.layout_lista_caronas, container, false);
+            // Add the newly created View to the ViewPager
+            container.addView(rootView);
+
+            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.lista_caronas_recycler_view);
+
+            // use this setting to improve performance if you know that changes
+            // in content do not change the layout size of the RecyclerView
+            mRecyclerView.setHasFixedSize(true);
+
+            // use a linear layout manager
+            mLayoutManager = new LinearLayoutManager(rootView.getContext());
+            mRecyclerView.setLayoutManager(mLayoutManager);
+
+            // specify an adapter (see also next example)
+            mAdapter = new ListaCaronasRecyclerViewAdapter();
+            mRecyclerView.setAdapter(mAdapter);
+
+
+            // Return the View
+            return rootView;
+
         }
     }
-
 }
