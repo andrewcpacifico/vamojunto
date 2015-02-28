@@ -161,7 +161,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
          *
          * @param s Texto atualizado.
          */
-        private void localEditTextOnTextChanged(final CharSequence s) { 
+        private void localEditTextOnTextChanged(final CharSequence s) {
             // Oculta o botão para limpar o EditText
             if ( s.length() == 0)
                 mBtnClear.setVisibility(View.GONE);
