@@ -86,7 +86,7 @@ public class MainActivity extends ActionBarActivity {
         // Verifica se o usuário está autenticado
         mCurrentUser = ParseUser.getCurrentUser();
         if (mCurrentUser == null) {
-            Log.i(TAG, "Usuário não autenticado, exibindo tela de login.");
+            Log.i(TAG, "Usuário não autenticado, exibindo tela de login");
 
             // Caso não haja usuário autenticado exibe a tela de login.
             Intent intent = new Intent(this, LoginActivity.class);
@@ -148,8 +148,8 @@ public class MainActivity extends ActionBarActivity {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
 
-                Intent intent = new Intent(MainActivity.this, NovaOfertaCaronaActivity.class);
-                startActivity(intent);
+                getSupportFragmentManager().beginTransaction().add(R.id.container, new MinhasCaronasFragment())
+                        .commit();
 
                 mDrawerLayout.closeDrawers();
             }
