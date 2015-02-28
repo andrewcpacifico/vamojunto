@@ -161,9 +161,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
          *
          * @param s Texto atualizado.
          */
-        private void localEditTextOnTextChanged(final CharSequence s) {
-            Log.d(TAG, s.toString());
-
+        private void localEditTextOnTextChanged(final CharSequence s) { 
             // Oculta o botão para limpar o EditText
             if ( s.length() == 0)
                 mBtnClear.setVisibility(View.GONE);
@@ -183,6 +181,8 @@ public class SearchPlaceActivity extends ActionBarActivity {
         private void buscaLocal(String strBusca) {
             // Faz a busca apenas se uma outra não estiver sendo realizada.
             if ( !isSearching ) {
+                Log.d(TAG, "[buscaLocal] Iniciando busca por local, termo consultado: " + strBusca);
+
                 // Inicia a busca apenas após o usuário ter digitado pelo menos 3 caracteres.
                 if (strBusca.length() > 2) {
                     // Bloqueia outras buscas, enquanto esta ainda não for finalizada.
@@ -247,6 +247,8 @@ public class SearchPlaceActivity extends ActionBarActivity {
                                 }
                             });
                 }
+            } else {
+                Log.d(TAG, "[buscaLocal] Uma consulta já está sendo realizada, a consulta foi cancelada.");
             }
         }
 

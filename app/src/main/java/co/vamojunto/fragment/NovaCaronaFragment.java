@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import com.parse.ParseUser;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -117,8 +119,9 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param v Instância do EditText do campo data clicado.
      */
     private void dataEditTextOnClick(View v) {
-        Calendar data = leDataEditText();
+        mDataEditText.setError(null);
 
+        Calendar data = leDataEditText();
         // Obtém dia, mês e ano marcados a partir do Calendar
         int dia = data.get(Calendar.DAY_OF_MONTH);
         int mes = data.get(Calendar.MONTH);
@@ -136,6 +139,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param v Instância do EditText do campo hora clicado.
      */
     private void horaEditTextOnClick(View v) {
+        mHoraEditText.setError(null);
+
         Calendar horaMarcada = leHoraEditText();
         int hora = horaMarcada.get(Calendar.HOUR_OF_DAY);
         int minuto = horaMarcada.get(Calendar.MINUTE);
@@ -151,7 +156,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      * @param v Instância do botão salvar clicado.
      */
     private void btnSalvarOnClick(View v) {
-        if ( validaNumLugares() && mOrigem != null && mDestino != null ) {
+        if ( validaDados() ) {
             Carona c = new Carona(
                     leDataEditText(),
                     leHoraEditText(),
@@ -179,6 +184,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private void origemEditTextOnClick(View v) {
         mEditandoOrigem = true;
+        // Oculta o ícone de erro
+        mOrigemEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITULO, getString(R.string.choose_starting_point));
@@ -201,6 +208,8 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private void destinoEditTextOnclick(View v) {
         mEditandoDestino = true;
+        // Oculta o ícone de erro
+        mDestinoEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITULO, getString(R.string.search_place));
@@ -421,6 +430,82 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
 
                 return false;
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida os dados do formulário, caso algum campo tenha um valor inválido, exibe uma mensagem
+     * de erro no primeiro campo incorreto encontrado.
+     *
+     * @return True caso todos os dados sejam válidos, e false caso contrário.
+     */
+    public boolean validaDados() {
+        // Valida o campo origem do formullário.
+        if ( mOrigem == null ) {
+            mOrigemEditText.setError("Campo obrigatório");
+            // Como o campo não é selecionável, a mensagem de erro acabava não aparecendo, então
+            // utilizei um Toast.
+            Toast.makeText(getActivity(), getString(R.string.defina_origem), Toast.LENGTH_LONG).show();
+
+            return false;
+        }
+
+        // Valida o campo destino do formulário
+        if ( mDestino == null ) {
+            mDestinoEditText.setError("Campo obrigatório");
+            mDestinoEditText.requestFocus();
+
+            Toast.makeText(getActivity(), getString(R.string.defina_destino), Toast.LENGTH_LONG).show();
+
+            return false;
+        }
+
+        // Verifica se a data e horário da carona, são válidos, para serem válidos, a data e hora
+        // não podem ter passado no momento do cadastro.
+
+        // Esse primeiro trecho foi utilizado para extrair apenas a data e a hora atuais separadamente
+        // para que esses valores pudessem ser comparados individualmente com os valores de cada
+        // campo do formulário.
+        Date dtAtual = new Date();
+        SimpleDateFormat dtFormat = new SimpleDateFormat(getString(R.string.date_format));
+        String strData = dtFormat.format(dtAtual);
+
+        SimpleDateFormat hrFormat = new SimpleDateFormat(getString(R.string.time_format));
+        String strHora = hrFormat.format(dtAtual);
+
+        Calendar hoje = Calendar.getInstance();
+        Calendar agora = Calendar.getInstance();
+        try {
+            hoje.setTime(dtFormat.parse(strData));
+            agora.setTime(hrFormat.parse(strHora));
+        } catch (ParseException e) {
+            Log.d(TAG, e.getMessage() + ". Você deveria ter utilizado os formatos de data e hora padrão que são String Resources do projeto" );
+        }
+
+        // Realiza as comparações em si, caso a data selecionada, seja anterior a atual, exibe a mensagem
+        // e invalida o cadastro. Caso a data selecionada seja a mesma da atual, faz a validação
+        // da hora.
+        Calendar dataCarona = leDataEditText();
+        if (dataCarona.before(hoje)) {
+            mDataEditText.setError(getString(R.string.data_passado));
+            Toast.makeText(getActivity(), getString(R.string.data_passado), Toast.LENGTH_LONG).show();
+
+            return false;
+        } else if (dataCarona.equals(hoje)) {
+            Calendar horaCarona = leHoraEditText();
+            if (horaCarona.before(agora)) {
+                mHoraEditText.setError(getString(R.string.hora_passado));
+                Toast.makeText(getActivity(), getString(R.string.hora_passado), Toast.LENGTH_LONG).show();
+
+                return false;
+            }
+        }
+
+        // Valida o número de lugares.
+        if (!validaNumLugares()) {
+            return false;
         }
 
         return true;
