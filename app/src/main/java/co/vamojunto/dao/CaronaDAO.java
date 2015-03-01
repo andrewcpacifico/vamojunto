@@ -26,6 +26,7 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.model.Carona;
 import co.vamojunto.model.Place;
+import co.vamojunto.model.Usuario;
 import co.vamojunto.util.Globals;
 
 /**
@@ -83,11 +84,11 @@ public class CaronaDAO {
      * @return Uma {@link bolts.Task} que é finalizada após a busca pelos registros, caso tudo
      *         ocorra normalmente, a {@link bolts.Task} conterá a lista de caronas.
      */
-    public Task<List<Carona>> buscaPorMotoristaAsync(final ParseUser u) {
+    public Task<List<Carona>> buscaPorMotoristaAsync(final Usuario u) {
         final Task<List<Carona>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS_NAME);
-        query.whereEqualTo(FIELD_MOTORISTA, u);
+        query.whereEqualTo(FIELD_MOTORISTA, u.toParseObject());
 
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
@@ -100,7 +101,9 @@ public class CaronaDAO {
                         dataHora.setTime(parseCarona.getDate(FIELD_DATA_HORA));
 
                         Place origem = new Place(parseCarona.getDouble(FIELD_ORIGEM_LAT), parseCarona.getDouble(FIELD_ORIGEM_LNG));
+                        origem.setTitulo(parseCarona.getString(FIELD_ORIGEM_TITULO));
                         Place destino = new Place(parseCarona.getDouble(FIELD_DESTINO_LAT), parseCarona.getDouble(FIELD_DESTINO_LNG));
+                        destino.setTitulo(parseCarona.getString(FIELD_DESTINO_TITULO));
 
                         lstRes.add(new Carona(parseCarona.getObjectId(), dataHora, u, parseCarona.getInt(FIELD_NUM_LUGARES),
                                 parseCarona.getString(FIELD_DETALHES), origem, destino));

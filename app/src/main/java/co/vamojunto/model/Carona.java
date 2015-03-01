@@ -24,13 +24,13 @@ public class Carona {
 
     private String mId;
     private Calendar mDataHora;
-    private ParseUser mMotorista;
+    private Usuario mMotorista;
     private int mNumLugares;
     private String mDetalhes;
     private Place mOrigem;
     private Place mDestino;
 
-    public Carona(String id, Calendar dataHora, ParseUser motorista, int numLugares,
+    public Carona(String id, Calendar dataHora, Usuario motorista, int numLugares,
                   String detalhes, Place origem, Place destino) {
         this.mId = id;
         this.mDataHora = dataHora;
@@ -41,7 +41,7 @@ public class Carona {
         this.mDestino = destino;
     }
 
-    public Carona(Calendar dataHora, ParseUser motorista, int numLugares,
+    public Carona(Calendar dataHora, Usuario motorista, int numLugares,
                   String detalhes, Place origem, Place destino) {
         this.mDataHora = dataHora;
         this.mMotorista = motorista;
@@ -63,11 +63,11 @@ public class Carona {
         this.mDataHora = dataHora;
     }
 
-    public ParseUser getMotorista() {
+    public Usuario getMotorista() {
         return mMotorista;
     }
 
-    public void setMotorista(ParseUser motorista) {
+    public void setMotorista(Usuario motorista) {
         this.mMotorista = motorista;
     }
 

@@ -29,7 +29,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.ParseUser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,6 +43,7 @@ import co.vamojunto.dao.CaronaDAO;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Carona;
 import co.vamojunto.model.Place;
+import co.vamojunto.model.Usuario;
 
 /**
  * {@link android.support.v4.app.Fragment} com a interface padrão da tela de cadastro de carona.
@@ -164,7 +164,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
 
             Carona c = new Carona(
                     dataHora,
-                    ParseUser.getCurrentUser(),
+                    Usuario.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
                     mDetalhesEditText.getText().toString(),
                     mOrigem,

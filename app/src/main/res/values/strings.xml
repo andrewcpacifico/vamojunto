@@ -111,6 +111,8 @@
 
     <!-- Genérico -->
     <string name="no_results_found">Nenhum resultado foi encontrado.</string>
+    <string name="de">De</string>
+    <string name="para">Para</string>
 
 
 </resources>
