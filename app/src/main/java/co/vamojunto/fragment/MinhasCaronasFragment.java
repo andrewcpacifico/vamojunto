@@ -17,12 +17,21 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.parse.ParseUser;
+
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.adapters.ListaCaronasRecyclerViewAdapter;
+import co.vamojunto.dao.CaronaDAO;
+import co.vamojunto.model.Carona;
 import co.vamojunto.view.SlidingTabLayout;
 
 /**
@@ -32,6 +41,8 @@ import co.vamojunto.view.SlidingTabLayout;
  * @since 0.1.0
  */
 public class MinhasCaronasFragment extends Fragment {
+
+    private static final String TAG = "MinhasCaronasFragment";
 
     public MinhasCaronasFragment() {
         // Required empty public constructor
@@ -60,6 +71,17 @@ public class MinhasCaronasFragment extends Fragment {
 
         // Setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
+
+        CaronaDAO dao = new CaronaDAO();
+        dao.buscaPorMotoristaAsync(ParseUser.getCurrentUser()).continueWith(new Continuation<List<Carona>, Void>() {
+            @Override
+            public Void then(Task<List<Carona>> task) throws Exception {
+                Log.d(TAG, task.getResult().toString());
+                Log.d(TAG, String.valueOf(task.getResult().size()));
+
+                return null;
+            }
+        });
 
         return rootView;
     }

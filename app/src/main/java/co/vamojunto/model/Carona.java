@@ -23,18 +23,27 @@ import java.util.Calendar;
 public class Carona {
 
     private String mId;
-    private Calendar mData;
-    private Calendar mHora;
+    private Calendar mDataHora;
     private ParseUser mMotorista;
     private int mNumLugares;
     private String mDetalhes;
     private Place mOrigem;
     private Place mDestino;
 
-    public Carona(Calendar data, Calendar hora, ParseUser motorista, int numLugares,
+    public Carona(String id, Calendar dataHora, ParseUser motorista, int numLugares,
                   String detalhes, Place origem, Place destino) {
-        this.mData = data;
-        this.mHora = hora;
+        this.mId = id;
+        this.mDataHora = dataHora;
+        this.mMotorista = motorista;
+        this.mNumLugares = numLugares;
+        this.mDetalhes = detalhes;
+        this.mOrigem = origem;
+        this.mDestino = destino;
+    }
+
+    public Carona(Calendar dataHora, ParseUser motorista, int numLugares,
+                  String detalhes, Place origem, Place destino) {
+        this.mDataHora = dataHora;
         this.mMotorista = motorista;
         this.mNumLugares = numLugares;
         this.mDetalhes = detalhes;
@@ -46,24 +55,12 @@ public class Carona {
         return mId;
     }
 
-    public void setId(String id) {
-        this.mId = id;
+    public Calendar getDataHora() {
+        return mDataHora;
     }
 
-    public Calendar getData() {
-        return mData;
-    }
-
-    public void setData(Calendar data) {
-        this.mData = data;
-    }
-
-    public Calendar getHora() {
-        return mHora;
-    }
-
-    public void setHora(Calendar hora) {
-        this.mHora = hora;
+    public void setData(Calendar dataHora) {
+        this.mDataHora = dataHora;
     }
 
     public ParseUser getMotorista() {
@@ -104,5 +101,18 @@ public class Carona {
 
     public void setDestino(Place destino) {
         this.mDestino = destino;
+    }
+
+    @Override
+    public String toString() {
+        return "Carona{" +
+                "mId='" + mId + '\'' +
+                ", mDataHora=" + mDataHora +
+                ", mMotorista=" + mMotorista +
+                ", mNumLugares=" + mNumLugares +
+                ", mDetalhes='" + mDetalhes + '\'' +
+                ", mOrigem=" + mOrigem +
+                ", mDestino=" + mDestino +
+                '}';
     }
 }

@@ -12,11 +12,20 @@ package co.vamojunto.dao;
 
 import android.util.Log;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.model.Carona;
+import co.vamojunto.model.Place;
 import co.vamojunto.util.Globals;
 
 /**
@@ -27,7 +36,7 @@ import co.vamojunto.util.Globals;
  */
 public class CaronaDAO {
 
-    private static final String TAG = Globals.PACKAGE + "CaronaDAO";
+    private static final String TAG = "CaronaDAO";
     private static final String CLASS_NAME = "Carona";
 
     private static final String FIELD_DATA_HORA = "data_hora";
@@ -48,10 +57,7 @@ public class CaronaDAO {
     public void novo(Carona c) {
         ParseObject pObj = new ParseObject(CLASS_NAME);
 
-        Calendar data_hora = c.getData();
-        data_hora.set(Calendar.HOUR_OF_DAY, c.getHora().get(Calendar.HOUR_OF_DAY));
-        data_hora.set(Calendar.MINUTE, c.getHora().get(Calendar.MINUTE));
-        pObj.put(FIELD_DATA_HORA, data_hora.getTime());
+        pObj.put(FIELD_DATA_HORA, c.getDataHora().getTime());
 
         pObj.put(FIELD_MOTORISTA, c.getMotorista());
 
@@ -68,6 +74,46 @@ public class CaronaDAO {
         pObj.put(FIELD_DETALHES, c.getDetalhes());
 
         pObj.saveInBackground();
+    }
+
+    /**
+     * Recupera uma lista de caronas que têm como motorista um determinado usuário, ou seja,
+     * recupera todas as ofertas de carona feitas por esse usuário.
+     * @param u Usuário do qual deseja-se recuperar as ofertas de carona.
+     * @return Uma {@link bolts.Task} que é finalizada após a busca pelos registros, caso tudo
+     *         ocorra normalmente, a {@link bolts.Task} conterá a lista de caronas.
+     */
+    public Task<List<Carona>> buscaPorMotoristaAsync(final ParseUser u) {
+        final Task<List<Carona>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS_NAME);
+        query.whereEqualTo(FIELD_MOTORISTA, u);
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if ( e == null ) {
+                    List<Carona> lstRes = new ArrayList<Carona>();
+
+                    for (ParseObject parseCarona : parseObjects) {
+                        Calendar dataHora = Calendar.getInstance();
+                        dataHora.setTime(parseCarona.getDate(FIELD_DATA_HORA));
+
+                        Place origem = new Place(parseCarona.getDouble(FIELD_ORIGEM_LAT), parseCarona.getDouble(FIELD_ORIGEM_LNG));
+                        Place destino = new Place(parseCarona.getDouble(FIELD_DESTINO_LAT), parseCarona.getDouble(FIELD_DESTINO_LNG));
+
+                        lstRes.add(new Carona(parseCarona.getObjectId(), dataHora, u, parseCarona.getInt(FIELD_NUM_LUGARES),
+                                parseCarona.getString(FIELD_DETALHES), origem, destino));
+                    }
+
+                    tcs.setResult(lstRes);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
     }
 
 }

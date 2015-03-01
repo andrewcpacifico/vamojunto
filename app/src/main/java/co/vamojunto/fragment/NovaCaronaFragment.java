@@ -157,9 +157,13 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private void btnSalvarOnClick(View v) {
         if ( validaDados() ) {
+            Calendar hora = leHoraEditText();
+            Calendar dataHora = leDataEditText();
+            dataHora.set(Calendar.HOUR_OF_DAY, hora.get(Calendar.HOUR_OF_DAY));
+            dataHora.set(Calendar.MINUTE, hora.get(Calendar.MINUTE));
+
             Carona c = new Carona(
-                    leDataEditText(),
-                    leHoraEditText(),
+                    dataHora,
                     ParseUser.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
                     mDetalhesEditText.getText().toString(),
@@ -250,8 +254,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         escreveDataEditText(agora);
 
         // Vincula o método que será executado no evento OnClick no EditText da hora
-        EditText horaEditText = (EditText) rootView.findViewById(R.id.hora_edit_text);
-        horaEditText.setOnClickListener(new View.OnClickListener() {
+        mHoraEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 horaEditTextOnClick(v);
@@ -259,8 +262,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         });
 
         // Vincula o método que será executado no evento OnClick no EditText da data
-        EditText dataEditText = (EditText) rootView.findViewById(R.id.data_edit_text);
-        dataEditText.setOnClickListener(new View.OnClickListener() {
+        mDataEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dataEditTextOnClick(v);
@@ -277,8 +279,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         });
 
         // Vincula o método que será executado no evento OnClick do EditText da origem da carona
-        EditText origemEditText = (EditText) rootView.findViewById(R.id.origem_edit_text);
-        origemEditText.setOnClickListener(new View.OnClickListener() {
+        mOrigemEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 origemEditTextOnClick(v);
@@ -286,8 +287,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         });
 
         // Vincula o método que será executado no evento OnClick do EditText do destino da carona
-        EditText destinoEditText = (EditText) rootView.findViewById(R.id.destino_edit_text);
-        destinoEditText.setOnClickListener(new View.OnClickListener() {
+        mDestinoEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 destinoEditTextOnclick(v);
