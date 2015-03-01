@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.vamojunto.adapters.SearchPlaceAdapter;
+
 /**
  * Adapter utilizado para preencher os dados do NavigationDrawer
  *
@@ -44,6 +46,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     /** Email do usuário autenticado para ser exibido no cabeçalho */
     private String mEmailUsuario;
 
+    private OnItemClickListener mItemClickListener;
+
     /**
      * Sobrescrita do {@link android.support.v7.widget.RecyclerView.ViewHolder}
      */
@@ -66,7 +70,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
          * @param itemView Layout inflado
          * @param viewType Tipo de ViewHolder a ser carregado (Item de menu ou cabeçalho).
          */
-        public ViewHolder(View itemView, int viewType) {
+        public ViewHolder(View itemView, int viewType, final OnItemClickListener clickListener) {
             super(itemView);
 
             // Here we set the appropriate view in accordance with the the view type as passed when the holder object is created
@@ -83,7 +87,18 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                 mImgUsuarioView = (ImageView) itemView.findViewById(R.id.circleView);
                 mHolderType = TYPE_HEADER;
             }
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.OnItemClick(v, getPosition());
+                }
+            });
         }
+    }
+
+    interface OnItemClickListener {
+        public void OnItemClick(View v, int position);
     }
 
 
@@ -96,7 +111,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      * @param imgUsuario Bitmap da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      */
-    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, Bitmap imgUsuario) {
+    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, Bitmap imgUsuario,
+                                   NavigationDrawerAdapter.OnItemClickListener clickListener) {
         /* Inicializa os dados do usuário */
         mNomeUsuario = nomeUsuario;
         mEmailUsuario = emailUsuario;
@@ -104,6 +120,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
         /* Inicializa os dados dos itens do menu */
         mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
+
+        mItemClickListener = clickListener;
     }
 
     /**
@@ -125,7 +143,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             View v = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.drawer_list_row, parent, false); //Inflating the layout
 
-            ViewHolder vhItem = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
+            ViewHolder vhItem = new ViewHolder(v, viewType, mItemClickListener); //Creating ViewHolder and passing the object of type view
 
             return vhItem; // Returning the created object
 
@@ -133,7 +151,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         } else if (viewType == TYPE_HEADER) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false); //Inflating the layout
 
-            ViewHolder vhHeader = new ViewHolder(v, viewType); //Creating ViewHolder and passing the object of type view
+            ViewHolder vhHeader = new ViewHolder(v, viewType, mItemClickListener); //Creating ViewHolder and passing the object of type view
 
             return vhHeader; //returning the object created
         }

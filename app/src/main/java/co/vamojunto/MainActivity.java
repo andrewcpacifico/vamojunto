@@ -10,17 +10,10 @@
 
 package co.vamojunto;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,20 +23,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 import co.vamojunto.fragment.MainFragment;
 import co.vamojunto.fragment.MinhasCaronasFragment;
-import co.vamojunto.fragment.NovaCaronaFragment;
 import co.vamojunto.util.Globals;
 
 /**
@@ -54,10 +39,7 @@ import co.vamojunto.util.Globals;
  */
 public class MainActivity extends ActionBarActivity {
 
-    /**
-     * Usado para identificação nos logs
-     */
-    private static final String TAG = Globals.PACKAGE + "MainActivity";
+    private static final String TAG = "MainActivity";
 
     private Toolbar mToolbar;
 
@@ -136,7 +118,12 @@ public class MainActivity extends ActionBarActivity {
         }
 
         mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getString("nome"),
-                mCurrentUser.getEmail(), imgUsuario);
+                mCurrentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(View v, int position) {
+                navigationDrawerItemClicked(v, position);
+            }
+        });
 
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(this);
@@ -147,11 +134,6 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-
-                getSupportFragmentManager().beginTransaction().add(R.id.container, new MinhasCaronasFragment())
-                        .commit();
-
-                mDrawerLayout.closeDrawers();
             }
 
             @Override
@@ -173,5 +155,24 @@ public class MainActivity extends ActionBarActivity {
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
+    }
+
+    /**
+     * Trata ações de cliques nos items do NavigationDrawer
+     * @param v Instância da linha clicada no NavigationDrawer
+     * @param position Posição do item clicado.
+     */
+    private void navigationDrawerItemClicked(View v, int position) {
+        switch (position) {
+            // Primeiro item do menu.
+            case 1:
+                // Carrega o Fragment MinhasCaronas para a tela principal.
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MinhasCaronasFragment()).commit();
+                break;
+        }
+
+        // Fecha o NavigationDrawer após o clique.
+        mDrawerLayout.closeDrawers();
     }
 }
