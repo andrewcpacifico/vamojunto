@@ -26,4 +26,6 @@ public class Globals {
     public static final double MANAUS_LAT = -3.065635;
     public static final double MANAUS_LNG = -59.995240;
 
+    public static final int NOVA_CARONA_ACTIVITY_REQUEST_CODE = 1;
+
 }

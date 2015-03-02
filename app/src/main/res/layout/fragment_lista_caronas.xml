@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
   ~
@@ -22,7 +21,7 @@
         android:layout_weight="1"
 
         android:scrollbars="vertical"
-    ></android.support.v7.widget.RecyclerView>
+        ></android.support.v7.widget.RecyclerView>
 
     <Button
         android:id="@+id/btn_ok"

@@ -93,7 +93,7 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
         holder.mNomeMotoristaTextView.setText(c.getMotorista().getNome());
-        holder.mImgMotoristaImageView.setImageBitmap(c.getMotorista().getImage());
+        holder.mImgMotoristaImageView.setImageBitmap(c.getMotorista().getImgPerfil());
         holder.mOrigemTextView.setText(mContext.getString(R.string.de) + ": " + c.getOrigem().getTitulo());
         holder.mDestinoTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestino().getTitulo());
         holder.mDataTextView.setText(dateFormat.format(c.getDataHora().getTime()));

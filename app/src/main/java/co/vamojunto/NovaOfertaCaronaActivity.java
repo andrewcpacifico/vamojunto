@@ -27,6 +27,8 @@ import co.vamojunto.fragment.NovaCaronaFragment;
  */
 public class NovaOfertaCaronaActivity extends ActionBarActivity {
 
+    public static final String RES_CARONA = "carona";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

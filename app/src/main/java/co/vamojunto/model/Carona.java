@@ -10,9 +10,20 @@
 
 package co.vamojunto.model;
 
-import com.parse.ParseUser;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import com.parse.FindCallback;
+import com.parse.ParseClassName;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+
+import bolts.Task;
 
 /**
  * Modelo de uma carona no sistema.
@@ -20,99 +31,167 @@ import java.util.Calendar;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class Carona {
+@ParseClassName("Carona")
+public class Carona extends ParseObject implements Parcelable {
 
-    private String mId;
-    private Calendar mDataHora;
-    private Usuario mMotorista;
-    private int mNumLugares;
-    private String mDetalhes;
-    private Place mOrigem;
-    private Place mDestino;
+    private static final String FIELD_DATA_HORA = "data_hora";
+    private static final String FIELD_MOTORISTA = "motorista";
+    private static final String FIELD_ORIGEM_LAT = "origem_lat";
+    private static final String FIELD_ORIGEM_LNG = "origem_lng";
+    private static final String FIELD_ORIGEM_TITULO = "origem_titulo";
+    private static final String FIELD_DESTINO_LAT = "destino_lat";
+    private static final String FIELD_DESTINO_LNG = "destino_lng";
+    private static final String FIELD_DESTINO_TITULO = "destino_titulo";
+    private static final String FIELD_NUM_LUGARES = "num_lugares";
+    private static final String FIELD_DETALHES = "detalhes";
 
-    public Carona(String id, Calendar dataHora, Usuario motorista, int numLugares,
-                  String detalhes, Place origem, Place destino) {
-        this.mId = id;
-        this.mDataHora = dataHora;
-        this.mMotorista = motorista;
-        this.mNumLugares = numLugares;
-        this.mDetalhes = detalhes;
-        this.mOrigem = origem;
-        this.mDestino = destino;
-    }
+    public Carona() {}
 
     public Carona(Calendar dataHora, Usuario motorista, int numLugares,
                   String detalhes, Place origem, Place destino) {
-        this.mDataHora = dataHora;
-        this.mMotorista = motorista;
-        this.mNumLugares = numLugares;
-        this.mDetalhes = detalhes;
-        this.mOrigem = origem;
-        this.mDestino = destino;
+        setDataHora(dataHora);
+        setMotorista(motorista);
+        setNumLugares(numLugares);
+        setDetalhes(detalhes);
+        setOrigem(origem);
+        setDestino(destino);
     }
 
     public String getId() {
-        return mId;
+        return getObjectId();
     }
 
     public Calendar getDataHora() {
-        return mDataHora;
+        Calendar c = Calendar.getInstance();
+        c.setTime(getDate(FIELD_DATA_HORA));
+
+        return c;
     }
 
-    public void setData(Calendar dataHora) {
-        this.mDataHora = dataHora;
+    public void setDataHora(Calendar dataHora) {
+        put(FIELD_DATA_HORA, dataHora.getTime());
     }
 
     public Usuario getMotorista() {
-        return mMotorista;
+        return (Usuario) getParseUser(FIELD_MOTORISTA);
     }
 
     public void setMotorista(Usuario motorista) {
-        this.mMotorista = motorista;
+        put(FIELD_MOTORISTA, motorista);
     }
 
     public int getNumLugares() {
-        return mNumLugares;
+        return getInt(FIELD_NUM_LUGARES);
     }
 
     public void setNumLugares(int numLugares) {
-        this.mNumLugares = numLugares;
+        put(FIELD_NUM_LUGARES, numLugares);
     }
 
     public String getDetalhes() {
-        return mDetalhes;
+        return getString(FIELD_DETALHES);
     }
 
     public void setDetalhes(String detalhes) {
-        this.mDetalhes = detalhes;
+        put(FIELD_DETALHES, detalhes);
     }
 
     public Place getOrigem() {
-        return mOrigem;
+        Place p = new Place(getDouble(FIELD_ORIGEM_LAT), getDouble(FIELD_ORIGEM_LNG));
+        p.setTitulo(getString(FIELD_ORIGEM_TITULO));
+
+        return p;
     }
 
     public void setOrigem(Place origem) {
-        this.mOrigem = origem;
+        put(FIELD_ORIGEM_LAT, origem.getLatitude());
+        put(FIELD_ORIGEM_LNG, origem.getLongitude());
+        put(FIELD_ORIGEM_TITULO, origem.getTitulo());
     }
 
     public Place getDestino() {
-        return mDestino;
+        Place p = new Place(getDouble(FIELD_DESTINO_LAT), getDouble(FIELD_DESTINO_LNG));
+        p.setTitulo(getString(FIELD_DESTINO_TITULO));
+
+        return p;
     }
 
     public void setDestino(Place destino) {
-        this.mDestino = destino;
+        put(FIELD_DESTINO_LAT, destino.getLatitude());
+        put(FIELD_DESTINO_LNG, destino.getLongitude());
+        put(FIELD_DESTINO_TITULO, destino.getTitulo());
+    }
+
+
+    /**
+     * Recupera uma lista de caronas que têm como motorista um determinado usuário, ou seja,
+     * recupera todas as ofertas de carona feitas por esse usuário.
+     * @param u Usuário do qual deseja-se recuperar as ofertas de carona.
+     * @return Uma {@link bolts.Task} que é finalizada após a busca pelos registros, caso tudo
+     *         ocorra normalmente, a {@link bolts.Task} conterá a lista de caronas.
+     */
+    public static Task<List<Carona>> buscaPorMotoristaAsync(final Usuario u) {
+        final Task<List<Carona>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<Carona> query = ParseQuery.getQuery(Carona.class);
+        query.whereEqualTo(FIELD_MOTORISTA, u);
+
+        query.findInBackground(new FindCallback<Carona>() {
+            @Override
+            public void done(List<Carona> caronas, ParseException e) {
+                if ( e == null ) {
+                    tcs.setResult(caronas);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+/***************************************************************************************************
+ *
+ * Transformando em um Parcelable object
+ *
+ ***************************************************************************************************/
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
-    public String toString() {
-        return "Carona{" +
-                "mId='" + mId + '\'' +
-                ", mDataHora=" + mDataHora +
-                ", mMotorista=" + mMotorista +
-                ", mNumLugares=" + mNumLugares +
-                ", mDetalhes='" + mDetalhes + '\'' +
-                ", mOrigem=" + mOrigem +
-                ", mDestino=" + mDestino +
-                '}';
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getId());
+        dest.writeSerializable(getDataHora());
+        dest.writeParcelable(getDestino(), flags);
+        dest.writeString(getDetalhes());
+        dest.writeParcelable(getMotorista(), flags);
+        dest.writeInt(getNumLugares());
+        dest.writeParcelable(getOrigem(), flags);
+    }
+
+    public static final Parcelable.Creator<Carona> CREATOR = new Parcelable.Creator<Carona>() {
+        public Carona createFromParcel(Parcel in) {
+            Carona c = ParseObject.createWithoutData(Carona.class, in.readString());
+
+            c.setDataHora((Calendar) in.readSerializable());
+            c.setDestino((Place) in.readParcelable(Place.class.getClassLoader()));
+            c.setDetalhes(in.readString());
+            c.setMotorista((Usuario) in.readParcelable(Usuario.class.getClassLoader()));
+            c.setNumLugares(in.readInt());
+            c.setOrigem((Place) in.readParcelable(Place.class.getClassLoader()));
+
+            return c;
+        }
+
+        public Carona[] newArray(int size) {
+            return new Carona[size];
+        }
+    };
+
+    private Carona(Parcel in) {
+
     }
 }

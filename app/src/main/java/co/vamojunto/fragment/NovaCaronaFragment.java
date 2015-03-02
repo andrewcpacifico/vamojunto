@@ -13,6 +13,7 @@ package co.vamojunto.fragment;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.location.Address;
@@ -38,8 +39,8 @@ import java.util.Date;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.GetLocationActivity;
+import co.vamojunto.NovaOfertaCaronaActivity;
 import co.vamojunto.R;
-import co.vamojunto.dao.CaronaDAO;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Carona;
 import co.vamojunto.model.Place;
@@ -74,6 +75,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
 
     private Place mOrigem;
     private Place mDestino;
+    private ProgressDialog mProDialog;
 
     /***************************************************************************************************
  *
@@ -162,20 +164,30 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
             dataHora.set(Calendar.HOUR_OF_DAY, hora.get(Calendar.HOUR_OF_DAY));
             dataHora.set(Calendar.MINUTE, hora.get(Calendar.MINUTE));
 
-            Carona c = new Carona(
+            final Carona c = new Carona(
                     dataHora,
-                    Usuario.getCurrentUser(),
+                    (Usuario) Usuario.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
                     mDetalhesEditText.getText().toString(),
                     mOrigem,
                     mDestino
             );
-            CaronaDAO dao = new CaronaDAO();
-            dao.novo(c);
 
-            Toast.makeText(getActivity(), "Carona cadastrada", Toast.LENGTH_LONG).show();
+            startLoading();
+            c.saveInBackground().continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    stopLoading();
 
-            getActivity().finish();
+                    Intent intent = new Intent();
+                    intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
+
+                    getActivity().setResult(Activity.RESULT_OK, intent);
+                    getActivity().finish();
+
+                    return null;
+                }
+            });
         }
     }
 
@@ -583,6 +595,25 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
                 );
             }
         }
+    }
+
+    /**
+     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(getActivity());
+        mProDialog.setMessage(getString(R.string.salvando_carona));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finaliza o diálogo do carregamento da tela principal.
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
     public NovaCaronaFragment() {

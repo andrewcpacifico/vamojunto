@@ -25,6 +25,9 @@ import com.parse.ParseUser;
 import java.util.Date;
 import java.util.List;
 
+import co.vamojunto.model.Carona;
+import co.vamojunto.model.Usuario;
+
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
@@ -40,6 +43,8 @@ public class MyApplication extends Application {
         String appId = getResources().getString(R.string.parse_app_id);
         String clientId = getResources().getString(R.string.parse_client_id);
 
+        ParseObject.registerSubclass(Usuario.class);
+        ParseObject.registerSubclass(Carona.class);
         Parse.initialize(this, appId, clientId);
 
        /* new Session(this).closeAndClearTokenInformation();
