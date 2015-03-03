@@ -118,6 +118,9 @@
     <string name="minhas_caronas_fragment_tab1">Motorista</string>
     <string name="minhas_caronas_fragment_tab2">Passageiro</string>
     <string name="salvando_carona">Salvando oferta de carona...</string>
+    <string name="minhas_caronas_fragment_tab3">Pedidos</string>
+    <string name="erro_cadastro_carona">Erro ao salvar carona, por favor tente novamente.</string>
+    <string name="carona_cadastrada">Oferta de carona cadastrada com sucesso.</string>
 
 
 </resources>

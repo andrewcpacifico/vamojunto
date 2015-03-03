@@ -174,16 +174,21 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
             );
 
             startLoading();
-            c.saveInBackground().continueWith(new Continuation<Void, Object>() {
+            c.saveInBackground().continueWith(new Continuation<Void, Void>() {
                 @Override
-                public Object then(Task<Void> task) throws Exception {
+                public Void then(Task<Void> task) throws Exception {
                     stopLoading();
 
-                    Intent intent = new Intent();
-                    intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
+                    if (!task.isCancelled() && !task.isFaulted()) {
+                        Intent intent = new Intent();
+                        intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
 
-                    getActivity().setResult(Activity.RESULT_OK, intent);
-                    getActivity().finish();
+                        getActivity().setResult(Activity.RESULT_OK, intent);
+                        getActivity().finish();
+                    } else {
+                        Log.e(TAG, task.getError().getMessage());
+                        Toast.makeText(getActivity(), getString(R.string.erro_cadastro_carona), Toast.LENGTH_LONG);
+                    }
 
                     return null;
                 }

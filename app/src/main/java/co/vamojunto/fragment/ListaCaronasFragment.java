@@ -18,10 +18,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +38,20 @@ import co.vamojunto.model.Usuario;
 import co.vamojunto.util.Globals;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment para listagem das caronas em que um determinado usuário participa, como motorista ou
+ * passageiro.
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @since 0.1.0
  */
 public class ListaCaronasFragment extends Fragment {
+
+    private static final String TAG = "ListaCaronasFragment";
 
     private RecyclerView mOfertasRecyclerView;
     private LinearLayoutManager mOfertasLayoutManager;
     private ListaCaronasRecyclerViewAdapter mOfertasAdapter;
 
-    private Button mBtnOk;
     private ProgressDialog mProDialog;
 
     public ListaCaronasFragment() {
@@ -70,8 +77,25 @@ public class ListaCaronasFragment extends Fragment {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE) {
                 Carona c = data.getParcelableExtra(NovaOfertaCaronaActivity.RES_CARONA);
+                addItem(c);
+
+                Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG);
             }
         }
+    }
+
+    /**
+     * Adiciona um registro de carona à tela, é chamado após o cadastro de uma nova carona, para que
+     * não seja necessário recarregar todos os dados da nuvem.
+     *
+     * @param c Carona a ser adicionada à interface.
+     */
+    private void addItem(Carona c) {
+        mOfertasAdapter.addItem(c);
+
+        // Após a adição do item, rola o recyclerview para o início, para que o usuário possa visualizar
+        // o registro inserido.
+        mOfertasLayoutManager.scrollToPosition(0);
     }
 
     /**
@@ -93,6 +117,10 @@ public class ListaCaronasFragment extends Fragment {
         mProDialog = null;
     }
 
+    /**
+     * Inicializa os componentes da tela.
+     * @param rootView Layout inflado do fragment.
+     */
     public void initComponents(View rootView) {
         mOfertasRecyclerView = (RecyclerView) rootView.findViewById(R.id.lista_caronas_recycler_view);
 
@@ -135,12 +163,8 @@ public class ListaCaronasFragment extends Fragment {
                 if ( !task.isFaulted() && !task.isCancelled()) {
                     List<Carona> lstCaronas = task.getResult();
                     mOfertasAdapter.setDataset(lstCaronas);
-                    mOfertasRecyclerView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mOfertasAdapter.notifyDataSetChanged();
-                        }
-                    });
+                } else {
+                    Log.e(TAG, task.getError().getMessage());
                 }
 
                 return null;

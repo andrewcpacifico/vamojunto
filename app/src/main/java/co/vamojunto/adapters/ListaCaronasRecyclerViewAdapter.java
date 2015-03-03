@@ -13,6 +13,8 @@ package co.vamojunto.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +45,9 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
 
     private Context mContext;
 
+    /** Utilizado para executar algo na Thread principal */
+    private Handler mHandler;
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         public CircleImageView mImgMotoristaImageView;
         public TextView mNomeMotoristaTextView;
@@ -69,10 +74,43 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
     public ListaCaronasRecyclerViewAdapter(Context context, List<Carona> dataset) {
         this.mDataset = dataset;
         this.mContext = context;
+        this.mHandler = new Handler(Looper.getMainLooper());
     }
 
+    /**
+     * Atualiza o dataset do RecyclerView
+     * @param dataset O novo dataset.
+     */
     public void setDataset(List<Carona> dataset) {
         this.mDataset = dataset;
+
+        // Notifica a mudança no dataset, para que a atualização visual seja imediata, esta ação
+        // deve ser executada na Thread principal, por isso a utilização do handler
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
+    }
+
+    /**
+     * Permite a adição de um item ao dataset, em seguida notifica a adição de um novo item, para
+     * que o RecyclerView seja atualizado.
+     * @param c A carona a ser adicionada ao dataset, e consequentemente à tela.
+     */
+    public void addItem(Carona c) {
+        // O item novo é adicionado à primeira posição do dataset, para que seja exibido no topo.
+        this.mDataset.add(0, c);
+
+        // Mesma situação da alteração de dataset, o código precisa ser executado na Thread principal
+        // para ter efeito imediato.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                notifyItemInserted(0);
+            }
+        });
     }
 
     @Override

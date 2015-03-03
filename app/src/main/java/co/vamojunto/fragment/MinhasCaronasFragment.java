@@ -103,8 +103,10 @@ public class MinhasCaronasFragment extends Fragment {
         public CharSequence getPageTitle(int position) {
             if (position == 0)
                 return getString(R.string.minhas_caronas_fragment_tab1);
+            else if (position == 1)
+                return getString(R.string.minhas_caronas_fragment_tab2);
 
-            return getString(R.string.minhas_caronas_fragment_tab2);
+            return getString(R.string.minhas_caronas_fragment_tab3);
         }
 
         @Override
@@ -117,7 +119,7 @@ public class MinhasCaronasFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     }
 
