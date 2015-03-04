@@ -79,7 +79,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
     private Place mDestino;
     private ProgressDialog mProDialog;
 
-    /***************************************************************************************************
+/***************************************************************************************************
  *
  * Ciclo de vida do Fragment.
  *
@@ -155,7 +155,10 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
     }
 
     /**
-     * Executado quando o botão salvar do formulário é pressionado.
+     * Executado quando o botão salvar do formulário é pressionado. Faz a validação dos dados do
+     * formulário, caso todos os dados sejam válidos, instancia uma nova carona, e a salva na nuvem,
+     * após o salvamento, caso nenhum erro ocorra, retorna essa instância como Intent Extra e finaliza
+     * a Activity.
      *
      * @param v Instância do botão salvar clicado.
      */

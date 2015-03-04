@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,15 +53,31 @@ public class ListaCaronasFragment extends Fragment {
 
     private static final String TAG = "ListaCaronasFragment";
 
+    /**
+     * RecyclerView onde são exibidos os registros das caronas.
+     */
     private RecyclerView mOfertasRecyclerView;
+
+    /**
+     * LayoutManager utilizado pelo mOfertasRecyclerView
+     */
     private LinearLayoutManager mOfertasLayoutManager;
+
+    /**
+     * Adapter utilizado para gerenciar os dados do mOfertasRecyclerView
+     */
     private ListaCaronasRecyclerViewAdapter mOfertasAdapter;
 
-    private ProgressDialog mProDialog;
+    /**
+     * ViewSwitcher utilizado para alterar entre a ProgressBar que é exibida enquanto as caronas
+     * são carregadas, e a tela principal.
+     */
+    private ViewSwitcher mViewSwitcher;
 
-    public ListaCaronasFragment() {
-        // Required empty public constructor
-    }
+    /**
+     * Required default constructor
+     */
+    public ListaCaronasFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,42 +111,8 @@ public class ListaCaronasFragment extends Fragment {
     }
 
     /**
-     * Adiciona um registro de carona à tela, é chamado após o cadastro de uma nova carona, para que
-     * não seja necessário recarregar todos os dados da nuvem.
-     *
-     * @param c Carona a ser adicionada à interface.
-     */
-    private void addItem(Carona c) {
-        mOfertasAdapter.addItem(c);
-
-        // Após a adição do item, rola o recyclerview para o início, para que o usuário possa visualizar
-        // o registro inserido.
-        if (mOfertasLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-            mOfertasLayoutManager.scrollToPosition(0);
-        }
-    }
-
-    /**
-     * Exibe um diálogo indicando que a tela principal está sendo carregada.
-     */
-    private void startLoading() {
-        mProDialog = new ProgressDialog(getActivity());
-        mProDialog.setMessage(getString(R.string.loading));
-        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProDialog.setCancelable(false);
-        mProDialog.show();
-    }
-
-    /**
-     * Finaliza o diálogo do carregamento da tela principal.
-     */
-    private void stopLoading() {
-        mProDialog.dismiss();
-        mProDialog = null;
-    }
-
-    /**
      * Inicializa os componentes da tela.
+     * 
      * @param rootView Layout inflado do fragment.
      */
     public void initComponents(View rootView) {
@@ -156,6 +139,24 @@ public class ListaCaronasFragment extends Fragment {
                 getParentFragment().startActivityForResult(intent, Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE);
             }
         });
+
+        mViewSwitcher = (ViewSwitcher) rootView.findViewById(R.id.switcher);
+    }
+
+    /**
+     * Adiciona um registro de carona à tela, é chamado após o cadastro de uma nova carona, para que
+     * não seja necessário recarregar todos os dados da nuvem.
+     *
+     * @param c Carona a ser adicionada à interface.
+     */
+    private void addItem(Carona c) {
+        mOfertasAdapter.addItem(c);
+
+        // Após a adição do item, rola o recyclerview para o início, para que o usuário possa visualizar
+        // o registro inserido.
+        if (mOfertasLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+            mOfertasLayoutManager.scrollToPosition(0);
+        }
     }
 
     /**
@@ -164,12 +165,10 @@ public class ListaCaronasFragment extends Fragment {
      * da aba de ofertas de caronas.
      */
     public void carregaMinhasCaronas() {
-        startLoading();
-
         Carona.buscaPorMotoristaAsync((Usuario) Usuario.getCurrentUser()).continueWith(new Continuation<List<Carona>, Void>() {
             @Override
             public Void then(Task<List<Carona>> task) throws Exception {
-                stopLoading();
+                mViewSwitcher.showNext();
 
                 if ( !task.isFaulted() && !task.isCancelled()) {
                     List<Carona> lstCaronas = task.getResult();
