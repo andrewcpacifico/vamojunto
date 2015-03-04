@@ -15,6 +15,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +28,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import bolts.Continuation;
@@ -76,10 +80,15 @@ public class ListaCaronasFragment extends Fragment {
 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE) {
-                Carona c = data.getParcelableExtra(NovaOfertaCaronaActivity.RES_CARONA);
-                addItem(c);
+                final Carona c = data.getParcelableExtra(NovaOfertaCaronaActivity.RES_CARONA);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        addItem(c);
+                    }
+                }, 1000);
 
-                Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG);
+                Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -95,7 +104,9 @@ public class ListaCaronasFragment extends Fragment {
 
         // Após a adição do item, rola o recyclerview para o início, para que o usuário possa visualizar
         // o registro inserido.
-        mOfertasLayoutManager.scrollToPosition(0);
+        if (mOfertasLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+            mOfertasLayoutManager.scrollToPosition(0);
+        }
     }
 
     /**
@@ -162,6 +173,13 @@ public class ListaCaronasFragment extends Fragment {
 
                 if ( !task.isFaulted() && !task.isCancelled()) {
                     List<Carona> lstCaronas = task.getResult();
+                    Collections.sort(lstCaronas, new Comparator<Carona>() {
+                        @Override
+                        public int compare(Carona lhs, Carona rhs) {
+                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                        }
+                    });
+
                     mOfertasAdapter.setDataset(lstCaronas);
                 } else {
                     Log.e(TAG, task.getError().getMessage());

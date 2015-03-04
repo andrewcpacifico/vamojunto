@@ -18,6 +18,8 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -178,16 +180,28 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
                 @Override
                 public Void then(Task<Void> task) throws Exception {
                     stopLoading();
+                    Handler handler = new Handler(Looper.getMainLooper());
 
                     if (!task.isCancelled() && !task.isFaulted()) {
-                        Intent intent = new Intent();
-                        intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent();
+                                intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
 
-                        getActivity().setResult(Activity.RESULT_OK, intent);
-                        getActivity().finish();
+                                getActivity().setResult(Activity.RESULT_OK, intent);
+                                getActivity().finish();
+                            }
+                        });
                     } else {
                         Log.e(TAG, task.getError().getMessage());
-                        Toast.makeText(getActivity(), getString(R.string.erro_cadastro_carona), Toast.LENGTH_LONG);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(), getString(R.string.erro_cadastro_carona),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
 
                     return null;

@@ -97,7 +97,7 @@ public class Usuario extends ParseUser implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        this.mImgPerfil.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        this.getImgPerfil().compress(Bitmap.CompressFormat.JPEG, 100, stream);
 
         dest.writeString(getId());
         dest.writeString(getNome());
