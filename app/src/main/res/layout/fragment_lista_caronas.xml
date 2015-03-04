@@ -13,7 +13,7 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <ViewSwitcher
+    <ViewFlipper
         android:id="@+id/switcher"
 
         android:layout_width="match_parent"
@@ -24,6 +24,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:id="@+id/progressBar" />
+
+        <include
+            layout="@layout/layout_erro" />
 
         <LinearLayout
             android:orientation="vertical"
@@ -53,5 +56,5 @@
                 style="@style/Save.Button"
                 />
         </LinearLayout>
-    </ViewSwitcher>
+    </ViewFlipper>
 </LinearLayout>

@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import bolts.Task;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  * Modelo de uma carona no sistema.
@@ -126,6 +127,7 @@ public class Carona extends ParseObject implements Parcelable {
     /**
      * Recupera uma lista de caronas que têm como motorista um determinado usuário, ou seja,
      * recupera todas as ofertas de carona feitas por esse usuário.
+     *
      * @param u Usuário do qual deseja-se recuperar as ofertas de carona.
      * @return Uma {@link bolts.Task} que é finalizada após a busca pelos registros, caso tudo
      *         ocorra normalmente, a {@link bolts.Task} conterá a lista de caronas.

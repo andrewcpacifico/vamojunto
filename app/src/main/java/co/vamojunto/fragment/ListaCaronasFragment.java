@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import co.vamojunto.adapters.ListaCaronasRecyclerViewAdapter;
 import co.vamojunto.model.Carona;
 import co.vamojunto.model.Usuario;
 import co.vamojunto.util.Globals;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  * Fragment para listagem das caronas em que um determinado usuário participa, como motorista ou
@@ -52,6 +54,11 @@ import co.vamojunto.util.Globals;
 public class ListaCaronasFragment extends Fragment {
 
     private static final String TAG = "ListaCaronasFragment";
+
+    // As constantes abaixo são utilizadas para identificar os views a serem carregados pwlo ViewSwitcher
+    private static final int VIEW_PROGRESS = 0;
+    private static final int VIEW_ERRO = 1;
+    private static final int VIEW_PADRAO = 2;
 
     /**
      * RecyclerView onde são exibidos os registros das caronas.
@@ -72,10 +79,10 @@ public class ListaCaronasFragment extends Fragment {
      * ViewSwitcher utilizado para alterar entre a ProgressBar que é exibida enquanto as caronas
      * são carregadas, e a tela principal.
      */
-    private ViewSwitcher mViewSwitcher;
+    private ViewFlipper mViewFlipper;
 
     /**
-     * Required default constructor
+     * Construtor padrão obrigatório
      */
     public ListaCaronasFragment() { }
 
@@ -86,6 +93,7 @@ public class ListaCaronasFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_lista_caronas, container, false);
 
         initComponents(rootView);
+
         carregaMinhasCaronas();
 
         return rootView;
@@ -98,6 +106,9 @@ public class ListaCaronasFragment extends Fragment {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE) {
                 final Carona c = data.getParcelableExtra(NovaOfertaCaronaActivity.RES_CARONA);
+
+                // foi necessário utilizar um delay para adicionar o item à tela, para que o
+                // recyclerview pudesse mostrar a animação, e posicionar no item novo
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -112,21 +123,17 @@ public class ListaCaronasFragment extends Fragment {
 
     /**
      * Inicializa os componentes da tela.
-     * 
+     *
      * @param rootView Layout inflado do fragment.
      */
     public void initComponents(View rootView) {
         mOfertasRecyclerView = (RecyclerView) rootView.findViewById(R.id.lista_caronas_recycler_view);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mOfertasRecyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
         mOfertasLayoutManager = new LinearLayoutManager(rootView.getContext());
         mOfertasRecyclerView.setLayoutManager(mOfertasLayoutManager);
 
-        // specify an adapter (see also next example)
         mOfertasAdapter = new ListaCaronasRecyclerViewAdapter(getActivity(), new ArrayList<Carona>());
         mOfertasRecyclerView.setAdapter(mOfertasAdapter);
 
@@ -140,7 +147,15 @@ public class ListaCaronasFragment extends Fragment {
             }
         });
 
-        mViewSwitcher = (ViewSwitcher) rootView.findViewById(R.id.switcher);
+        Button btnRetry = (Button) rootView.findViewById(R.id.btn_retry);
+        btnRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                carregaMinhasCaronas();
+            }
+        });
+
+        mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.switcher);
     }
 
     /**
@@ -165,28 +180,37 @@ public class ListaCaronasFragment extends Fragment {
      * da aba de ofertas de caronas.
      */
     public void carregaMinhasCaronas() {
-        Carona.buscaPorMotoristaAsync((Usuario) Usuario.getCurrentUser()).continueWith(new Continuation<List<Carona>, Void>() {
-            @Override
-            public Void then(Task<List<Carona>> task) throws Exception {
-                mViewSwitcher.showNext();
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
 
-                if ( !task.isFaulted() && !task.isCancelled()) {
-                    List<Carona> lstCaronas = task.getResult();
-                    Collections.sort(lstCaronas, new Comparator<Carona>() {
-                        @Override
-                        public int compare(Carona lhs, Carona rhs) {
-                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                        }
-                    });
+        // Tenta carregar as caronas da nuvem, apenas se o usuário estiver conectado à Internet
+        if (NetworkUtil.isConnected(getActivity())) {
+            Carona.buscaPorMotoristaAsync((Usuario) Usuario.getCurrentUser()).continueWith(new Continuation<List<Carona>, Void>() {
+                @Override
+                public Void then(Task<List<Carona>> task) throws Exception {
+                    mViewFlipper.setDisplayedChild(VIEW_PADRAO);
 
-                    mOfertasAdapter.setDataset(lstCaronas);
-                } else {
-                    Log.e(TAG, task.getError().getMessage());
+                    if (!task.isFaulted() && !task.isCancelled()) {
+                        List<Carona> lstCaronas = task.getResult();
+                        Collections.sort(lstCaronas, new Comparator<Carona>() {
+                            @Override
+                            public int compare(Carona lhs, Carona rhs) {
+                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                            }
+                        });
+
+                        mOfertasAdapter.setDataset(lstCaronas);
+                    } else {
+                        Log.e(TAG, task.getError().getMessage());
+
+                        mViewFlipper.setDisplayedChild(VIEW_ERRO);
+                    }
+
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        } else {
+            mViewFlipper.setDisplayedChild(VIEW_ERRO);
+        }
     }
 
 }
