@@ -1,14 +1,23 @@
 /*
- * Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+ * Copyright (c) 2015 Vamo Junto. All Rights Reserved.
  *
- * Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
- * ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
- * conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+ * This software is the confidential and proprietary information of Vamo Junto
+ * ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Vamo Junto.
+ *
+ * VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+ * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
  *
  * See LICENSE.txt
  */
 
-package co.vamojunto.fragment;
+package co.vamojunto.ui.fragments;
 
 
 import android.app.Activity;
@@ -40,8 +49,8 @@ import java.util.Date;
 
 import bolts.Continuation;
 import bolts.Task;
-import co.vamojunto.GetLocationActivity;
-import co.vamojunto.NovaOfertaCaronaActivity;
+import co.vamojunto.ui.activities.GetLocationActivity;
+import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Carona;
@@ -49,16 +58,16 @@ import co.vamojunto.model.Place;
 import co.vamojunto.model.Usuario;
 
 /**
- * {@link android.support.v4.app.Fragment} com a interface padrão da tela de cadastro de carona.
- * Exibe um formulário para cadastro, para que o usuário informe os campos necessários.
+ * The main {@link android.support.v4.app.Fragment} for the {@link co.vamojunto.ui.activities.NewRideActivity}
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.0
  * @since 0.1.0
  */
-public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnTimeSetListener,
+public class NewRideFragment extends Fragment implements TimePickerDialog.OnTimeSetListener,
         DatePickerDialog.OnDateSetListener {
 
-    private static final String TAG = "NovaCaronaFragment";
+    private static final String TAG = "NewRideFragment";
 
     /** Flag utilizada para indicar se o campo origem está sendo editado. A flag é utilizada para
      * identificar para onde irá o resultado após a escolha de uma coordenada pelo usuário. */
@@ -190,7 +199,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
                             @Override
                             public void run() {
                                 Intent intent = new Intent();
-                                intent.putExtra(NovaOfertaCaronaActivity.RES_CARONA, c);
+                                intent.putExtra(NewRideActivity.RES_RIDE, c);
 
                                 getActivity().setResult(Activity.RESULT_OK, intent);
                                 getActivity().finish();
@@ -275,12 +284,12 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mEditandoDestino = mEditandoOrigem = false;
         mOrigem = mDestino = null;
 
-        mOrigemEditText = (EditText) rootView.findViewById(R.id.origem_edit_text);
-        mDestinoEditText = (EditText) rootView.findViewById(R.id.destino_edit_text);
-        mHoraEditText = (EditText) rootView.findViewById(R.id.hora_edit_text);
-        mDataEditText = (EditText) rootView.findViewById(R.id.data_edit_text);
+        mOrigemEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
+        mDestinoEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mHoraEditText = (EditText) rootView.findViewById(R.id.time_edit_text);
+        mDataEditText = (EditText) rootView.findViewById(R.id.date_edit_text);
         mNumLugaresEditText = (EditText) rootView.findViewById(R.id.num_lugares_edit_text);
-        mDetalhesEditText = (EditText) rootView.findViewById(R.id.detalhes_edit_text);
+        mDetalhesEditText = (EditText) rootView.findViewById(R.id.details_edit_text);
 
         // Obtém a data e hora atuais, e utiliza para inicializar os campos data e hora do formulário.
         Calendar agora = Calendar.getInstance();
@@ -304,7 +313,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         });
 
         // Vincula o método que será executado no evento OnClick do botão Salvar.
-        Button btnSalvar = (Button) rootView.findViewById(R.id.btn_salvar);
+        Button btnSalvar = (Button) rootView.findViewById(R.id.save_button);
         btnSalvar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -336,7 +345,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private Calendar leDataEditText() {
         // Obtém a data definida no formulário no formato String
-        EditText dataEditText = (EditText) getActivity().findViewById(R.id.data_edit_text);
+        EditText dataEditText = (EditText) getActivity().findViewById(R.id.date_edit_text);
         String strData = String.valueOf(dataEditText.getText());
 
         // Utiliza um SimpleDateFormat para fazer o parse da data e o converte para um Calendar
@@ -389,7 +398,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
      */
     private Calendar leHoraEditText() {
         // Obtém a mHora definida no formulário no formato String
-        EditText horaEditText = (EditText) getActivity().findViewById(R.id.hora_edit_text);
+        EditText horaEditText = (EditText) getActivity().findViewById(R.id.time_edit_text);
         String strHora = String.valueOf(horaEditText.getText());
 
         // Utiliza um SimpleDateFormat para fazer o parse da mHora e o converte para um Calendar
@@ -638,7 +647,7 @@ public class NovaCaronaFragment extends Fragment implements TimePickerDialog.OnT
         mProDialog = null;
     }
 
-    public NovaCaronaFragment() {
+    public NewRideFragment() {
         // Required empty public constructor
     }
 

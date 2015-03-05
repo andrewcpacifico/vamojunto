@@ -16,15 +16,14 @@
   ~
   ~ See LICENSE.txt
   -->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="#ffffff"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/starting_point_group"
-        android:layout_below="@+id/tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
@@ -168,48 +167,11 @@
         android:background="@color/separator"
         />
 
-    <LinearLayout
-        android:id="@+id/grupo_hora"
-        android:layout_below="@+id/separator_3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="10dp" >
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="5dp"
-            android:src="@drawable/ic_people"/>
-
-        <EditText
-            android:id="@+id/num_lugares_edit_text"
-
-            android:background="#00000000"
-            android:hint="@string/num_lugares"
-            android:textSize="18sp"
-
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:inputType="number" />
-    </LinearLayout>
-    <View
-        android:id="@+id/separador_4"
-
-        android:layout_below="@id/grupo_hora"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-
-        android:background="@color/separator"
-        />
-
     <EditText
         android:id="@+id/details_edit_text"
 
         android:layout_above="@+id/save_button"
-        android:layout_below="@+id/separador_4"
+        android:layout_below="@+id/separator_3"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
 

@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
   ~
-  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
-  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
-  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
   ~
   ~ See LICENSE.txt
--->
+  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.vamojunto" >
 
@@ -51,42 +60,46 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.activities.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" >
         </activity>
         <activity
-            android:name=".CadastroActivity"
+            android:name=".ui.activities.CadastroActivity"
             android:label="@string/title_activity_cadastro"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" >
         </activity>
         <activity
-            android:name=".NovaOfertaCaronaActivity"
+            android:name=".ui.activities.NewRideActivity"
             android:label="@string/title_activity_nova_oferta_carona"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".ui.activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.activities.MainActivity" />
         </activity>
         <activity
-            android:name=".GetLocationActivity"
+            android:name=".ui.activities.GetLocationActivity"
             android:label="@string/title_activity_get_location" >
         </activity>
         <activity
-            android:name=".SearchPlaceActivity"
+            android:name=".ui.activities.SearchPlaceActivity"
             android:label="@string/title_activity_search_place" >
+        </activity>
+        <activity
+            android:name=".ui.activities.NewRideRequestActivity"
+            android:label="@string/title_activity_new_ride_request" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

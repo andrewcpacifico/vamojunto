@@ -1,14 +1,23 @@
 /*
- * Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+ * Copyright (c) 2015 Vamo Junto. All Rights Reserved.
  *
- * Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
- * ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
- * conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+ * This software is the confidential and proprietary information of Vamo Junto
+ * ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Vamo Junto.
+ *
+ * VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+ * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
  *
  * See LICENSE.txt
  */
 
-package co.vamojunto;
+package co.vamojunto.ui.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,6 +53,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.R;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
 import co.vamojunto.util.Globals;
@@ -59,7 +69,7 @@ public class GetLocationActivity extends ActionBarActivity
 
     private static final String TAG = "GetLocationActivity";
 
-    private static final String PACKAGE = "co.vamojunto.GetLocationActivity.";
+    private static final String PACKAGE = "co.vamojunto.ui.activities.GetLocationActivity.";
 
     public static final String RES_PLACE = PACKAGE + "res_place";
     public static final String INITIAL_PLACE = PACKAGE + "place";

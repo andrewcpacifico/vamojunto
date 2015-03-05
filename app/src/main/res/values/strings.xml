@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
   ~
-  ~ Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
-  ~ ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
-  ~ conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
   ~
   ~ See LICENSE.txt
--->
+  -->
 <resources>
 
     <!-- Organizar -->
@@ -74,11 +83,11 @@
     <string name="loading_address">Carregando endereço...</string>
     <string name="date">Data</string>
     <string name="date_format">dd/MM/yyyy</string>
-    <string name="destiny">Destino</string>
+    <string name="destination">Destino</string>
     <string name="error_num_lugares">Apenas números entre 0 e 7 são permitidos neste campo.</string>
     <string name="more_details">Outras Informações</string>
     <string name="num_lugares">Lugares disponíveis</string>
-    <string name="origin">Origem</string>
+    <string name="starting_point">Origem</string>
     <string name="save">Salvar</string>
     <string name="time">Hora</string>
     <string name="time_format">HH:mm</string>
@@ -121,6 +130,10 @@
     <string name="minhas_caronas_fragment_tab3">Pedidos</string>
     <string name="erro_cadastro_carona">Erro ao salvar carona, por favor tente novamente.</string>
     <string name="carona_cadastrada">Oferta de carona cadastrada com sucesso.</string>
+    <string name="default_error_screen_message">Ocorreu um erro e ação não pôde ser concluída, por favor tente novamente.</string>
+    <string name="default_error_screen_retry_text">Tentar novamente</string>
+    <string name="erro_msg_no_internet_connection">Você não está conectado à Internet, por favor tente novamente mais tarde.</string>
+    <string name="title_activity_new_ride_request">NewRideRequestActivity</string>
 
 
 </resources>

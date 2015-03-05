@@ -17,29 +17,35 @@
  * See LICENSE.txt
  */
 
-package co.vamojunto.util;
+package co.vamojunto.ui.fragments;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import co.vamojunto.R;
 
 /**
- * Classe utilitária com funções relacionadas a números
- *
- * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @since 0.1.0
+ * A simple {@link Fragment} subclass.
  */
-public class NumberUtil {
+public class MainFragment extends Fragment {
 
-    public static double truncate(double num, int numCasasDecimais) {
-        StringBuilder sbFormato = new StringBuilder("##.#");
-        for (int i = 1; i < numCasasDecimais; i++) {
-            sbFormato.append("#");
-        }
 
-        DecimalFormat df = new DecimalFormat(sbFormato.toString());
-        df.setRoundingMode(RoundingMode.DOWN);
-
-        return Double.parseDouble(df.format(num).replace(",", ""));
+    public MainFragment() {
+        // Required empty public constructor
     }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        return rootView;
+    }
+
 
 }

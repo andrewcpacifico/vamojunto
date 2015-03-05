@@ -1,14 +1,23 @@
 /*
- * Copyright (c) 2015. Vamo Junto Ltda. All Rights Reserved.
+ * Copyright (c) 2015 Vamo Junto. All Rights Reserved.
  *
- * This software is the confidential and proprietary information of Vamo Junto Ltda,
- * ("Confidential Information"). You shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement you entered into with Vamo Junto Ltda.
+ * This software is the confidential and proprietary information of Vamo Junto
+ * ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Vamo Junto.
+ *
+ * VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+ * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
  *
  * See LICENSE.txt
  */
 
-package co.vamojunto;
+package co.vamojunto.ui.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,9 +36,10 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
-import co.vamojunto.fragment.MainFragment;
-import co.vamojunto.fragment.MinhasCaronasFragment;
-import co.vamojunto.util.Globals;
+import co.vamojunto.R;
+import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
+import co.vamojunto.ui.fragments.MainFragment;
+import co.vamojunto.ui.fragments.MinhasCaronasFragment;
 
 /**
  * Activity principal do sistema.

@@ -1,20 +1,28 @@
 /*
- * Copyright (c) 2015. Vamo Junto Ltda. Todos os direitos reservados.
+ * Copyright (c) 2015 Vamo Junto. All Rights Reserved.
  *
- * Este software contém informações confidenciais e de propriedade da Vamo Junto Ltda,
- * ("Informações Confidenciais"). Você não deve divulgar tais informações, e deve usá-las somente em
- * conformidade com os termos do contrato de licença estabelecido entre você e a Vamo Junto Ltda.
+ * This software is the confidential and proprietary information of Vamo Junto
+ * ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Vamo Junto.
+ *
+ * VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+ * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
  *
  * See LICENSE.txt
  */
 
-package co.vamojunto;
+package co.vamojunto.ui.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,8 +31,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.Request;
-import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.Validator;
@@ -37,12 +43,11 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
-import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.R;
 import co.vamojunto.helpers.FacebookHelper;
 
 

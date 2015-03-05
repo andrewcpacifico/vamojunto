@@ -1,4 +1,23 @@
-package co.vamojunto;
+/*
+ * Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of Vamo Junto
+ * ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Vamo Junto.
+ *
+ * VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+ * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+ *
+ * See LICENSE.txt
+ */
+
+package co.vamojunto.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +44,8 @@ import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
-import co.vamojunto.adapters.SearchPlaceAdapter;
+import co.vamojunto.R;
+import co.vamojunto.ui.adapters.SearchPlaceAdapter;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
 
@@ -40,7 +60,7 @@ public class SearchPlaceActivity extends ActionBarActivity {
 
     public static final int REQUEST_CODE = 1234;
 
-    public static final String PACKAGE = "co.vamojunto.SearchPlaceActivity";
+    public static final String PACKAGE = "co.vamojunto.ui.activities.SearchPlaceActivity";
     public static final String PLACE = PACKAGE + ".place";
 
     @Override
