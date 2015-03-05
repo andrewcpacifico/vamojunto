@@ -34,16 +34,23 @@ import bolts.Continuation;
 import bolts.Task;
 
 /**
- * Classe contendo funções para auxiliar no processo de conversão de endereços para coordenadas
- * e vice-versa.
+ * A simple GeocodingHelper
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.0
  * @since 0.1.0
  */
 public class GeocodingHelper {
     public static final String TAG = "GeocodingHelper";
 
-    public static Task<Address> getEnderecoAsync(Context context, final LatLng latLng) {
+    /**
+     * Makes the reverse geocoding process, ie converts a pair of coordinates into an address
+     *
+     * @param context The context to instantiate the Geocoder.
+     * @param latLng The pair of coordinates.
+     * @return A {@link bolts.Task} containing the result of this work.
+     */
+    public static Task<Address> reverseGeocodeInBackground(Context context, final LatLng latLng) {
         final Task<Address>.TaskCompletionSource tcs = Task.create();
 
         final Geocoder geocoder = new Geocoder(context, Locale.getDefault());

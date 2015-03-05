@@ -490,7 +490,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
             mOrigemEditText.setError("Campo obrigatório");
             // Como o campo não é selecionável, a mensagem de erro acabava não aparecendo, então
             // utilizei um Toast.
-            Toast.makeText(getActivity(), getString(R.string.defina_origem), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_starting_point_missing), Toast.LENGTH_LONG).show();
 
             return false;
         }
@@ -500,7 +500,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
             mDestinoEditText.setError("Campo obrigatório");
             mDestinoEditText.requestFocus();
 
-            Toast.makeText(getActivity(), getString(R.string.defina_destino), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_destination_missing), Toast.LENGTH_LONG).show();
 
             return false;
         }
@@ -532,15 +532,15 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         // da hora.
         Calendar dataCarona = leDataEditText();
         if (dataCarona.before(hoje)) {
-            mDataEditText.setError(getString(R.string.data_passado));
-            Toast.makeText(getActivity(), getString(R.string.data_passado), Toast.LENGTH_LONG).show();
+            mDataEditText.setError(getString(R.string.error_past_date));
+            Toast.makeText(getActivity(), getString(R.string.error_past_date), Toast.LENGTH_LONG).show();
 
             return false;
         } else if (dataCarona.equals(hoje)) {
             Calendar horaCarona = leHoraEditText();
             if (horaCarona.before(agora)) {
-                mHoraEditText.setError(getString(R.string.hora_passado));
-                Toast.makeText(getActivity(), getString(R.string.hora_passado), Toast.LENGTH_LONG).show();
+                mHoraEditText.setError(getString(R.string.error_past_time));
+                Toast.makeText(getActivity(), getString(R.string.error_past_time), Toast.LENGTH_LONG).show();
 
                 return false;
             }
@@ -575,7 +575,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                 mOrigemEditText.setText(getString(R.string.loading_address));
 
                 LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
-                GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
+                GeocodingHelper.reverseGeocodeInBackground(getActivity(), latLng).continueWith(
                     new Continuation<Address, Void>() {
                         @Override
                         public Void then(Task<Address> task) throws Exception {
@@ -605,7 +605,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                 mDestinoEditText.setText(getString(R.string.loading_address));
 
                 LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
-                GeocodingHelper.getEnderecoAsync(getActivity(), latLng).continueWith(
+                GeocodingHelper.reverseGeocodeInBackground(getActivity(), latLng).continueWith(
                     new Continuation<Address, Void>() {
                         @Override
                         public Void then(Task<Address> task) throws Exception {

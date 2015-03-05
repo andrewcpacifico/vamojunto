@@ -97,10 +97,10 @@
     <string name="title_activity_get_location">Selecione uma localização no mapa.</string>
     <string name="choose_starting_point">Escolha o ponto de origem.</string>
     <string name="search_place">Digite o local que deseja procurar</string>
-    <string name="defina_origem">Defina o ponto de origem da carona</string>
-    <string name="defina_destino">Defina o destino da carona</string>
-    <string name="data_passado">A data escolhida para a carona já passou, por favor defina outra data.</string>
-    <string name="hora_passado">O horário definido para a carona já passou, por favor defina um outro horário.</string>
+    <string name="error_starting_point_missing">Defina o ponto de origem da carona</string>
+    <string name="error_destination_missing">Defina o destino da carona</string>
+    <string name="error_past_date">A data escolhida para a carona já passou, por favor defina outra data.</string>
+    <string name="error_past_time">O horário definido para a carona já passou, por favor defina um outro horário.</string>
 
     <!-- FetchAddressIntentService -->
     <string name="service_not_available">Serviço não disponível no momento.</string>
