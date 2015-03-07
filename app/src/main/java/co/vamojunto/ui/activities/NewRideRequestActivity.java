@@ -34,6 +34,7 @@ import android.os.Build;
 
 import co.vamojunto.R;
 import co.vamojunto.ui.fragments.NewRideRequestFragment;
+import co.vamojunto.util.Globals;
 
 /**
  * Activity where the user can make a new drive request.
@@ -43,6 +44,11 @@ import co.vamojunto.ui.fragments.NewRideRequestFragment;
  * @since 0.1.0
  */
 public class NewRideRequestActivity extends ActionBarActivity {
+
+    public static final String TAG = "ui.activities.NewRideRequestActivity";
+    public static final int REQ_CODE = Globals.NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE;
+
+    public static final String RES_RIDE = "ride";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

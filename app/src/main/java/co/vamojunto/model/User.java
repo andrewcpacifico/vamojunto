@@ -33,24 +33,25 @@ import com.parse.ParseUser;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Modelo de usuário do sitema. Atualmente é uma extensão da classe {@link com.parse.ParseUser},
- * apenas para adicionar algumas funcionalidades mais específicas.
+ * System's User Model. Currently is just an extension of {@link com.parse.ParseUser} class, with
+ * some specific methods and fields.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.0
  * @since 0.1.0
  */
 @ParseClassName("_User")
-public class Usuario extends ParseUser implements Parcelable {
+public class User extends ParseUser implements Parcelable {
 
     private final static String FIELD_ID = "objectId";
-    private final static String FIELD_NOME = "nome";
+    private final static String FIELD_NAME = "nome";
     private final static String FIELD_USERNAME = "username";
     private final static String FIELD_EMAIL = "email";
-    private final static String FIELD_IMG_PERFIL = "img_perfil";
+    private final static String FIELD_PROFILE_IMG = "img_perfil";
 
     private Bitmap mImgPerfil;
 
-    public Usuario() {
+    public User() {
         mImgPerfil = null;
     }
 
@@ -58,19 +59,18 @@ public class Usuario extends ParseUser implements Parcelable {
         return getObjectId();
     }
 
-    public String getNome() {
-        return getString(FIELD_NOME);
+    public String getName() {
+        return getString(FIELD_NAME);
     }
 
-    public void setNome(String nome) {
-        put(FIELD_NOME, nome);
+    public void setName(String name) {
+        put(FIELD_NAME, name);
     }
 
-    public Bitmap getImgPerfil() {
+    public Bitmap getProfileImage() {
         if (mImgPerfil == null) {
-            ParseFile imgUsuarioPFile = getParseFile(FIELD_IMG_PERFIL);
-            Bitmap imgUsuario = null;
-            // Caso o usuário não possua imagem de perfil cadastrada
+            ParseFile imgUsuarioPFile = getParseFile(FIELD_PROFILE_IMG);
+            // checks if the user have a profile image before convert it to an Bitmap
             if (imgUsuarioPFile != null) {
                 try {
                     mImgPerfil = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
@@ -89,12 +89,12 @@ public class Usuario extends ParseUser implements Parcelable {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         this.mImgPerfil.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
-        put(FIELD_IMG_PERFIL, pFile);
+        put(FIELD_PROFILE_IMG, pFile);
     }
 
 /***************************************************************************************************
  *
- * Transformando em um Parcelable object
+ * Turning into a Parcelable object
  *
  ***************************************************************************************************/
 
@@ -106,20 +106,20 @@ public class Usuario extends ParseUser implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        this.getImgPerfil().compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        this.getProfileImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
 
         dest.writeString(getId());
-        dest.writeString(getNome());
+        dest.writeString(getName());
         dest.writeString(getUsername());
         dest.writeString(getEmail());
         dest.writeInt(stream.toByteArray().length);
         dest.writeByteArray(stream.toByteArray());
     }
 
-    public static final Parcelable.Creator<Usuario> CREATOR = new Parcelable.Creator<Usuario>() {
-        public Usuario createFromParcel(Parcel in) {
-            Usuario u = ParseObject.createWithoutData(Usuario.class, in.readString());
-            u.setNome(in.readString());
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+        public User createFromParcel(Parcel in) {
+            User u = ParseObject.createWithoutData(User.class, in.readString());
+            u.setName(in.readString());
             u.setUsername(in.readString());
             u.setEmail(in.readString());
 
@@ -130,8 +130,8 @@ public class Usuario extends ParseUser implements Parcelable {
             return u;
         }
 
-        public Usuario[] newArray(int size) {
-            return new Usuario[size];
+        public User[] newArray(int size) {
+            return new User[size];
         }
     };
 

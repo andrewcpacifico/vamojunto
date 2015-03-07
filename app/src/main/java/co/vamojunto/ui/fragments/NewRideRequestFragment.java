@@ -27,6 +27,8 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,7 +53,11 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Place;
+import co.vamojunto.model.RideRequest;
+import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.GetLocationActivity;
+import co.vamojunto.ui.activities.NewRideActivity;
+import co.vamojunto.ui.activities.NewRideRequestActivity;
 
 /**
  * The main {@link android.support.v4.app.Fragment} for the {@link co.vamojunto.ui.activities.NewRideRequestActivity}
@@ -205,8 +211,41 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
             datetime.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
             datetime.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
 
-            Toast.makeText(getActivity(), "SHOW",
-                    Toast.LENGTH_LONG).show();
+            final RideRequest rideRequest = new RideRequest((User) User.getCurrentUser(), datetime,
+                    mDetailsEditText.getText().toString(), mStartingPoint, mDestination);
+
+            startLoading();
+            rideRequest.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    stopLoading();
+                    Handler handler = new Handler(Looper.getMainLooper());
+
+                    if (!task.isCancelled() && !task.isFaulted()) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent();
+                                intent.putExtra(NewRideRequestActivity.RES_RIDE, rideRequest);
+
+                                getActivity().setResult(Activity.RESULT_OK, intent);
+                                getActivity().finish();
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, task.getError().getMessage());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(), getString(R.string.error_ride_request_registration),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+
+                    return null;
+                }
+            });
         }
     }
 
@@ -504,6 +543,25 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
                 }
             );
         }
+    }
+
+    /**
+     * Shows a dialog indicating that the main screen is bein loaded.
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(getActivity());
+        mProDialog.setMessage(getString(R.string.saving_ride_request));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finishes the loading dialog;
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
     /**

@@ -79,7 +79,7 @@
         <item>UFAM</item>
     </string-array>
 
-    <!-- Cadastro Carona Activity -->
+    <!-- Cadastro Ride Activity -->
     <string name="loading_address">Carregando endereço...</string>
     <string name="date">Data</string>
     <string name="date_format">dd/MM/yyyy</string>
@@ -134,6 +134,8 @@
     <string name="default_error_screen_retry_text">Tentar novamente</string>
     <string name="erro_msg_no_internet_connection">Você não está conectado à Internet, por favor tente novamente mais tarde.</string>
     <string name="title_activity_new_ride_request">NewRideRequestActivity</string>
+    <string name="saving_ride_request">Salvando pedido de carona...</string>
+    <string name="error_ride_request_registration">Erro ao cadastrar pedido de carona, por favor tente novamente.</string>
 
 
 </resources>

@@ -53,9 +53,9 @@ import co.vamojunto.ui.activities.GetLocationActivity;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
-import co.vamojunto.model.Carona;
+import co.vamojunto.model.Ride;
 import co.vamojunto.model.Place;
-import co.vamojunto.model.Usuario;
+import co.vamojunto.model.User;
 
 /**
  * The main {@link android.support.v4.app.Fragment} for the {@link co.vamojunto.ui.activities.NewRideActivity}
@@ -178,9 +178,9 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
             dataHora.set(Calendar.HOUR_OF_DAY, hora.get(Calendar.HOUR_OF_DAY));
             dataHora.set(Calendar.MINUTE, hora.get(Calendar.MINUTE));
 
-            final Carona c = new Carona(
+            final Ride c = new Ride(
                     dataHora,
-                    (Usuario) Usuario.getCurrentUser(),
+                    (User) User.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
                     mDetalhesEditText.getText().toString(),
                     mOrigem,

@@ -47,8 +47,8 @@ import bolts.Task;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.ui.adapters.ListaCaronasRecyclerViewAdapter;
-import co.vamojunto.model.Carona;
-import co.vamojunto.model.Usuario;
+import co.vamojunto.model.Ride;
+import co.vamojunto.model.User;
 import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
 
@@ -122,8 +122,8 @@ public class ListaCaronasFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE) {
-                final Carona c = data.getParcelableExtra(NewRideActivity.RES_RIDE);
+            if (requestCode == Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE) {
+                final Ride c = data.getParcelableExtra(NewRideActivity.RES_RIDE);
 
                 // foi necessário utilizar um delay para adicionar o item à tela, para que o
                 // recyclerview pudesse mostrar a animação, e posicionar no item novo
@@ -152,7 +152,7 @@ public class ListaCaronasFragment extends Fragment {
         mOfertasLayoutManager = new LinearLayoutManager(rootView.getContext());
         mOfertasRecyclerView.setLayoutManager(mOfertasLayoutManager);
 
-        mOfertasAdapter = new ListaCaronasRecyclerViewAdapter(getActivity(), new ArrayList<Carona>());
+        mOfertasAdapter = new ListaCaronasRecyclerViewAdapter(getActivity(), new ArrayList<Ride>());
         mOfertasRecyclerView.setAdapter(mOfertasAdapter);
 
         Button btnOk = (Button) rootView.findViewById(R.id.btn_ok);
@@ -161,7 +161,7 @@ public class ListaCaronasFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), NewRideActivity.class);
-                getParentFragment().startActivityForResult(intent, Globals.NOVA_CARONA_ACTIVITY_REQUEST_CODE);
+                getParentFragment().startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
             }
         });
 
@@ -182,9 +182,9 @@ public class ListaCaronasFragment extends Fragment {
      * Adiciona um registro de carona à tela, é chamado após o cadastro de uma nova carona, para que
      * não seja necessário recarregar todos os dados da nuvem.
      *
-     * @param c Carona a ser adicionada à interface.
+     * @param c Ride a ser adicionada à interface.
      */
-    private void addItem(Carona c) {
+    private void addItem(Ride c) {
         mOfertasAdapter.addItem(c);
 
         // Após a adição do item, rola o recyclerview para o início, para que o usuário possa visualizar
@@ -204,21 +204,21 @@ public class ListaCaronasFragment extends Fragment {
 
         // Loads the rides from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            Carona.buscaPorMotoristaAsync((Usuario) Usuario.getCurrentUser()).continueWith(new Continuation<List<Carona>, Void>() {
+            Ride.getByDriverInBackground((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
                 @Override
-                public Void then(Task<List<Carona>> task) throws Exception {
+                public Void then(Task<List<Ride>> task) throws Exception {
                     mViewFlipper.setDisplayedChild(VIEW_PADRAO);
 
                     if (!task.isFaulted() && !task.isCancelled()) {
-                        List<Carona> lstCaronas = task.getResult();
-                        Collections.sort(lstCaronas, new Comparator<Carona>() {
+                        List<Ride> lstRides = task.getResult();
+                        Collections.sort(lstRides, new Comparator<Ride>() {
                             @Override
-                            public int compare(Carona lhs, Carona rhs) {
+                            public int compare(Ride lhs, Ride rhs) {
                                 return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
                             }
                         });
 
-                        mOfertasAdapter.setDataset(lstCaronas);
+                        mOfertasAdapter.setDataset(lstRides);
                     } else {
                         Log.e(TAG, task.getError().getMessage());
 

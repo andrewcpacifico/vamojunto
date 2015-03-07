@@ -40,6 +40,7 @@ import co.vamojunto.R;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
+import co.vamojunto.util.Globals;
 
 /**
  * Activity principal do sistema.
@@ -144,6 +145,9 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+
+                Intent intent = new Intent(MainActivity.this, NewRideRequestActivity.class);
+                startActivityForResult(intent, NewRideRequestActivity.REQ_CODE);
             }
 
             @Override

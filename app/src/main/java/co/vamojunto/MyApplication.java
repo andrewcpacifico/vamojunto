@@ -20,22 +20,13 @@
 package co.vamojunto;
 
 import android.app.Application;
-import android.util.Log;
 
-import com.facebook.Session;
-import com.parse.FindCallback;
 import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
-import java.util.Date;
-import java.util.List;
-
-import co.vamojunto.model.Carona;
-import co.vamojunto.model.Usuario;
+import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideRequest;
+import co.vamojunto.model.User;
 
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
@@ -52,8 +43,9 @@ public class MyApplication extends Application {
         String appId = getResources().getString(R.string.parse_app_id);
         String clientId = getResources().getString(R.string.parse_client_id);
 
-        ParseObject.registerSubclass(Usuario.class);
-        ParseObject.registerSubclass(Carona.class);
+        ParseObject.registerSubclass(User.class);
+        ParseObject.registerSubclass(Ride.class);
+        ParseObject.registerSubclass(RideRequest.class);
         Parse.initialize(this, appId, clientId);
 
        /* new Session(this).closeAndClearTokenInformation();

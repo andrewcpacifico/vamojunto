@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import co.vamojunto.R;
-import co.vamojunto.model.Carona;
+import co.vamojunto.model.Ride;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -45,7 +45,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaCaronasRecyclerViewAdapter.ViewHolder> {
 
     /** Contém os dados que serão exibidos na lista. */
-    private List<Carona> mDataset;
+    private List<Ride> mDataset;
 
     private Context mContext;
 
@@ -75,7 +75,7 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
     /**
      * Construtor da classe, inicializa os campos necessários para que a lista seja preenchida.
      */
-    public ListaCaronasRecyclerViewAdapter(Context context, List<Carona> dataset) {
+    public ListaCaronasRecyclerViewAdapter(Context context, List<Ride> dataset) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());
@@ -85,7 +85,7 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
      * Atualiza o dataset do RecyclerView
      * @param dataset O novo dataset.
      */
-    public void setDataset(List<Carona> dataset) {
+    public void setDataset(List<Ride> dataset) {
         this.mDataset = dataset;
 
         // Notifica a mudança no dataset, para que a atualização visual seja imediata, esta ação
@@ -103,7 +103,7 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
      * que o RecyclerView seja atualizado.
      * @param c A carona a ser adicionada ao dataset, e consequentemente à tela.
      */
-    public void addItem(Carona c) {
+    public void addItem(Ride c) {
         // O item novo é adicionado à primeira posição do dataset, para que seja exibido no topo.
         this.mDataset.add(0, c);
 
@@ -129,17 +129,17 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Carona c = mDataset.get(position);
+        Ride c = mDataset.get(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
-        holder.mNomeMotoristaTextView.setText(c.getMotorista().getNome());
-        holder.mImgMotoristaImageView.setImageBitmap(c.getMotorista().getImgPerfil());
-        holder.mOrigemTextView.setText(mContext.getString(R.string.de) + ": " + c.getOrigem().getTitulo());
-        holder.mDestinoTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestino().getTitulo());
-        holder.mDataTextView.setText(dateFormat.format(c.getDataHora().getTime()));
-        holder.mHoraTextView.setText(timeFormat.format(c.getDataHora().getTime()));
+        holder.mNomeMotoristaTextView.setText(c.getDriver().getName());
+        holder.mImgMotoristaImageView.setImageBitmap(c.getDriver().getProfileImage());
+        holder.mOrigemTextView.setText(mContext.getString(R.string.de) + ": " + c.getStartingPoint().getTitulo());
+        holder.mDestinoTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestination().getTitulo());
+        holder.mDataTextView.setText(dateFormat.format(c.getDatetime().getTime()));
+        holder.mHoraTextView.setText(timeFormat.format(c.getDatetime().getTime()));
     }
 
     @Override
