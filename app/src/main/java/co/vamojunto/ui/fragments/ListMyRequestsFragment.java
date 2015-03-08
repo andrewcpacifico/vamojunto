@@ -205,6 +205,8 @@ public class ListMyRequestsFragment extends Fragment {
      * as the dataset from mRideRequestsRecyclerView
      */
     public void loadMyRequests() {
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+
         //Loads the ride requests from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
             RideRequest.getByRequesterAsync(User.getCurrentUser()).continueWith(new Continuation<List<RideRequest>, Void>() {
