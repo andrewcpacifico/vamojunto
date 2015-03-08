@@ -136,6 +136,7 @@
     <string name="title_activity_new_ride_request">NewRideRequestActivity</string>
     <string name="saving_ride_request">Salvando pedido de carona...</string>
     <string name="error_ride_request_registration">Erro ao cadastrar pedido de carona, por favor tente novamente.</string>
+    <string name="request_ride">Pedir carona</string>
 
 
 </resources>

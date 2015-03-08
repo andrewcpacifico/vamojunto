@@ -122,7 +122,7 @@ public class MinhasCaronasFragment extends Fragment {
         public Fragment getItem(int position) {
             if (position == 0)
                 return new ListaCaronasFragment();
-            else if (position == 1)
+            else if (position == 2)
                 return new ListMyRequestsFragment();
 
             return new FormCadastroFragment();

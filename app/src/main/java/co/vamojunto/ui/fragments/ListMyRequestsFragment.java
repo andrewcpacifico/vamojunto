@@ -108,7 +108,7 @@ public class ListMyRequestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_lista_caronas, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_list_my_requests, container, false);
 
         initComponents(rootView);
 
@@ -145,7 +145,7 @@ public class ListMyRequestsFragment extends Fragment {
      * @param rootView The Fragment's inflated layout.
      */
     public void initComponents(View rootView) {
-        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.lista_caronas_recycler_view);
+        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_requests_recycler_view);
 
         mRidesRecyclerView.setHasFixedSize(true);
 
@@ -155,13 +155,13 @@ public class ListMyRequestsFragment extends Fragment {
         mRequestsAdapter = new ListRideRequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>());
         mRidesRecyclerView.setAdapter(mRequestsAdapter);
 
-        Button btnOk = (Button) rootView.findViewById(R.id.btn_ok);
-        btnOk.setText(getText(R.string.oferecer_carona));
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        Button requestButton = (Button) rootView.findViewById(R.id.ok_button);
+        requestButton.setText(getText(R.string.request_ride));
+        requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewRideActivity.class);
-                getParentFragment().startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
+                Intent intent = new Intent(getActivity(), NewRideRequestActivity.class);
+                getParentFragment().startActivityForResult(intent, NewRideRequestActivity.REQ_CODE);
             }
         });
 
