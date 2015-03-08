@@ -92,6 +92,10 @@ public class User extends ParseUser implements Parcelable {
         put(FIELD_PROFILE_IMG, pFile);
     }
 
+    public static User getCurrentUser() {
+        return (User) ParseUser.getCurrentUser();
+    }
+
 /***************************************************************************************************
  *
  * Turning into a Parcelable object

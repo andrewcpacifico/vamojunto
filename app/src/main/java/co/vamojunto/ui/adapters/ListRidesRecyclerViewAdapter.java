@@ -36,13 +36,13 @@ import co.vamojunto.model.Ride;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Adapter utilizado para popular uma lista de itens de caronas, essas listas
- * são exibidas na tela de administração das caronas do usuário, e nos feeds dos grupos.
+ * Used to fill the {@link android.support.v7.widget.RecyclerView} of a ride list screen. These
+ * lists are displayed on the user's rides administration screen, and in the groups walls.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaCaronasRecyclerViewAdapter.ViewHolder> {
+public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRidesRecyclerViewAdapter.ViewHolder> {
 
     /** Contém os dados que serão exibidos na lista. */
     private List<Ride> mDataset;
@@ -63,19 +63,19 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
         public ViewHolder(View itemView) {
             super(itemView);
 
-            mImgMotoristaImageView = (CircleImageView) itemView.findViewById(R.id.img_motorista);
-            mNomeMotoristaTextView = (TextView) itemView.findViewById(R.id.nome_motorista_text_view);
-            mOrigemTextView = (TextView) itemView.findViewById(R.id.origem_text_view);
-            mDestinoTextView = (TextView) itemView.findViewById(R.id.destino_text_view);
-            mDataTextView = (TextView) itemView.findViewById(R.id.data_text_view);
-            mHoraTextView = (TextView) itemView.findViewById(R.id.hora_text_view);
+            mImgMotoristaImageView = (CircleImageView) itemView.findViewById(R.id.user_pic);
+            mNomeMotoristaTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
+            mOrigemTextView = (TextView) itemView.findViewById(R.id.starting_point_text_view);
+            mDestinoTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
+            mDataTextView = (TextView) itemView.findViewById(R.id.date_text_view);
+            mHoraTextView = (TextView) itemView.findViewById(R.id.time_text_view);
         }
     }
 
     /**
      * Construtor da classe, inicializa os campos necessários para que a lista seja preenchida.
      */
-    public ListaCaronasRecyclerViewAdapter(Context context, List<Ride> dataset) {
+    public ListRidesRecyclerViewAdapter(Context context, List<Ride> dataset) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());
@@ -121,7 +121,7 @@ public class ListaCaronasRecyclerViewAdapter extends RecyclerView.Adapter<ListaC
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.lista_caronas_list_row, parent, false);
+                .inflate(R.layout.layout_ride_card, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         return new ViewHolder(v);

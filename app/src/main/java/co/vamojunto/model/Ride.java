@@ -142,7 +142,7 @@ public class Ride extends ParseObject implements Parcelable {
      * @return A {@link bolts.Task}that finishes after the search, if all occurs well,
      *         this {@link bolts.Task} will contain a list of rides.
      */
-    public static Task<List<Ride>> getByDriverInBackground(final User u) {
+    public static Task<List<Ride>> getByDriverAsync(final User u) {
         final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);

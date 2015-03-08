@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,36 +37,35 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Calendar;
 import java.util.List;
 
-import bolts.Continuation;
-import bolts.Task;
-import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
-import co.vamojunto.ui.adapters.ListRidesRecyclerViewAdapter;
+import co.vamojunto.model.Place;
 import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.NewRideActivity;
+import co.vamojunto.ui.activities.NewRideRequestActivity;
+import co.vamojunto.ui.adapters.ListRideRequestsRecyclerViewAdapter;
 import co.vamojunto.util.Globals;
-import co.vamojunto.util.NetworkUtil;
 
 /**
- * {@link android.support.v4.app.Fragment} to list all the rides that a user is participating, as
- * a driver or passenger.
+ *  A {@link android.support.v4.app.Fragment} to list all the rides that a user have requested.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @version 1.0.0
  * @since 0.1.0
  */
-public class ListaCaronasFragment extends Fragment {
+public class ListMyRequestsFragment extends Fragment {
 
-    private static final String TAG = "ListaCaronasFragment";
+
+    private static final String TAG = "ListMyRequestsFragment";
 
     // the constants below are used to identify the views loaded by the ViewFlipper
     private static final int VIEW_PROGRESS = 0;
-    private static final int VIEW_ERRO = 1;
-    private static final int VIEW_PADRAO = 2;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_DEFAULT = 2;
 
     /**
      * RecyclerView where the rides are displayed
@@ -77,12 +75,12 @@ public class ListaCaronasFragment extends Fragment {
     /**
      * LayoutManager used by the mRidesRecyclerView
      */
-    private LinearLayoutManager mOfertasLayoutManager;
+    private LinearLayoutManager mRequestsLayoutManager;
 
     /**
      * Adapter used to manage the data of mRidesRecyclerView
      */
-    private ListRidesRecyclerViewAdapter mOfertasAdapter;
+    private ListRideRequestsRecyclerViewAdapter mRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -104,7 +102,7 @@ public class ListaCaronasFragment extends Fragment {
     /**
      * Required default constructor
      */
-    public ListaCaronasFragment() { }
+    public ListMyRequestsFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -114,7 +112,7 @@ public class ListaCaronasFragment extends Fragment {
 
         initComponents(rootView);
 
-        loadMyRides();
+        loadMyRequests();
 
         return rootView;
     }
@@ -124,15 +122,15 @@ public class ListaCaronasFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE) {
-                final Ride c = data.getParcelableExtra(NewRideActivity.RES_RIDE);
+            if (requestCode == NewRideRequestActivity.REQ_CODE) {
+                final RideRequest r = data.getParcelableExtra(NewRideRequestActivity.RES_RIDE);
 
                 // was necessary to use a delay to add the item to the screen, so that the RecyclerView
                 // could show the animation, and positioning at the new item
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        addItem(c);
+                        addItem(r);
                     }
                 }, 1000);
 
@@ -151,11 +149,11 @@ public class ListaCaronasFragment extends Fragment {
 
         mRidesRecyclerView.setHasFixedSize(true);
 
-        mOfertasLayoutManager = new LinearLayoutManager(rootView.getContext());
-        mRidesRecyclerView.setLayoutManager(mOfertasLayoutManager);
+        mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
+        mRidesRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
-        mOfertasAdapter = new ListRidesRecyclerViewAdapter(getActivity(), new ArrayList<Ride>());
-        mRidesRecyclerView.setAdapter(mOfertasAdapter);
+        mRequestsAdapter = new ListRideRequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>());
+        mRidesRecyclerView.setAdapter(mRequestsAdapter);
 
         Button btnOk = (Button) rootView.findViewById(R.id.btn_ok);
         btnOk.setText(getText(R.string.oferecer_carona));
@@ -175,63 +173,76 @@ public class ListaCaronasFragment extends Fragment {
         mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadMyRides();
+                loadMyRequests();
             }
         });
     }
 
     /**
-     * adds a ride record to the screen, this method is called after a new ride registration,so its
+     * Adds a ride record to the screen, this method is called after a new ride registration,so its
      * not necessary reload all the data from the cloud
      *
-     * @param c Ride to be added to the UI.
+     * @param c RideRequest to be added to the UI.
      */
-    private void addItem(Ride c) {
-        mOfertasAdapter.addItem(c);
+    private void addItem(RideRequest c) {
+        mRequestsAdapter.addItem(c);
 
         // after the item addition, scrolls the recyclerview to the first position, so that the user
         // can see the inserted record
-        if (mOfertasLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-            mOfertasLayoutManager.scrollToPosition(0);
+        if (mRequestsLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+            mRequestsLayoutManager.scrollToPosition(0);
         }
     }
 
     /**
-     * Loads the user's ride offers. At the end of the method, the user's rides list is defined
-     * as the dataset from mRideRecyclerView
+     * Loads the user's ride requests. At the end of the method, the user's ride requests list is defined
+     * as the dataset from mRideRequestsRecyclerView
      */
-    public void loadMyRides() {
-        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+    public void loadMyRequests() {
+        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+
+        Place p = new Place(2, 2);
+        p.setTitulo("UFAM");
+
+        List<RideRequest> lst = new ArrayList<RideRequest>();
+        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+
+
+        mRequestsAdapter.setDataset(lst);
 
         // Loads the rides from the cloud, only if the user is connected to the Internet
-        if (NetworkUtil.isConnected(getActivity())) {
-            Ride.getByDriverAsync((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
-                @Override
-                public Void then(Task<List<Ride>> task) throws Exception {
-                    mViewFlipper.setDisplayedChild(VIEW_PADRAO);
-
-                    if (!task.isFaulted() && !task.isCancelled()) {
-                        List<Ride> lstRides = task.getResult();
-                        Collections.sort(lstRides, new Comparator<Ride>() {
-                            @Override
-                            public int compare(Ride lhs, Ride rhs) {
-                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                            }
-                        });
-
-                        mOfertasAdapter.setDataset(lstRides);
-                    } else {
-                        Log.e(TAG, task.getError().getMessage());
-
-                        displayErrorScreen();
-                    }
-
-                    return null;
-                }
-            });
-        } else {
-            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
-        }
+//        if (NetworkUtil.isConnected(getActivity())) {
+//            Ride.getByDriverAsync((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
+//                @Override
+//                public Void then(Task<List<Ride>> task) throws Exception {
+//                    mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+//
+//                    if (!task.isFaulted() && !task.isCancelled()) {
+//                        List<Ride> lstRides = task.getResult();
+//                        Collections.sort(lstRides, new Comparator<Ride>() {
+//                            @Override
+//                            public int compare(Ride lhs, Ride rhs) {
+//                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+//                            }
+//                        });
+//
+//                        mRequestsAdapter.setDataset(lstRides);
+//                    } else {
+//                        Log.e(TAG, task.getError().getMessage());
+//
+//                        displayErrorScreen();
+//                    }
+//
+//                    return null;
+//                }
+//            });
+//        } else {
+//            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
+//        }
     }
 
     /**
@@ -246,7 +257,7 @@ public class ListaCaronasFragment extends Fragment {
         else
             mErrorScreenMsgTextView.setText(errorMsg);
 
-        mViewFlipper.setDisplayedChild(VIEW_ERRO);
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
 
     /**
@@ -255,6 +266,7 @@ public class ListaCaronasFragment extends Fragment {
     private void displayErrorScreen() {
         mErrorScreenMsgTextView.setText(getString(R.string.default_error_screen_message));
 
-        mViewFlipper.setDisplayedChild(VIEW_ERRO);
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
+
 }
