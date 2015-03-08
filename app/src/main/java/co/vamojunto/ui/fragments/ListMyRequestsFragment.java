@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,12 @@ import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Place;
 import co.vamojunto.model.Ride;
@@ -49,6 +54,7 @@ import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.ui.activities.NewRideRequestActivity;
 import co.vamojunto.ui.adapters.ListRideRequestsRecyclerViewAdapter;
 import co.vamojunto.util.Globals;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  *  A {@link android.support.v4.app.Fragment} to list all the rides that a user have requested.
@@ -132,9 +138,9 @@ public class ListMyRequestsFragment extends Fragment {
                     public void run() {
                         addItem(r);
                     }
-                }, 1000);
+                }, 500);
 
-                Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), getString(R.string.ride_requested), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -199,50 +205,37 @@ public class ListMyRequestsFragment extends Fragment {
      * as the dataset from mRideRequestsRecyclerView
      */
     public void loadMyRequests() {
-        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+        //Loads the ride requests from the cloud, only if the user is connected to the Internet
+        if (NetworkUtil.isConnected(getActivity())) {
+            RideRequest.getByRequesterAsync(User.getCurrentUser()).continueWith(new Continuation<List<RideRequest>, Void>() {
+                @Override
+                public Void then(Task<List<RideRequest>> task) throws Exception {
+                    if (!task.isFaulted() && !task.isCancelled()) {
+                        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
 
-        Place p = new Place(2, 2);
-        p.setTitulo("UFAM");
+                        List<RideRequest> requestList = task.getResult();
 
-        List<RideRequest> lst = new ArrayList<RideRequest>();
-        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
-        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
-        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
-        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
-        lst.add(new RideRequest(User.getCurrentUser(), Calendar.getInstance(), "", p, p));
+                        // sort the list by creation date
+                        Collections.sort(requestList, new Comparator<RideRequest>() {
+                            @Override
+                            public int compare(RideRequest lhs, RideRequest rhs) {
+                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                            }
+                        });
 
+                        mRequestsAdapter.setDataset(requestList);
+                    } else {
+                        Log.e(TAG, task.getError().getMessage());
 
-        mRequestsAdapter.setDataset(lst);
+                        displayErrorScreen();
+                    }
 
-        // Loads the rides from the cloud, only if the user is connected to the Internet
-//        if (NetworkUtil.isConnected(getActivity())) {
-//            Ride.getByDriverAsync((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
-//                @Override
-//                public Void then(Task<List<Ride>> task) throws Exception {
-//                    mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
-//
-//                    if (!task.isFaulted() && !task.isCancelled()) {
-//                        List<Ride> lstRides = task.getResult();
-//                        Collections.sort(lstRides, new Comparator<Ride>() {
-//                            @Override
-//                            public int compare(Ride lhs, Ride rhs) {
-//                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-//                            }
-//                        });
-//
-//                        mRequestsAdapter.setDataset(lstRides);
-//                    } else {
-//                        Log.e(TAG, task.getError().getMessage());
-//
-//                        displayErrorScreen();
-//                    }
-//
-//                    return null;
-//                }
-//            });
-//        } else {
-//            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
-//        }
+                    return null;
+                }
+            });
+        } else {
+            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
+        }
     }
 
     /**

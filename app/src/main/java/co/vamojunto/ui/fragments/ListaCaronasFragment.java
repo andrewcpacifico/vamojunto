@@ -134,7 +134,7 @@ public class ListaCaronasFragment extends Fragment {
                     public void run() {
                         addItem(c);
                     }
-                }, 1000);
+                }, 500);
 
                 Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG).show();
             }

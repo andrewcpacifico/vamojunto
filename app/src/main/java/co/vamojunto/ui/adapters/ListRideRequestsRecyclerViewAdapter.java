@@ -141,8 +141,8 @@ public class ListRideRequestsRecyclerViewAdapter extends RecyclerView.Adapter<Li
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
-        holder.mNameTextView.setText(r.getRequestor().getName());
-        holder.mRequestorImage.setImageBitmap(r.getRequestor().getProfileImage());
+        holder.mNameTextView.setText(r.getRequester().getName());
+        holder.mRequestorImage.setImageBitmap(r.getRequester().getProfileImage());
         holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + r.getStartingPoint().getTitulo());
         holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + r.getDestination().getTitulo());
         holder.mDateTextView.setText(dateFormat.format(r.getDatetime().getTime()));

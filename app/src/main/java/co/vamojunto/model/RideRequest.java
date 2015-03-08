@@ -22,10 +22,16 @@ package co.vamojunto.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.parse.FindCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.Calendar;
+import java.util.List;
+
+import bolts.Task;
 
 /**
  * The System's RideRequest Model
@@ -39,7 +45,7 @@ public class RideRequest extends ParseObject implements Parcelable {
 
     private static final String TAG ="model.RideRequest";
 
-    private static final String FIELD_REQUESTOR = "requestor";
+    private static final String FIELD_REQUESTER = "requester";
     private static final String FIELD_DATETIME = "datetime";
     private static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
     private static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
@@ -54,8 +60,8 @@ public class RideRequest extends ParseObject implements Parcelable {
      */
     public RideRequest() {}
 
-    public RideRequest(User requestor, Calendar datetime, String details, Place startingPoint, Place destination) {
-        setRequestor(requestor);
+    public RideRequest(User requester, Calendar datetime, String details, Place startingPoint, Place destination) {
+        setRequester(requester);
         setDatetime(datetime);
         setDetails(details);
         setStartingPoint(startingPoint);
@@ -66,12 +72,12 @@ public class RideRequest extends ParseObject implements Parcelable {
         return getObjectId();
     }
 
-    public User getRequestor() {
-        return (User) get(FIELD_REQUESTOR);
+    public User getRequester() {
+        return (User) get(FIELD_REQUESTER);
     }
 
-    public void setRequestor(User u) {
-        this.put(FIELD_REQUESTOR, u);
+    public void setRequester(User u) {
+        this.put(FIELD_REQUESTER, u);
     }
 
     public Calendar getDatetime() {
@@ -119,6 +125,33 @@ public class RideRequest extends ParseObject implements Parcelable {
         put(FIELD_DESTINATION_TITLE, destino.getTitulo());
     }
 
+    /**
+     * Retrieves a list of rides requested by a specific user.
+     *
+     * @param u The user that you want to recover the ride requests
+     * @return A {@link bolts.Task}that finishes after the search, if all occurs well,
+     *         this {@link bolts.Task} will contain a list of ride requests.
+     */
+    public static Task<List<RideRequest>> getByRequesterAsync(final User u) {
+        final Task<List<RideRequest>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+        query.whereEqualTo(FIELD_REQUESTER, u);
+
+        query.findInBackground(new FindCallback<RideRequest>() {
+            @Override
+            public void done(List<RideRequest> requests, ParseException e) {
+                if ( e == null ) {
+                    tcs.setResult(requests);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
     /***************************************************************************************************
      *
      * Turning into a Parcelable object
@@ -133,7 +166,7 @@ public class RideRequest extends ParseObject implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
-        dest.writeParcelable(getRequestor(), flags);
+        dest.writeParcelable(getRequester(), flags);
         dest.writeSerializable(getDatetime());
         dest.writeParcelable(getDestination(), flags);
         dest.writeString(getDetails());
@@ -144,7 +177,7 @@ public class RideRequest extends ParseObject implements Parcelable {
         public RideRequest createFromParcel(Parcel in) {
             RideRequest rideRequest = ParseObject.createWithoutData(RideRequest.class, in.readString());
 
-            rideRequest.setRequestor((User) in.readParcelable(User.class.getClassLoader()));
+            rideRequest.setRequester((User) in.readParcelable(User.class.getClassLoader()));
             rideRequest.setDatetime((Calendar) in.readSerializable());
             rideRequest.setDestination((Place) in.readParcelable(Place.class.getClassLoader()));
             rideRequest.setDetails(in.readString());
