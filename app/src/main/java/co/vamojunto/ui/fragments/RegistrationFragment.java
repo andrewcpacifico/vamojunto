@@ -23,7 +23,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,78 +41,92 @@ import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Regex;
 import com.mobsandgeeks.saripaar.annotation.Required;
 import com.parse.ParseException;
-import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.R;
 
 
 /**
- * Fragment contendo o formulário de registro de novo usuário.
+ * {@link android.support.v4.app.Fragment} containing the UI where the user can create an account.
  *
- * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.0
  * @since 0.1.0
  */
-public class FormCadastroFragment extends Fragment implements Validator.ValidationListener {
+public class RegistrationFragment extends Fragment implements Validator.ValidationListener {
 
-    private static final String TAG = "FormCadastroFragment";
+    private static final String TAG = "RegistrationFragment";
 
+    /**
+     * The field containing the name of the user
+     */
     @Required(order = 1, messageResId = R.string.error_required_field)
-    private EditText mNomeEditText;
+    private EditText mNameEditText;
 
+    /**
+     * The field containing the email of the user
+     */
     @Required(order = 2, messageResId = R.string.error_required_field)
     @Email(order = 3, messageResId = R.string.error_invalid_email)
     private EditText mEmailEditText;
 
+    /**
+     * The field containing the password of the user
+     */
     @Regex(order = 4, pattern = "[A-Za-z0-9]{6,20}", messageResId = R.string.invalid_password_error)
     @Password(order = 5)
-    private EditText mSenhaEditText;
-
-    @ConfirmPassword(order = 6, messageResId = R.string.password_not_match)
-    private EditText mConfirmSenhaEditText;
-
-    /** Utilizado para validar os valores dos inputs do formulário */
-    private Validator mValidator;
-
-    /** Diálogo exibido durante o cadastro do usuário */
-    private ProgressDialog mProDialog;
+    private EditText mPassEditText;
 
     /**
-     * Instancia o Validator durante a criação do formulário.
+     * The field containing the password confirmation of the user
      */
-    public FormCadastroFragment() {
-        mValidator = new Validator(this);
-        mValidator.setValidationListener(this);
+    @ConfirmPassword(order = 6, messageResId = R.string.password_not_match)
+    private EditText mPassConfirmEditText;
+
+    /**
+     * {@link com.mobsandgeeks.saripaar.Validator} for the input values
+     */
+    private Validator mValidator;
+
+    /**
+     * {@link android.app.ProgressDialog} displayed while the user account is being created
+     */
+    private ProgressDialog mProDialog;
+
+    public RegistrationFragment() {
+        // required empty constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_cadastro, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_registration, container, false);
+
+        // instantiates the validator
+        mValidator = new Validator(this);
+        mValidator.setValidationListener(this);
+
+        initComponents(rootView);
+
         return rootView;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        initComponents(view);
-    }
-
     /**
-     * Inicializa os componentes visuais da tela.
+     * Initializes the visual components
      *
-     * @param v RootView contendo o layout do Fragment
+     * @param rootView The Fragment's inflated layout
      */
-    private void initComponents(View v) {
-        mNomeEditText = (EditText) v.findViewById(R.id.nome_edit_text);
-        mEmailEditText = (EditText) v.findViewById(R.id.email_edit_text);
-        mSenhaEditText = (EditText) v.findViewById(R.id.senha_edit_text);
-        mConfirmSenhaEditText = (EditText) v.findViewById(R.id.confirm_senha_edit_text);
+    private void initComponents(View rootView) {
+        mNameEditText = (EditText) rootView.findViewById(R.id.name_edit_text);
+        mEmailEditText = (EditText) rootView.findViewById(R.id.email_edit_text);
+        mPassEditText = (EditText) rootView.findViewById(R.id.password_edit_text);
+        mPassConfirmEditText = (EditText) rootView.findViewById(R.id.password_confirm_edit_text);
 
-        Button cadastroButton = (Button) v.findViewById(R.id.cadastro_button);
-        cadastroButton.setOnClickListener(new View.OnClickListener() {
+        // gets the button instance and register the event handler
+        Button registerButton = (Button) rootView.findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mValidator.validate();
@@ -122,24 +135,23 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
     }
 
     /**
-     * Executado quando todos os inputs do formulários possuem valores válidos
+     * Executed when all inputs have valid values
      */
     @Override
     public void onValidationSucceeded() {
         startLoading();
 
-        ParseUser u = new ParseUser();
-        u.put("nome", mNomeEditText.getText().toString());
+        User u = new User();
+        u.setName(mNameEditText.getText().toString());
         u.setEmail(mEmailEditText.getText().toString());
         u.setUsername(mEmailEditText.getText().toString());
-        u.setPassword(mSenhaEditText.getText().toString());
+        u.setPassword(mPassEditText.getText().toString());
 
         u.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 stopLoading();
-                // Caso nenhum erro tenha ocorrido no cadastro do usuário. A tela principal será
-                // exibida
+                // if there is no error on user registration, the main screen is displayed
                 if ( e == null ) {
                     Activity cadastroActivity = getActivity();
 
@@ -147,19 +159,19 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK
                             | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                    //cadastroActivity.finish();
                 } else {
-                    // O mEmailView informado pelo usuário não está disponível.
+                    // the email given by the user is already taken
                     if ( e.getCode() == ParseException.EMAIL_TAKEN  ||
                             e.getCode() == ParseException.USERNAME_TAKEN) {
                         mEmailEditText.setError(getString(R.string.error_email_taken));
                         mEmailEditText.requestFocus();
+                    // the email given by the user is invalid
                     } else if ( e.getCode() == ParseException.INVALID_EMAIL_ADDRESS ) {
                         mEmailEditText.setError(getString(R.string.error_invalid_email));
                         mEmailEditText.requestFocus();
                     }
                     else {
-                        // Caso tenha ocorrido qualquer outro erro.
+                        // any other error has ocurred
                         Toast.makeText(getActivity(), R.string.error_sign_up, Toast.LENGTH_LONG).show();
                         Log.e(TAG, e.getMessage());
                     }
@@ -169,8 +181,7 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
     }
 
     /**
-     * Executado sempre que for detectado algum erro em algum input do formulário. Basicamente
-     * exibe a mensagem de erro ao usuário, e muda o foco para o input inválido.
+     * Handles the errors on the input fields.
      *
      * @param failedView Input onde foi detectado o erro.
      * @param failedRule Regra onde o input não passou na validação.
@@ -184,7 +195,7 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
     }
 
     /**
-     * Exibe um diálogo indicando que a tela principal está sendo carregada.
+     * Displays a ProgressDialog to indicates that something is being loaded.
      */
     private void startLoading() {
         mProDialog = new ProgressDialog(getActivity());
@@ -195,7 +206,7 @@ public class FormCadastroFragment extends Fragment implements Validator.Validati
     }
 
     /**
-     * Finaliza o diálogo do carregamento da tela principal.
+     * Finishes the ProgressDialog.
      */
     private void stopLoading() {
         mProDialog.dismiss();

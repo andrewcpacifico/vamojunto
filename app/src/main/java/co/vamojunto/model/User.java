@@ -49,10 +49,10 @@ public class User extends ParseUser implements Parcelable {
     private final static String FIELD_EMAIL = "email";
     private final static String FIELD_PROFILE_IMG = "img_perfil";
 
-    private Bitmap mImgPerfil;
+    private Bitmap profileImage;
 
     public User() {
-        mImgPerfil = null;
+        profileImage = null;
     }
 
     public String getId() {
@@ -68,26 +68,26 @@ public class User extends ParseUser implements Parcelable {
     }
 
     public Bitmap getProfileImage() {
-        if (mImgPerfil == null) {
+        if (profileImage == null) {
             ParseFile imgUsuarioPFile = getParseFile(FIELD_PROFILE_IMG);
             // checks if the user have a profile image before convert it to an Bitmap
             if (imgUsuarioPFile != null) {
                 try {
-                    mImgPerfil = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
+                    profileImage = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        return mImgPerfil;
+        return profileImage;
     }
 
     public void setImgPerfil(Bitmap imgPerfil) {
-        this.mImgPerfil = imgPerfil;
+        this.profileImage = imgPerfil;
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        this.mImgPerfil.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        this.profileImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
         put(FIELD_PROFILE_IMG, pFile);
     }

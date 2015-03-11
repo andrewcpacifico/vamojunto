@@ -32,7 +32,7 @@
         android:src="@drawable/logo"/>
 
     <TextView
-        android:id="@+id/titulo_text_view"
+        android:id="@+id/title_text_view"
         android:fontFamily="sans-serif-light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center_horizontal"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/titulo_text_view"
+        android:layout_below="@+id/title_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -70,7 +70,7 @@
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/senha_edit_text"
+        android:id="@+id/password_edit_text"
         android:inputType="textPassword"
         android:hint="@string/password"
         android:layout_width="match_parent"
@@ -86,13 +86,13 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/senha_edit_text"
+        android:layout_below="@+id/password_edit_text"
         android:layout_marginTop="10dp"
         android:padding="0dp"
-        android:layout_alignLeft="@+id/senha_edit_text"
-        android:layout_alignRight="@+id/senha_edit_text">
+        android:layout_alignLeft="@+id/password_edit_text"
+        android:layout_alignRight="@+id/password_edit_text">
         <Button
-            android:id="@+id/cadastro_button"
+            android:id="@+id/register_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signup"

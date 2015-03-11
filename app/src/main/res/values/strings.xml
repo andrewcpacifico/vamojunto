@@ -45,7 +45,7 @@
     <string name="welcome_string_text">Peça ou ofereça carona para a UFAM agora mesmo.</string>
     <string name="title_activity_cadastro">CadastroActivity</string>
 
-    <!-- FormCadastroFragment -->
+    <!-- RegistrationFragment -->
     <string name="error_email_taken">O email fornecido já está cadastrado.</string>
     <string name="error_invalid_email">O email fornecido é inválido.</string>
     <string name="error_sign_up">Ocorreu um erro ao realizar o cadastro, por favor tente novamente.</string>

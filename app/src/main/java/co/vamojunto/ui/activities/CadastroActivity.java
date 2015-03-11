@@ -23,7 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import co.vamojunto.R;
-import co.vamojunto.ui.fragments.FormCadastroFragment;
+import co.vamojunto.ui.fragments.RegistrationFragment;
 
 /**
  * Activity de cadastro de um novo usuário. Nela é possível que um usuário se cadastre direto em nossa
@@ -41,7 +41,7 @@ public class CadastroActivity extends FragmentActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new FormCadastroFragment())
+                    .add(R.id.container, new RegistrationFragment())
                     .commit();
         }
     }

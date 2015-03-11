@@ -97,7 +97,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
      */
     private void initComponents() {
         mEmailEditText = (EditText) findViewById(R.id.email_edit_text);
-        mSenhaEditText = (EditText) findViewById(R.id.senha_edit_text);
+        mSenhaEditText = (EditText) findViewById(R.id.password_edit_text);
 
         Button fbAuthButton = (Button) findViewById(R.id.fb_auth_button);
         fbAuthButton.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +107,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             }
         });
 
-        Button cadastroButton = (Button) findViewById(R.id.cadastro_button);
+        Button cadastroButton = (Button) findViewById(R.id.register_button);
         cadastroButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

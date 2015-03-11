@@ -4,6 +4,7 @@
     <mapping directory="" vcs="" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="/media/andrew/PersonalData/Dropbox/Work/Projects/VamoJunto/dev/vamo-junto-android" vcs="Git" />
+    <mapping directory="/media/andrew/PersonalData/Dropbox/Work/Projects/VamoJunto/dev/vamojunto-android" vcs="Git" />
   </component>
 </project>
 

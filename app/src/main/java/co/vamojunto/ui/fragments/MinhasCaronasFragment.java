@@ -125,7 +125,7 @@ public class MinhasCaronasFragment extends Fragment {
             else if (position == 2)
                 return new ListMyRequestsFragment();
 
-            return new FormCadastroFragment();
+            return new RegistrationFragment();
         }
 
         @Override
