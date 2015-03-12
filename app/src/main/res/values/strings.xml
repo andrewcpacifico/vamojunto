@@ -138,6 +138,9 @@
     <string name="error_ride_request_registration">Erro ao cadastrar pedido de carona, por favor tente novamente.</string>
     <string name="request_ride">Pedir carona</string>
     <string name="ride_requested">Pedido de carona cadastrado com sucesso.</string>
+    <string name="title_activity_ride_details">RideDetailsActivity</string>
+    <string name="driver">Motorista</string>
+    <string name="passengers">Passageiros</string>
 
 
 </resources>

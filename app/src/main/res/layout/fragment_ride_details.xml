@@ -1,0 +1,265 @@
+<!--
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="co.vamojunto.ui.activities.RideDetailsActivity$PlaceholderFragment">
+
+    <ScrollView
+        android:id="@+id/main_content"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/ask_button"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:id="@+id/header"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+
+                    android:text="@string/driver"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/abc_text_size_title_material"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/no_profile_pic"
+                    android:id="@+id/driver_picture"
+                    />
+
+                <TextView
+                    android:id="@+id/driver_name_text_view"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginTop="10dp"
+                    android:text="Amado Batista"
+                    android:textSize="@dimen/abc_text_size_body_1_material"/>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/separator_1"
+
+                android:layout_below="@id/header"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+
+                android:background="@color/separator"
+                />
+
+            <RelativeLayout
+                android:id="@+id/details"
+
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+
+                android:layout_below="@+id/separator_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/starting_point_text_view"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="De: UFAM"
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+                <TextView
+                    android:id="@+id/destination_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/starting_point_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Para: SIDIA Samsung Instituto de Desenvolvimento de Informática do Amazonas"
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+                <TextView
+                    android:id="@+id/datetime_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/destination_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Quando: Segunda-feira, 09/03, as 12:30"
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+                <TextView
+                    android:id="@+id/detais_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/datetime_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Detalhes: Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão."
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/separator_2"
+
+                android:layout_below="@id/details"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+
+                android:background="@color/separator"
+                />
+
+            <RelativeLayout
+                android:id="@+id/passengers"
+
+                android:layout_below="@id/separator_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/passengers_headline"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_centerHorizontal="true"
+
+                    android:text="@string/passengers"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/abc_text_size_title_material"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass1_pic"
+                    android:layout_below="@+id/passengers_headline"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass2_pic"
+                    android:layout_toRightOf="@+id/pass1_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass3_pic"
+                    android:layout_toRightOf="@+id/pass2_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass4_pic"
+                    android:layout_toRightOf="@+id/pass3_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass5_pic"
+                    android:layout_toRightOf="@+id/pass4_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass6_pic"
+                    android:layout_toRightOf="@+id/pass5_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/pass7_pic"
+                    android:layout_toRightOf="@+id/pass6_pic"
+                    android:layout_alignTop="@+id/pass1_pic"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_profile_pic"
+                    />
+            </RelativeLayout> <!-- end of details panel -->
+        </RelativeLayout> <!-- end of main panel -->
+    </ScrollView> <!-- end of main content-->
+
+    <Button
+        android:id="@+id/ask_button"
+
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+
+        android:padding="0dp"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        style="@style/Save.Button"
+        />
+
+
+</RelativeLayout>
+
