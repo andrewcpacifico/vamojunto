@@ -90,7 +90,7 @@
     </RelativeLayout>        
 
     <Button
-        android:id="@+id/btn_ok"
+        android:id="@+id/ok_button"
 
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"

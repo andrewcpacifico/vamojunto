@@ -121,7 +121,7 @@ public class MinhasCaronasFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return new ListaCaronasFragment();
+                return new ListMyRidesFragment();
             else if (position == 2)
                 return new ListMyRequestsFragment();
 

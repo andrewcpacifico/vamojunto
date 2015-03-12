@@ -96,7 +96,21 @@ public class User extends ParseUser implements Parcelable {
         return (User) ParseUser.getCurrentUser();
     }
 
-/***************************************************************************************************
+    @Override
+    public boolean equals(Object o) {
+        if (o == null)
+            return false;
+
+        if (o.getClass() == User.class) {
+            User u = (User) o;
+
+            return u.getId() == this.getId();
+        }
+
+        return false;
+    }
+
+    /***************************************************************************************************
  *
  * Turning into a Parcelable object
  *

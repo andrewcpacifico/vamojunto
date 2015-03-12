@@ -215,7 +215,7 @@ public class GetLocationActivity extends ActionBarActivity
         // Inicializa a Application Bar
         initAppBar();
 
-        Button btnOk = (Button) findViewById(R.id.btn_ok);
+        Button btnOk = (Button) findViewById(R.id.ok_button);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

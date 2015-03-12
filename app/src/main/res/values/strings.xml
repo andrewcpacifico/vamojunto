@@ -141,6 +141,13 @@
     <string name="title_activity_ride_details">RideDetailsActivity</string>
     <string name="driver">Motorista</string>
     <string name="passengers">Passageiros</string>
+    <string name="request_a_ride">Pedir carona</string>
+    <string name="from">De</string>
+    <string name="to">Para</string>
+    <string name="when">Quando</string>
+    <string name="default_datetime_format">EEEE, dd/MM \'as\' HH:mm</string>
+    <string name="details">Detalhes</string>
+    <string name="title_activity_main_activity2">MainActivity2Activity</string>
 
 
 </resources>

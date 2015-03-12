@@ -46,6 +46,7 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
+import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.ListRidesRecyclerViewAdapter;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
@@ -60,9 +61,9 @@ import co.vamojunto.util.NetworkUtil;
  * @version 1.0.0
  * @since 0.1.0
  */
-public class ListaCaronasFragment extends Fragment {
+public class ListMyRidesFragment extends Fragment {
 
-    private static final String TAG = "ListaCaronasFragment";
+    private static final String TAG = "ListMyRidesFragment";
 
     // the constants below are used to identify the views loaded by the ViewFlipper
     private static final int VIEW_PROGRESS = 0;
@@ -82,7 +83,7 @@ public class ListaCaronasFragment extends Fragment {
     /**
      * Adapter used to manage the data of mRidesRecyclerView
      */
-    private ListRidesRecyclerViewAdapter mOfertasAdapter;
+    private ListRidesRecyclerViewAdapter mRidesAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -104,7 +105,7 @@ public class ListaCaronasFragment extends Fragment {
     /**
      * Required default constructor
      */
-    public ListaCaronasFragment() { }
+    public ListMyRidesFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -147,19 +148,31 @@ public class ListaCaronasFragment extends Fragment {
      * @param rootView The Fragment's inflated layout.
      */
     public void initComponents(View rootView) {
+        // inits the RecyclerView
         mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.lista_caronas_recycler_view);
-
         mRidesRecyclerView.setHasFixedSize(true);
 
+        // inits the RecyclerView LayoutManager
         mOfertasLayoutManager = new LinearLayoutManager(rootView.getContext());
         mRidesRecyclerView.setLayoutManager(mOfertasLayoutManager);
 
-        mOfertasAdapter = new ListRidesRecyclerViewAdapter(getActivity(), new ArrayList<Ride>());
-        mRidesRecyclerView.setAdapter(mOfertasAdapter);
+        // inits the RecyclerView Adapter
+        mRidesAdapter = new ListRidesRecyclerViewAdapter(getActivity(),
+                new ArrayList<Ride>(), new ListRidesRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(int position) {
+                Ride choosenRide = mRidesAdapter.getItem(position);
+                Intent intent = new Intent(ListMyRidesFragment.this.getActivity(),
+                        RideDetailsActivity.class);
+                intent.putExtra(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                startActivity(intent);
+            }
+        });
+        mRidesRecyclerView.setAdapter(mRidesAdapter);
 
-        Button btnOk = (Button) rootView.findViewById(R.id.btn_ok);
-        btnOk.setText(getText(R.string.oferecer_carona));
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        Button okButton = (Button) rootView.findViewById(R.id.ok_button);
+        okButton.setText(getText(R.string.oferecer_carona));
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), NewRideActivity.class);
@@ -181,13 +194,13 @@ public class ListaCaronasFragment extends Fragment {
     }
 
     /**
-     * adds a ride record to the screen, this method is called after a new ride registration,so its
+     * Adds a ride record to the screen, this method is called after a new ride registration,so its
      * not necessary reload all the data from the cloud
      *
      * @param c Ride to be added to the UI.
      */
     private void addItem(Ride c) {
-        mOfertasAdapter.addItem(c);
+        mRidesAdapter.addItem(c);
 
         // after the item addition, scrolls the recyclerview to the first position, so that the user
         // can see the inserted record
@@ -219,7 +232,7 @@ public class ListaCaronasFragment extends Fragment {
                             }
                         });
 
-                        mOfertasAdapter.setDataset(lstRides);
+                        mRidesAdapter.setDataset(lstRides);
                     } else {
                         Log.e(TAG, task.getError().getMessage());
 

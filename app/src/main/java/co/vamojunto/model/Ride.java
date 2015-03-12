@@ -28,6 +28,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -146,13 +147,39 @@ public class Ride extends ParseObject implements Parcelable {
         final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
-        query.whereEqualTo(FIELD_DRIVER, u);
+        query.include(FIELD_DRIVER);
+        //query.whereEqualTo(FIELD_DRIVER, u);
 
         query.findInBackground(new FindCallback<Ride>() {
             @Override
             public void done(List<Ride> rides, ParseException e) {
                 if ( e == null ) {
                     tcs.setResult(rides);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    public Task<List<User>> getPassengers() {
+        final Task<List<User>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("RidePassenger");
+        query.whereEqualTo("ride", this);
+        query.include("passenger");
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> rides, ParseException e) {
+                if ( e == null ) {
+                    List<User> lst = new ArrayList<User>();
+                    for (ParseObject o: rides)
+                        lst.add((User) o.getParseObject("passenger"));
+
+                    tcs.setResult(lst);
                 } else {
                     tcs.setError(e);
                 }

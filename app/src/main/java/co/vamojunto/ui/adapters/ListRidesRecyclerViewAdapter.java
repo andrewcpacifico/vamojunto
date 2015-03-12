@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import co.vamojunto.R;
+import co.vamojunto.model.Place;
 import co.vamojunto.model.Ride;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -44,52 +46,68 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRidesRecyclerViewAdapter.ViewHolder> {
 
-    /** Contém os dados que serão exibidos na lista. */
+    private static final String TAG = "ListRidesRecyclerViewAdapter";
+    /**
+     * The data to be displayed on the RecyclerView
+     */
     private List<Ride> mDataset;
 
+    /**
+     * The RecyclerView Context
+     */
     private Context mContext;
 
-    /** Utilizado para executar algo na Thread principal */
+    /**
+     * Used to execute stuff on the main Thread
+     */
     private Handler mHandler;
 
+    /**
+     * Handles the item clicks
+     */
+    private OnItemClickListener mItemClickListener;
+
     static class ViewHolder extends RecyclerView.ViewHolder {
-        public CircleImageView mImgMotoristaImageView;
-        public TextView mNomeMotoristaTextView;
-        public TextView mOrigemTextView;
-        public TextView mDestinoTextView;
-        public TextView mDataTextView;
-        public TextView mHoraTextView;
+        public CircleImageView mDriverImageView;
+        public TextView mDriverNameTextView;
+        public TextView mStartingPointTextView;
+        public TextView mDestinationTextView;
+        public TextView mDateTextView;
+        public TextView mTimeTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            mImgMotoristaImageView = (CircleImageView) itemView.findViewById(R.id.user_pic);
-            mNomeMotoristaTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
-            mOrigemTextView = (TextView) itemView.findViewById(R.id.starting_point_text_view);
-            mDestinoTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
-            mDataTextView = (TextView) itemView.findViewById(R.id.date_text_view);
-            mHoraTextView = (TextView) itemView.findViewById(R.id.time_text_view);
+            mDriverImageView = (CircleImageView) itemView.findViewById(R.id.user_pic);
+            mDriverNameTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
+            mStartingPointTextView = (TextView) itemView.findViewById(R.id.starting_point_text_view);
+            mDestinationTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
+            mDateTextView = (TextView) itemView.findViewById(R.id.date_text_view);
+            mTimeTextView = (TextView) itemView.findViewById(R.id.time_text_view);
         }
     }
 
-    /**
-     * Construtor da classe, inicializa os campos necessários para que a lista seja preenchida.
-     */
-    public ListRidesRecyclerViewAdapter(Context context, List<Ride> dataset) {
+    public interface OnItemClickListener {
+        public void OnItemClick(int position);
+    }
+
+    public ListRidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());
+        this.mItemClickListener = itemClickListener;
     }
 
     /**
-     * Atualiza o dataset do RecyclerView
+     * Updates the dataset
+     *
      * @param dataset O novo dataset.
      */
     public void setDataset(List<Ride> dataset) {
         this.mDataset = dataset;
 
-        // Notifica a mudança no dataset, para que a atualização visual seja imediata, esta ação
-        // deve ser executada na Thread principal, por isso a utilização do handler
+        // notifies all the listeners that the dataset was changed. That action have to be executed
+        // on the main thread to have immediate effect on the screen.
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -99,16 +117,18 @@ public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRides
     }
 
     /**
-     * Permite a adição de um item ao dataset, em seguida notifica a adição de um novo item, para
-     * que o RecyclerView seja atualizado.
-     * @param c A carona a ser adicionada ao dataset, e consequentemente à tela.
+     * Adds a new item to the dataset, then notifies all the listeners, so that the RecyclerView
+     * is updated.
+     *
+     * @param r The {@link co.vamojunto.model.Ride} to be added to the dataset and consequently
+     *          to the screen.
      */
-    public void addItem(Ride c) {
-        // O item novo é adicionado à primeira posição do dataset, para que seja exibido no topo.
-        this.mDataset.add(0, c);
+    public void addItem(Ride r) {
+        // the new item is added to the first position on the dataset,to be displayed at the top of the list
+        this.mDataset.add(0, r);
 
-        // Mesma situação da alteração de dataset, o código precisa ser executado na Thread principal
-        // para ter efeito imediato.
+        // same situation of the dataset changing, the code have to be executed on the main thread
+        // to have an immediate effect on the screen
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -117,14 +137,42 @@ public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRides
         });
     }
 
+    /**
+     * Returns a {@link co.vamojunto.model.Ride} in a specific position of the RecyclerView
+     *
+     * @param position The position of the Ride wanted.
+     * @return A {@link co.vamojunto.model.Ride} stored in a position of the dataset, or <code>null</code> if
+     *         the position is invalid, or dataset is <code>null</code>
+     */
+    public Ride getItem(int position) {
+        if (this.mDataset == null)
+            return null;
+
+        Ride r = null;
+        try {
+            r = this.mDataset.get(position);
+        } catch (IndexOutOfBoundsException e) {
+            Log.d(TAG, "[getItem] Erro ao obter local do dataset " + e);
+        }
+
+        return r;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.layout_ride_card, parent, false);
-        // set the view's size, margins, paddings and layout parameters
+        final ViewHolder vh = new ViewHolder(v);
 
-        return new ViewHolder(v);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mItemClickListener.OnItemClick(vh.getPosition());
+            }
+        });
+
+        return vh;
     }
 
     @Override
@@ -134,12 +182,12 @@ public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRides
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
-        holder.mNomeMotoristaTextView.setText(c.getDriver().getName());
-        holder.mImgMotoristaImageView.setImageBitmap(c.getDriver().getProfileImage());
-        holder.mOrigemTextView.setText(mContext.getString(R.string.de) + ": " + c.getStartingPoint().getTitulo());
-        holder.mDestinoTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestination().getTitulo());
-        holder.mDataTextView.setText(dateFormat.format(c.getDatetime().getTime()));
-        holder.mHoraTextView.setText(timeFormat.format(c.getDatetime().getTime()));
+        holder.mDriverNameTextView.setText(c.getDriver().getName());
+        holder.mDriverImageView.setImageBitmap(c.getDriver().getProfileImage());
+        holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + c.getStartingPoint().getTitulo());
+        holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestination().getTitulo());
+        holder.mDateTextView.setText(dateFormat.format(c.getDatetime().getTime()));
+        holder.mTimeTextView.setText(timeFormat.format(c.getDatetime().getTime()));
     }
 
     @Override
