@@ -40,7 +40,6 @@ import co.vamojunto.R;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
-import co.vamojunto.util.Globals;
 
 /**
  * Activity principal do sistema.

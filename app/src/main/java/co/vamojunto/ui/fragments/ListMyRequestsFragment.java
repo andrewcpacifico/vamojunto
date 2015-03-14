@@ -38,7 +38,6 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,14 +45,10 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Place;
-import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
-import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.ui.activities.NewRideRequestActivity;
 import co.vamojunto.ui.adapters.ListRideRequestsRecyclerViewAdapter;
-import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
 
 /**
@@ -236,7 +231,7 @@ public class ListMyRequestsFragment extends Fragment {
                 }
             });
         } else {
-            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
+            displayErrorScreen(getString(R.string.error_msg_no_internet_connection));
         }
     }
 

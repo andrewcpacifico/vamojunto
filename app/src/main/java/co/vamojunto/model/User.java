@@ -110,7 +110,7 @@ public class User extends ParseUser implements Parcelable {
         return false;
     }
 
-    /***************************************************************************************************
+/***************************************************************************************************
  *
  * Turning into a Parcelable object
  *
@@ -123,15 +123,11 @@ public class User extends ParseUser implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        this.getProfileImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
-
         dest.writeString(getId());
         dest.writeString(getName());
         dest.writeString(getUsername());
         dest.writeString(getEmail());
-        dest.writeInt(stream.toByteArray().length);
-        dest.writeByteArray(stream.toByteArray());
+        dest.writeParcelable(this.getProfileImage(), flags);
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
@@ -140,10 +136,7 @@ public class User extends ParseUser implements Parcelable {
             u.setName(in.readString());
             u.setUsername(in.readString());
             u.setEmail(in.readString());
-
-            byte[] imgBytes = new byte[in.readInt()];
-            in.readByteArray(imgBytes);
-            u.setImgPerfil(BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.length));
+            u.setImgPerfil((Bitmap) in.readParcelable(Bitmap.class.getClassLoader()));
 
             return u;
         }

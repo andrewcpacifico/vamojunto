@@ -132,13 +132,13 @@
     <string name="carona_cadastrada">Oferta de carona cadastrada com sucesso.</string>
     <string name="default_error_screen_message">Ocorreu um erro e ação não pôde ser concluída, por favor tente novamente.</string>
     <string name="default_error_screen_retry_text">Tentar novamente</string>
-    <string name="erro_msg_no_internet_connection">Você não está conectado à Internet, por favor tente novamente mais tarde.</string>
+    <string name="error_msg_no_internet_connection">Você não está conectado à Internet, por favor tente novamente mais tarde.</string>
     <string name="title_activity_new_ride_request">NewRideRequestActivity</string>
     <string name="saving_ride_request">Salvando pedido de carona...</string>
     <string name="error_ride_request_registration">Erro ao cadastrar pedido de carona, por favor tente novamente.</string>
     <string name="request_ride">Pedir carona</string>
     <string name="ride_requested">Pedido de carona cadastrado com sucesso.</string>
-    <string name="title_activity_ride_details">RideDetailsActivity</string>
+    <string name="title_activity_ride_details">Detalhes da carona</string>
     <string name="driver">Motorista</string>
     <string name="passengers">Passageiros</string>
     <string name="request_a_ride">Pedir carona</string>
@@ -148,6 +148,10 @@
     <string name="default_datetime_format">EEEE, dd/MM \'as\' HH:mm</string>
     <string name="details">Detalhes</string>
     <string name="title_activity_main_activity2">MainActivity2Activity</string>
+    <string name="no_passengers">Esta carona ainda não possui nenhum passageiro confirmado.</string>
+    <string name="error_load_passengers">Ocorreu um erro ao carregar os passageiros da carona. Por favor tente novamente.</string>
+    <string name="seats_available">Lugares disponíveis</string>
+    <string name="no_seats_available">Esta carona não tem mais nenhum lugar disponível.</string>
 
 
 </resources>

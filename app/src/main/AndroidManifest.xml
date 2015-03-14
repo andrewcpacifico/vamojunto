@@ -106,10 +106,6 @@
             android:name=".ui.activities.RideDetailsActivity"
             android:label="@string/title_activity_ride_details" >
         </activity>
-        <activity
-            android:name=".ui.activities.MainActivity2Activity"
-            android:label="@string/title_activity_main_activity2" >
-        </activity>
     </application>
 
 </manifest>

@@ -19,11 +19,12 @@
 
 package co.vamojunto.ui.activities;
 
-import android.support.annotation.Nullable;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,9 +33,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import java.util.List;
 
@@ -43,7 +46,9 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.widget.ExpandableHeightGridView;
 import co.vamojunto.util.DateUtil;
+import co.vamojunto.util.NetworkUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -70,7 +75,7 @@ public class RideDetailsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_details);
 
-        PlaceholderFragment fragment = new PlaceholderFragment();
+        RideDetailsFragment fragment = new RideDetailsFragment();
         fragment.setArguments(getIntent().getExtras());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
@@ -90,9 +95,81 @@ public class RideDetailsActivity extends ActionBarActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
+     * A {@link android.support.v4.app.Fragment} where the user can view the details from a ride
+     *
+     * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+     * @version 1.0.0
+     * @since 0.1.0
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class RideDetailsFragment extends Fragment {
+
+        private static final int VIEW_PROGRESS = 0;
+        private static final int VIEW_PASSENGERS = 1;
+        private static final int VIEW_ERROR = 2;
+
+        private static class PassengersGridAdapter extends BaseAdapter {
+
+            private List<User> mDataset;
+            private Context mContext;
+            private Handler mHandler;
+
+            public PassengersGridAdapter(Context context, List<User> dataset) {
+                mContext = context;
+                mDataset = dataset;
+                mHandler = new Handler(Looper.getMainLooper());
+            }
+
+            public void setDataset(List<User> dataset) {
+                mDataset = dataset;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public int getCount() {
+                if (mDataset == null)
+                    return 0;
+
+                return mDataset.size();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return null;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View gridView;
+
+                if (convertView == null) {  // if it's not recycled, initialize some attributes
+                    gridView = LayoutInflater.from(mContext)
+                            .inflate(R.layout.item_passenger, parent, false);
+                } else {
+                    gridView = convertView;
+                }
+
+                if (mDataset.get(position).getProfileImage() != null) {
+                    CircleImageView passengerPicture =
+                            (CircleImageView) gridView.findViewById(R.id.passenger_picture);
+                    passengerPicture.setImageBitmap(mDataset.get(position).getProfileImage());
+                }
+
+                TextView passengerName = (TextView) gridView.findViewById(R.id.passenger_name);
+                passengerName.setText(mDataset.get(position).getName());
+
+                return gridView;
+            }
+        }
 
         /**
          * The ride to be displayed on the screen
@@ -104,7 +181,33 @@ public class RideDetailsActivity extends ActionBarActivity {
          */
         private MenuItem mEditMenu;
 
-        public PlaceholderFragment() {
+        /**
+         * The Grid where the ride passengers is displayed
+         */
+        private ExpandableHeightGridView mPassengersGrid;
+
+        /**
+         * Adapter for the passengers GridView
+         */
+        private PassengersGridAdapter mAdapter;
+
+        /**
+         * ViewFlipper used to alternate between views on the passengers area
+         */
+        private ViewFlipper mPassengersViewFlipper;
+
+        /**
+         * TextView used to display a message to the user, when an error occurs on the passengers loading
+         */
+        private TextView mPassengersMessage;
+
+        /**
+         * If an error occurs when the passengers is being loaded, this button is used to retry
+         * load the ride passengers
+         */
+        private TextView mPassengersRetryButton;
+
+        public RideDetailsFragment() {
         }
 
         @Override
@@ -168,7 +271,10 @@ public class RideDetailsActivity extends ActionBarActivity {
          */
         private void initComponents(View rootView) {
             CircleImageView driverImageView = (CircleImageView) rootView.findViewById(R.id.driver_picture);
-            driverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
+
+            // checks if the driver have a profile image
+            if (mRide.getDriver().getProfileImage() != null)
+                driverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
 
             TextView driverNameTextView = (TextView) rootView.findViewById(R.id.driver_name_text_view);
             driverNameTextView.setText(mRide.getDriver().getName());
@@ -188,10 +294,81 @@ public class RideDetailsActivity extends ActionBarActivity {
             TextView detailsTextView = (TextView) rootView.findViewById(R.id.detais_text_view);
             detailsTextView.setText(getString(R.string.details) + ": " + mRide.getDetails());
 
-            // enables the request a ride button, only if the user is not the driver of this ride
+            // enables the request a ride button, only if the user is not the driver of this ride,
+            // and the ride have any seat available
             Button askButton = (Button) rootView.findViewById(R.id.ask_button);
-            if (mRide.getDriver().equals(User.getCurrentUser())) {
+            if (mRide.getDriver().equals(User.getCurrentUser()) || mRide.getSeatsAvailable() == 0) {
                 askButton.setVisibility(View.GONE);
+            }
+
+            TextView seatsAvailableTextView =
+                    (TextView) rootView.findViewById(R.id.seats_available_text_view);
+            if (mRide.getSeatsAvailable() > 0) {
+                seatsAvailableTextView.setText(getString(R.string.seats_available) + ": "
+                        + mRide.getSeatsAvailable());
+            } else {
+                seatsAvailableTextView.setText(getString(R.string.no_seats_available));
+            }
+
+            mPassengersViewFlipper =
+                    (ViewFlipper) rootView.findViewById(R.id.passengers_view_flipper);
+
+            mPassengersGrid = (ExpandableHeightGridView) rootView.findViewById(R.id.grid_passengers);
+            mAdapter = new PassengersGridAdapter(getActivity(), null);
+            mPassengersGrid.setAdapter(mAdapter);
+            mPassengersGrid.setExpanded(true);
+
+            mPassengersMessage = (TextView) rootView.findViewById(R.id.error_message);
+
+            mPassengersRetryButton = (TextView) rootView.findViewById(R.id.retry_button);
+            mPassengersRetryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showPassengers();
+                }
+            });
+
+            showPassengers();
+        }
+
+        /**
+         * Displays the list of confirmed passengers in this ride
+         */
+        private void showPassengers() {
+            mPassengersViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+
+            if (NetworkUtil.isConnected(getActivity())) {
+                mRide.getPassengers().continueWith(new Continuation<List<User>, Void>() {
+                    @Override
+                    public Void then(Task<List<User>> task) throws Exception {
+                        if (!task.isCancelled() && !task.isFaulted()) {
+                            List<User> l = task.getResult();
+
+                            // if there is any passenger on this ride, show them, if not, show a message
+                            // to the user
+                            if (l.size() > 0) {
+                                mAdapter.setDataset(l);
+                                mPassengersViewFlipper.setDisplayedChild(VIEW_PASSENGERS);
+                            } else {
+                                mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+                                mPassengersMessage.setText(getString(R.string.no_passengers));
+                                mPassengersRetryButton.setVisibility(View.GONE);
+                            }
+                        } else if (task.isFaulted()) {
+                            Log.d(TAG, task.getError().getMessage());
+
+                            mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+                            mPassengersMessage.setText(getString(R.string.error_load_passengers));
+                            mPassengersRetryButton.setVisibility(View.VISIBLE);
+                        }
+
+                        return null;
+                    }
+                });
+            } else {
+                mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+                mPassengersMessage.setText(getString(R.string.error_msg_no_internet_connection));
+                mPassengersRetryButton.setVisibility(View.VISIBLE);
             }
         }
     }

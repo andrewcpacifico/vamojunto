@@ -243,7 +243,7 @@ public class ListMyRidesFragment extends Fragment {
                 }
             });
         } else {
-            displayErrorScreen(getString(R.string.erro_msg_no_internet_connection));
+            displayErrorScreen(getString(R.string.error_msg_no_internet_connection));
         }
     }
 

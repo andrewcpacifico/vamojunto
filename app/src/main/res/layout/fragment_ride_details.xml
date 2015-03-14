@@ -20,7 +20,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="co.vamojunto.ui.activities.RideDetailsActivity$PlaceholderFragment">
+    tools:context="co.vamojunto.ui.activities.RideDetailsActivity.RideDetailsFragment">
 
     <ScrollView
         android:id="@+id/main_content"
@@ -28,6 +28,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/ask_button"
+
+        android:fillViewport="true"
         >
         <RelativeLayout
             android:layout_width="match_parent"
@@ -141,6 +143,17 @@
                     android:textSize="@dimen/abc_text_size_small_material"
                     />
 
+                <TextView
+                    android:id="@+id/seats_available_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/detais_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Lugares disponíveis: 3"
+                    android:textSize="@dimen/abc_text_size_small_material"/>
+
             </RelativeLayout>
 
             <View
@@ -179,69 +192,53 @@
                     android:textSize="@dimen/abc_text_size_title_material"
                     />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass1_pic"
-                    android:layout_below="@+id/passengers_headline"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
+                <ViewFlipper
+                    android:id="@+id/passengers_view_flipper"
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass2_pic"
-                    android:layout_toRightOf="@+id/pass1_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
+                    android:layout_below="@id/passengers_headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <ProgressBar
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:id="@+id/progressBar" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass3_pic"
-                    android:layout_toRightOf="@+id/pass2_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
+                    <co.vamojunto.ui.widget.ExpandableHeightGridView
+                        android:id="@+id/grid_passengers"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:scrollbars="none"
+                        android:numColumns="2"
+                        android:stretchMode="columnWidth"
+                        android:gravity="center"
                     />
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass4_pic"
-                    android:layout_toRightOf="@+id/pass3_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass5_pic"
-                    android:layout_toRightOf="@+id/pass4_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass6_pic"
-                    android:layout_toRightOf="@+id/pass5_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_marginRight="10dp"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/pass7_pic"
-                    android:layout_toRightOf="@+id/pass6_pic"
-                    android:layout_alignTop="@+id/pass1_pic"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/no_profile_pic"
-                    />
+                    <LinearLayout
+                        android:gravity="center_horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/error_message"
+
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Erro ao carregar os passageiros"
+                            android:textSize="@dimen/abc_text_size_small_material" />
+
+                        <Button
+                            android:id="@+id/retry_button"
+
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/default_error_screen_retry_text"
+                            android:textSize="@dimen/abc_text_size_small_material"/>
+                    </LinearLayout>
+                </ViewFlipper>
+
             </RelativeLayout> <!-- end of details panel -->
         </RelativeLayout> <!-- end of main panel -->
     </ScrollView> <!-- end of main content-->
@@ -262,4 +259,3 @@
 
 
 </RelativeLayout>
-
