@@ -84,6 +84,7 @@
         <activity
             android:name=".ui.activities.NewRideActivity"
             android:label="@string/title_activity_nova_oferta_carona"
+            android:screenOrientation="portrait"
             android:parentActivityName=".ui.activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -91,19 +92,23 @@
         </activity>
         <activity
             android:name=".ui.activities.GetLocationActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_get_location" >
         </activity>
         <activity
             android:name=".ui.activities.SearchPlaceActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_search_place" >
         </activity>
         <activity
             android:name=".ui.activities.NewRideRequestActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_new_ride_request"
             android:parentActivityName=".ui.activities.MainActivity" >
         </activity>
         <activity
             android:name=".ui.activities.RideDetailsActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_ride_details" >
         </activity>
     </application>
