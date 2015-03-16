@@ -45,6 +45,10 @@ public class SeatRequest extends ParseObject implements Parcelable {
     public static final int STATUS_CONFIRMED = 1;
     public static final int STATUS_REJECTED = 2;
 
+    public SeatRequest() {
+        // required default constructor
+    }
+
     public SeatRequest(User u, Ride r) {
         this.setUser(u);
         this.setRide(r);
@@ -60,7 +64,9 @@ public class SeatRequest extends ParseObject implements Parcelable {
     }
 
     public void setUser(User u) {
-        put(FIELD_USER_ID, u);
+        User myUser = User.createWithoutData(User.class, u.getId());
+
+        put(FIELD_USER_ID, myUser);
     }
 
     public Ride getRide() {
@@ -68,7 +74,9 @@ public class SeatRequest extends ParseObject implements Parcelable {
     }
 
     public void setRide(Ride r) {
-        put(FIELD_RIDE_ID, r);
+        Ride myRide = Ride.createWithoutData(Ride.class, r.getId());
+
+        put(FIELD_RIDE_ID, myRide);
     }
 
     private int getStatus() {

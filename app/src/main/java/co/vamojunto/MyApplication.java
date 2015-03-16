@@ -26,6 +26,7 @@ import com.parse.ParseObject;
 
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
+import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
 
 /**
@@ -46,6 +47,7 @@ public class MyApplication extends Application {
         ParseObject.registerSubclass(User.class);
         ParseObject.registerSubclass(Ride.class);
         ParseObject.registerSubclass(RideRequest.class);
+        ParseObject.registerSubclass(SeatRequest.class);
         Parse.initialize(this, appId, clientId);
 
        /* new Session(this).closeAndClearTokenInformation();

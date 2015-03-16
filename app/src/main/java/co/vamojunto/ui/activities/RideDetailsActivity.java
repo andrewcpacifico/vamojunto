@@ -19,6 +19,7 @@
 
 package co.vamojunto.ui.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,6 +46,7 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
+import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.widget.ExpandableHeightGridView;
 import co.vamojunto.util.DateUtil;
@@ -207,6 +209,11 @@ public class RideDetailsActivity extends ActionBarActivity {
          */
         private TextView mPassengersRetryButton;
 
+        /**
+         * Progress dialog displayed when some network task is being executed.
+         */
+        private ProgressDialog mProgressDialog;
+
         public RideDetailsFragment() {
         }
 
@@ -296,9 +303,18 @@ public class RideDetailsActivity extends ActionBarActivity {
 
             // enables the request a ride button, only if the user is not the driver of this ride,
             // and the ride have any seat available
-            Button askButton = (Button) rootView.findViewById(R.id.ask_button);
+            final Button requestSeatButton = (Button) rootView.findViewById(R.id.ask_button);
             if (mRide.getDriver().equals(User.getCurrentUser()) || mRide.getSeatsAvailable() == 0) {
-                askButton.setVisibility(View.GONE);
+                requestSeatButton.setVisibility(View.GONE);
+
+            // if the user is not the driver, defines the button onclick event
+            } else {
+                requestSeatButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        requestSeatButtonOnClick();
+                    }
+                });
             }
 
             TextView seatsAvailableTextView =
@@ -329,6 +345,33 @@ public class RideDetailsActivity extends ActionBarActivity {
             });
 
             showPassengers();
+        }
+
+        /**
+         * Called when the user clicks on the "request a seat" button. Sends the request to the
+         * database, so the driver can view int, and can approve or reject.
+         */
+        private void requestSeatButtonOnClick() {
+            SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide);
+
+            startLoading(getString(R.string.sending_seat_request));
+            request.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    stopLoading();
+
+                    if (! task.isCancelled() && ! task.isFaulted()) {
+                        Toast.makeText(getActivity(),
+                                getString(R.string.seat_request_sent), Toast.LENGTH_LONG).show();
+                    } else if (task.isFaulted()) {
+                        Log.e(TAG, task.getError().getMessage());
+                    } else {
+                        Log.e(TAG, "Task cancelled.");
+                    }
+
+                    return null;
+                }
+            });
         }
 
         /**
@@ -370,6 +413,25 @@ public class RideDetailsActivity extends ActionBarActivity {
                 mPassengersMessage.setText(getString(R.string.error_msg_no_internet_connection));
                 mPassengersRetryButton.setVisibility(View.VISIBLE);
             }
+        }
+
+        /**
+         * Displays a ProgressDialog on the screen
+         */
+        private void startLoading(String msg) {
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setMessage(msg);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
+        }
+
+        /**
+         * Dismisses the ProgressDialog
+         */
+        private void stopLoading() {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
     }
 }
