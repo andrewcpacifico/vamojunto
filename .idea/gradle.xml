@@ -8,8 +8,8 @@
         <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.2.1" />
         <option name="modules">
           <set>
-            <option value="/media/andrew/PersonalData/Dropbox/Work/Projects/VamoJunto/dev/vamojunto-android" />
-            <option value="/media/andrew/PersonalData/Dropbox/Work/Projects/VamoJunto/dev/vamojunto-android/app" />
+            <option value="/media/andrew/PersonalData/workspace/Android/vamojunto-android" />
+            <option value="/media/andrew/PersonalData/workspace/Android/vamojunto-android/app" />
           </set>
         </option>
       </GradleProjectSettings>

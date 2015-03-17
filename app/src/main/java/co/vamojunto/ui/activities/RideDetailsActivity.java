@@ -40,6 +40,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+
 import java.util.List;
 
 import bolts.Continuation;
@@ -214,7 +217,13 @@ public class RideDetailsActivity extends ActionBarActivity {
          */
         private ProgressDialog mProgressDialog;
 
+        /**
+         * Handler used to run code on the main thread
+         */
+        private Handler mHandler;
+
         public RideDetailsFragment() {
+            mHandler = new Handler(Looper.myLooper());
         }
 
         @Override
@@ -222,17 +231,9 @@ public class RideDetailsActivity extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_ride_details, container, false);
 
-            Bundle arguments = getArguments();
-            mRide = arguments.getParcelable(RideDetailsActivity.EXTRA_RIDE);
-
-            mRide.getPassengers().continueWith(new Continuation<List<User>, Object>() {
-                @Override
-                public Object then(Task<List<User>> task) throws Exception {
-                    List<User> lst = task.getResult();
-
-                    return null;
-                }
-            });
+            //Bundle arguments = getArguments();
+            //mRide = arguments.getParcelable(RideDetailsActivity.EXTRA_RIDE);
+            mRide = Ride.getStoredInstance(RideDetailsActivity.EXTRA_RIDE);
 
             initComponents(rootView);
 
@@ -361,8 +362,13 @@ public class RideDetailsActivity extends ActionBarActivity {
                     stopLoading();
 
                     if (! task.isCancelled() && ! task.isFaulted()) {
-                        Toast.makeText(getActivity(),
-                                getString(R.string.seat_request_sent), Toast.LENGTH_LONG).show();
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.seat_request_sent), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     } else if (task.isFaulted()) {
                         Log.e(TAG, task.getError().getMessage());
                     } else {

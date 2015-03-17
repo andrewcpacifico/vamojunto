@@ -155,7 +155,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     private void fbAuthButtonClick(View v) {
         startLoading();
 
-        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL),
+        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL,
+                ParseFacebookUtils.Permissions.User.LOCATION),
                 this, new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException err) {

@@ -30,7 +30,9 @@ import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Task;
 
@@ -54,10 +56,12 @@ public class Ride extends ParseObject implements Parcelable {
     private static final String FIELD_SEATS = "num_lugares";
     private static final String FIELD_DETAILS = "detalhes";
 
+    private static Map<String, Ride> instances = new HashMap<String, Ride>();
+
     /**
      * Required default constructor
      */
-    public Ride() {}
+    public Ride() { }
 
     public Ride(Calendar datetime, User driver, int seats,
                 String details, Place startingPoint, Place destination) {
@@ -67,6 +71,17 @@ public class Ride extends ParseObject implements Parcelable {
         setDetails(details);
         setStartingPoint(startingPoint);
         setDestination(destination);
+    }
+
+    public static void storeInstance(String key, Ride value) {
+        instances.put(key, value);
+    }
+
+    public static Ride getStoredInstance(String key) {
+        Ride r = instances.get(key);
+        instances.remove(key);
+
+        return r;
     }
 
     public String getId() {

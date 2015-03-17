@@ -37,6 +37,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -164,7 +167,8 @@ public class ListMyRidesFragment extends Fragment {
                 Ride choosenRide = mRidesAdapter.getItem(position);
                 Intent intent = new Intent(ListMyRidesFragment.this.getActivity(),
                         RideDetailsActivity.class);
-                intent.putExtra(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                //intent.putExtra(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
                 startActivity(intent);
             }
         });
