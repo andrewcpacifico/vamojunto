@@ -154,6 +154,7 @@
     <string name="no_seats_available">Esta carona não tem mais nenhum lugar disponível.</string>
     <string name="sending_seat_request">Enviando pedido de lugar na carona...</string>
     <string name="seat_request_sent">Pedido de lugar enviado. Aguarde o retorno do motorista da carona.</string>
+    <string name="error_request_already_sent">Você já enviou um pedido para esta carona. Por favor aguarde o retorno do motorista.</string>
 
 
 </resources>

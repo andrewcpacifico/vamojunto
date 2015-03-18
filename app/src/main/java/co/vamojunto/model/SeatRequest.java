@@ -19,10 +19,14 @@
 
 package co.vamojunto.model;
 
+import com.parse.FindCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
@@ -101,6 +105,35 @@ public class SeatRequest extends ParseObject {
     }
 
     /**
+     * Checks if there is some seat request already sent by this.user to this.ride
+     *
+     * @return A {@link bolts.Task} containing the result of this query, the result of the Task can be
+     *         <code>true</code> if the user already sent a request to this ride, and <code>false</code>
+     *         if not.
+     */
+    public Task<Boolean> exists() {
+        final Task<Boolean>.TaskCompletionSource tcs = Task.create();
+
+        final ParseQuery<SeatRequest> query = ParseQuery.getQuery(SeatRequest.class);
+
+        query.whereEqualTo(FIELD_USER_ID, getUser());
+        query.whereEqualTo(FIELD_RIDE_ID, getRide());
+
+        query.findInBackground(new FindCallback<SeatRequest>() {
+            @Override
+            public void done(List<SeatRequest> requests, ParseException e) {
+                if ( e == null ) {
+                    tcs.setResult(requests.size() > 0);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    /**
      * Verifies if this seat request is still waiting for response
      *
      * @return <code>true</code> if the request is waiting, and <code>false</code> if it is not
@@ -139,8 +172,10 @@ public class SeatRequest extends ParseObject {
     /**
      * Rejects the seat request on the ride
      */
-    public void reject() {
+    public Task<Void> reject() {
         this.setStatus(STATUS_REJECTED);
+
+        return saveInBackground();
     }
 
 }

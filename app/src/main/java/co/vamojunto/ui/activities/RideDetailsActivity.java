@@ -353,15 +353,27 @@ public class RideDetailsActivity extends ActionBarActivity {
          * database, so the driver can view int, and can approve or reject.
          */
         private void requestSeatButtonOnClick() {
-            SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide);
+            final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide);
 
             startLoading(getString(R.string.sending_seat_request));
-            request.saveInBackground().continueWith(new Continuation<Void, Void>() {
+
+            request.exists().continueWithTask(new Continuation<Boolean, Task<Void>>() {
+                @Override
+                public Task<Void> then(Task<Boolean> task) throws Exception {
+                    // checks if the user already sent a request to this ride
+                    if ( ! task.getResult()) {
+                        return request.saveInBackground();
+                    }
+
+                    return Task.forError(new Exception("Request already sent"));
+                }
+            }).continueWith(new Continuation<Void, Void>() {
                 @Override
                 public Void then(Task<Void> task) throws Exception {
                     stopLoading();
 
-                    if (! task.isCancelled() && ! task.isFaulted()) {
+                    // checks if the user successfully sent the request
+                    if (!task.isCancelled() && !task.isFaulted()) {
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -370,6 +382,17 @@ public class RideDetailsActivity extends ActionBarActivity {
                             }
                         });
                     } else if (task.isFaulted()) {
+                        // checks if the user tried to send a request to same ride more than once
+                        if (task.getError().getMessage().equals("Request already sent")) {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getActivity(),
+                                            getString(R.string.error_request_already_sent), Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+
                         Log.e(TAG, task.getError().getMessage());
                     } else {
                         Log.e(TAG, "Task cancelled.");
