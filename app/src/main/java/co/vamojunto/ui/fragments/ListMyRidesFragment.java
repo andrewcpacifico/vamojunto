@@ -129,7 +129,7 @@ public class ListMyRidesFragment extends Fragment {
 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE) {
-                final Ride c = data.getParcelableExtra(NewRideActivity.RES_RIDE);
+                final Ride c = Ride.getStoredInstance(NewRideActivity.RES_RIDE);
 
                 // was necessary to use a delay to add the item to the screen, so that the RecyclerView
                 // could show the animation, and positioning at the new item

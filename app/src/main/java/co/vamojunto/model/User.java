@@ -31,6 +31,8 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * System's User Model. Currently is just an extension of {@link com.parse.ParseUser} class, with
@@ -41,7 +43,7 @@ import java.io.ByteArrayOutputStream;
  * @since 0.1.0
  */
 @ParseClassName("_User")
-public class User extends ParseUser implements Parcelable {
+public class User extends ParseUser {
 
     private final static String FIELD_ID = "objectId";
     private final static String FIELD_NAME = "nome";
@@ -50,6 +52,19 @@ public class User extends ParseUser implements Parcelable {
     private final static String FIELD_PROFILE_IMG = "img_perfil";
 
     private Bitmap profileImage;
+
+    private static Map<String, User> instances = new HashMap<String, User>();
+
+    public static void storeInstance(String key, User value) {
+        instances.put(key, value);
+    }
+
+    public static User getStoredInstance(String key) {
+        User u = instances.get(key);
+        instances.remove(key);
+
+        return u;
+    }
 
     public User() {
         profileImage = null;
@@ -96,54 +111,17 @@ public class User extends ParseUser implements Parcelable {
         return (User) ParseUser.getCurrentUser();
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (o == null)
-//            return false;
-//
-//        if (o.getClass() == User.class) {
-//            User u = (User) o;
-//
-//            return u.getId() == this.getId();
-//        }
-//
-//        return false;
-//    }
-
-/***************************************************************************************************
- *
- * Turning into a Parcelable object
- *
- ***************************************************************************************************/
-
     @Override
-    public int describeContents() {
-        return 0;
-    }
+    public boolean equals(Object o) {
+        if (o == null)
+            return false;
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeString(getName());
-        dest.writeString(getUsername());
-        dest.writeString(getEmail());
-        dest.writeParcelable(this.getProfileImage(), flags);
-    }
+        if (o.getClass() == User.class) {
+            User u = (User) o;
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
-        public User createFromParcel(Parcel in) {
-            User u = ParseObject.createWithoutData(User.class, in.readString());
-            u.setName(in.readString());
-            u.setUsername(in.readString());
-            u.setEmail(in.readString());
-            u.setImgPerfil((Bitmap) in.readParcelable(Bitmap.class.getClassLoader()));
-
-            return u;
+            return u.getId() == this.getId();
         }
 
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
-
+        return false;
+    }
 }

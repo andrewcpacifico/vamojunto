@@ -99,8 +99,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         // Verifica se o resultado foi enviado pela tela de seleção de localização.
         if (requestCode == GetLocationActivity.GET_LOCATION_REQUEST_CODE) {
             if ( resultCode == Activity.RESULT_OK ) {
-                Bundle extras = data.getExtras();
-                Place p = extras.getParcelable(GetLocationActivity.RES_PLACE);
+                Place p = Place.getStoredInstance(GetLocationActivity.RES_PLACE);
 
                 if (p.hasCoord())
                     traduzCoordenadas(p);
@@ -198,10 +197,9 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Intent intent = new Intent();
-                                intent.putExtra(NewRideActivity.RES_RIDE, c);
+                                Ride.storeInstance(NewRideActivity.RES_RIDE, c);
 
-                                getActivity().setResult(Activity.RESULT_OK, intent);
+                                getActivity().setResult(Activity.RESULT_OK);
                                 getActivity().finish();
                             }
                         });
@@ -240,7 +238,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
         if (mOrigem != null) {
-            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mOrigem);
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mOrigem);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
@@ -264,7 +262,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destiny));
 
         if (mDestino != null) {
-            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mDestino);
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestino);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);

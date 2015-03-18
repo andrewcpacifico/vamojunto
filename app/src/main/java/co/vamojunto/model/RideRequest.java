@@ -29,7 +29,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Task;
 
@@ -41,7 +43,7 @@ import bolts.Task;
  * @since 0.1.0
  */
 @ParseClassName("RideRequest")
-public class RideRequest extends ParseObject implements Parcelable {
+public class RideRequest extends ParseObject {
 
     private static final String TAG ="model.RideRequest";
 
@@ -54,6 +56,19 @@ public class RideRequest extends ParseObject implements Parcelable {
     private static final String FIELD_DESTINATION_LNG = "destination_lng";
     private static final String FIELD_DESTINATION_TITLE = "destination_title";
     private static final String FIELD_DETAILS = "details";
+
+    private static Map<String, RideRequest> instances = new HashMap<String, RideRequest>();
+
+    public static void storeInstance(String key, RideRequest value) {
+        instances.put(key, value);
+    }
+
+    public static RideRequest getStoredInstance(String key) {
+        RideRequest r = instances.get(key);
+        instances.remove(key);
+
+        return r;
+    }
 
     /**
      * Required default constructor
@@ -151,44 +166,5 @@ public class RideRequest extends ParseObject implements Parcelable {
 
         return tcs.getTask();
     }
-
-    /***************************************************************************************************
-     *
-     * Turning into a Parcelable object
-     *
-     ***************************************************************************************************/
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeParcelable(getRequester(), flags);
-        dest.writeSerializable(getDatetime());
-        dest.writeParcelable(getDestination(), flags);
-        dest.writeString(getDetails());
-        dest.writeParcelable(getStartingPoint(), flags);
-    }
-
-    public static final Parcelable.Creator<RideRequest> CREATOR = new Parcelable.Creator<RideRequest>() {
-        public RideRequest createFromParcel(Parcel in) {
-            RideRequest rideRequest = ParseObject.createWithoutData(RideRequest.class, in.readString());
-
-            rideRequest.setRequester((User) in.readParcelable(User.class.getClassLoader()));
-            rideRequest.setDatetime((Calendar) in.readSerializable());
-            rideRequest.setDestination((Place) in.readParcelable(Place.class.getClassLoader()));
-            rideRequest.setDetails(in.readString());
-            rideRequest.setStartingPoint((Place) in.readParcelable(Place.class.getClassLoader()));
-
-            return rideRequest;
-        }
-
-        public RideRequest[] newArray(int size) {
-            return new RideRequest[size];
-        }
-    };
 
 }

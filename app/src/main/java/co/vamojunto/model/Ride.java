@@ -43,7 +43,7 @@ import bolts.Task;
  * @since 0.1.0
  */
 @ParseClassName("Carona")
-public class Ride extends ParseObject implements Parcelable {
+public class Ride extends ParseObject {
 
     private static final String FIELD_DATETIME = "data_hora";
     private static final String FIELD_DRIVER = "motorista";
@@ -58,6 +58,17 @@ public class Ride extends ParseObject implements Parcelable {
 
     private static Map<String, Ride> instances = new HashMap<String, Ride>();
 
+    public static void storeInstance(String key, Ride value) {
+        instances.put(key, value);
+    }
+
+    public static Ride getStoredInstance(String key) {
+        Ride r = instances.get(key);
+        instances.remove(key);
+
+        return r;
+    }
+
     /**
      * Required default constructor
      */
@@ -71,17 +82,6 @@ public class Ride extends ParseObject implements Parcelable {
         setDetails(details);
         setStartingPoint(startingPoint);
         setDestination(destination);
-    }
-
-    public static void storeInstance(String key, Ride value) {
-        instances.put(key, value);
-    }
-
-    public static Ride getStoredInstance(String key) {
-        Ride r = instances.get(key);
-        instances.remove(key);
-
-        return r;
     }
 
     public String getId() {
@@ -203,46 +203,4 @@ public class Ride extends ParseObject implements Parcelable {
 
         return tcs.getTask();
     }
-
-/***************************************************************************************************
- *
- * Turning into a Parcelable object
- *
- ***************************************************************************************************/
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeSerializable(getDatetime());
-        dest.writeParcelable(getDestination(), flags);
-        dest.writeString(getDetails());
-        dest.writeParcelable(getDriver(), flags);
-        dest.writeInt(getSeatsAvailable());
-        dest.writeParcelable(getStartingPoint(), flags);
-    }
-
-    public static final Parcelable.Creator<Ride> CREATOR = new Parcelable.Creator<Ride>() {
-        public Ride createFromParcel(Parcel in) {
-            Ride c = ParseObject.createWithoutData(Ride.class, in.readString());
-
-            c.setDatetime((Calendar) in.readSerializable());
-            c.setDestination((Place) in.readParcelable(Place.class.getClassLoader()));
-            c.setDetails(in.readString());
-            c.setDriver((User) in.readParcelable(User.class.getClassLoader()));
-            c.setSeatsAvailable(in.readInt());
-            c.setStartingPoint((Place) in.readParcelable(Place.class.getClassLoader()));
-
-            return c;
-        }
-
-        public Ride[] newArray(int size) {
-            return new Ride[size];
-        }
-    };
-
 }

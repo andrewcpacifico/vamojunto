@@ -53,6 +53,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Place;
+import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.GetLocationActivity;
@@ -139,8 +140,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         // Checks if the result was sent by the GetLocationActivity
         if (requestCode == GetLocationActivity.GET_LOCATION_REQUEST_CODE) {
             if ( resultCode == Activity.RESULT_OK ) {
-                Bundle extras = data.getExtras();
-                Place p = extras.getParcelable(GetLocationActivity.RES_PLACE);
+                Place p = Place.getStoredInstance(GetLocationActivity.RES_PLACE);
 
                 // converts the place's coordinates
                 if (p.hasCoord())
@@ -225,10 +225,9 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Intent intent = new Intent();
-                                intent.putExtra(NewRideRequestActivity.RES_RIDE, rideRequest);
+                                RideRequest.storeInstance(NewRideRequestActivity.RES_RIDE, rideRequest);
 
-                                getActivity().setResult(Activity.RESULT_OK, intent);
+                                getActivity().setResult(Activity.RESULT_OK);
                                 getActivity().finish();
                             }
                         });
@@ -264,7 +263,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
         if (mStartingPoint != null) {
-            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mStartingPoint);
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mStartingPoint);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
@@ -285,7 +284,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
         if (mDestination != null) {
-            intent.putExtra(GetLocationActivity.INITIAL_PLACE, mDestination);
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestination);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);

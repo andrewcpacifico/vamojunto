@@ -24,6 +24,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.security.Policy;
+import java.util.HashMap;
+import java.util.Map;
 
 import co.vamojunto.util.NumberUtil;
 
@@ -33,7 +35,7 @@ import co.vamojunto.util.NumberUtil;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class Place implements Parcelable {
+public class Place {
     public double NOT_SET_LAT = -9999;
     public double NOT_SET_LNG = -9999;
 
@@ -42,6 +44,19 @@ public class Place implements Parcelable {
     private String mEndereco;
     private double mLatitude;
     private double mLongitude;
+
+    private static Map<String, Place> instances = new HashMap<String, Place>();
+
+    public static void storeInstance(String key, Place value) {
+        instances.put(key, value);
+    }
+
+    public static Place getStoredInstance(String key) {
+        Place p = instances.get(key);
+        instances.remove(key);
+
+        return p;
+    }
 
     public Place(double lat, double lng) {
         this.mTitulo = "";
@@ -139,41 +154,4 @@ public class Place implements Parcelable {
         return false;
     }
 
-/***************************************************************************************************
- *
- * Transformando em um Parcelable object
- *
- **************************************************************************************************/
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mGooglePlaceId);
-        dest.writeString(mTitulo);
-        dest.writeString(mEndereco);
-        dest.writeDouble(mLatitude);
-        dest.writeDouble(mLongitude);
-    }
-
-    public static final Parcelable.Creator<Place> CREATOR = new Parcelable.Creator<Place>() {
-        public Place createFromParcel(Parcel in) {
-            return new Place(in);
-        }
-
-        public Place[] newArray(int size) {
-            return new Place[size];
-        }
-    };
-
-    private Place(Parcel in) {
-        mGooglePlaceId = in.readString();
-        mTitulo = in.readString();
-        mEndereco = in.readString();
-        mLatitude = in.readDouble();
-        mLongitude = in.readDouble();
-    }
 }

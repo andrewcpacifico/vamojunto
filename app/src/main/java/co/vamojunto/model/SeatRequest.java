@@ -19,11 +19,11 @@
 
 package co.vamojunto.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import bolts.Task;
 
@@ -35,7 +35,7 @@ import bolts.Task;
  * @since 0.1.0
  */
 @ParseClassName("SeatRequest")
-public class SeatRequest extends ParseObject implements Parcelable {
+public class SeatRequest extends ParseObject {
 
     private static final String FIELD_USER_ID = "user_id";
     private static final String FIELD_RIDE_ID = "ride_id";
@@ -44,6 +44,19 @@ public class SeatRequest extends ParseObject implements Parcelable {
     public static final int STATUS_WAITING = 0;
     public static final int STATUS_CONFIRMED = 1;
     public static final int STATUS_REJECTED = 2;
+
+    private static Map<String, SeatRequest> instances = new HashMap<String, SeatRequest>();
+
+    public static void storeInstance(String key, SeatRequest value) {
+        instances.put(key, value);
+    }
+
+    public static SeatRequest getStoredInstance(String key) {
+        SeatRequest request = instances.get(key);
+        instances.remove(key);
+
+        return request;
+    }
 
     public SeatRequest() {
         // required default constructor
@@ -129,43 +142,5 @@ public class SeatRequest extends ParseObject implements Parcelable {
     public void reject() {
         this.setStatus(STATUS_REJECTED);
     }
-
-
-
-/***************************************************************************************************
- *
- * Turning into a Parcelable object
- *
- ***************************************************************************************************/
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeParcelable(getUser(), flags);
-        dest.writeParcelable(getRide(), flags);
-        dest.writeInt(getStatus());
-
-    }
-
-    public static final Parcelable.Creator<SeatRequest> CREATOR = new Parcelable.Creator<SeatRequest>() {
-        public SeatRequest createFromParcel(Parcel in) {
-            SeatRequest sr = ParseObject.createWithoutData(SeatRequest.class, in.readString());
-
-            sr.setUser((User) in.readParcelable(User.class.getClassLoader()));
-            sr.setRide((Ride) in.readParcelable(Ride.class.getClassLoader()));
-            sr.setStatus(in.readInt());
-
-            return sr;
-        }
-
-        public SeatRequest[] newArray(int size) {
-            return new SeatRequest[size];
-        }
-    };
 
 }

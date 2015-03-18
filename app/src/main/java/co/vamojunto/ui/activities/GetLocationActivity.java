@@ -140,11 +140,10 @@ public class GetLocationActivity extends ActionBarActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SearchPlaceActivity.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            if ( data.hasExtra(SearchPlaceActivity.PLACE)) {
-                mLocal = data.getParcelableExtra(SearchPlaceActivity.PLACE);
+            mLocal = Place.getStoredInstance(SearchPlaceActivity.PLACE);
 
+            if (mLocal != null)
                 posicionaMapaLocal(mLocal);
-            }
         }
     }
 
@@ -259,13 +258,11 @@ public class GetLocationActivity extends ActionBarActivity
             float zoom = Globals.DEFAULT_ZOOM_LEVEL;
 
             // Verifica se foi passada uma localização inicial
-            if (getIntent().hasExtra(INITIAL_PLACE)) {
-                Place p = getIntent().getParcelableExtra(INITIAL_PLACE);
-                mLocal = p;
-
-                if (p.hasCoord()) {
-                    lat = p.getLatitude();
-                    lng = p.getLongitude();
+            mLocal = Place.getStoredInstance(INITIAL_PLACE);
+            if (mLocal != null) {
+                if (mLocal.hasCoord()) {
+                    lat = mLocal.getLatitude();
+                    lng = mLocal.getLongitude();
                 }
             } else {
                 // Obtém as últimas configurações do mapa do usuário.
@@ -408,9 +405,8 @@ public class GetLocationActivity extends ActionBarActivity
             resPlace.setGooglePlaceId(mLocal.getGooglePlaceId());
         }
 
-        Intent intent = new Intent();
-        intent.putExtra(RES_PLACE, resPlace);
-        setResult(Activity.RESULT_OK, intent);
+        Place.storeInstance(RES_PLACE, resPlace);
+        setResult(Activity.RESULT_OK);
         finish();
     }
 

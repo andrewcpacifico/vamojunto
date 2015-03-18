@@ -138,10 +138,9 @@ public class SearchPlaceActivity extends ActionBarActivity {
                     Place p = mAdapter.getItem(position);
 
                     if ( p != null ) {
-                        Intent intent = new Intent();
-                        intent.putExtra(PLACE, p);
+                        Place.storeInstance(PLACE, p);
 
-                        getActivity().setResult(Activity.RESULT_OK, intent);
+                        getActivity().setResult(Activity.RESULT_OK);
                         getActivity().finish();
                     }
                 }
