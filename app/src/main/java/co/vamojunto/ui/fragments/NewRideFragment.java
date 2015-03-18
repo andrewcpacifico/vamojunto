@@ -459,7 +459,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
             try {
                 int numLugares = Integer.parseInt(strNumLugares);
 
-                if ( numLugares < 0 || numLugares > 7 ) {
+                if ( numLugares < 1 || numLugares > 7 ) {
                     numLugaresEditText.setError(getString(R.string.error_num_lugares));
                     numLugaresEditText.requestFocus();
 

@@ -46,10 +46,10 @@ import java.util.Map;
 public class User extends ParseUser {
 
     private final static String FIELD_ID = "objectId";
-    private final static String FIELD_NAME = "nome";
+    private final static String FIELD_NAME = "name";
     private final static String FIELD_USERNAME = "username";
     private final static String FIELD_EMAIL = "email";
-    private final static String FIELD_PROFILE_IMG = "img_perfil";
+    private final static String FIELD_PROFILE_IMG = "profile_img";
 
     private Bitmap profileImage;
 

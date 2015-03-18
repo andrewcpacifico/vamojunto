@@ -49,6 +49,7 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.FacebookHelper;
+import co.vamojunto.model.User;
 
 
 /**
@@ -155,8 +156,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     private void fbAuthButtonClick(View v) {
         startLoading();
 
-        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL,
-                ParseFacebookUtils.Permissions.User.LOCATION),
+        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL),
                 this, new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException err) {
@@ -196,7 +196,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
      *
      * @param parseUser Instância do usuário já salvo na base do Parse.
      */
-    protected void cadastroFacebook(final ParseUser parseUser) {
+    protected void cadastroFacebook(ParseUser parseUser) {
+        final User u = (User) parseUser;
+
         // As tarefas abaixo são executadas de forma asíncrona por exigência do SDK, porém,
         // como é necessário finalizar estas tarefas para que o aplicativo possa executar normalmente,
         // as tarefas são executadas em cadeia, o final de cada tarefa dispara o início da segunda,
@@ -211,9 +213,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             public Task<Bitmap> then(Task<GraphUser> task) throws Exception {
                 GraphUser user = task.getResult();
 
-                parseUser.put("nome", user.getName());
-                parseUser.setEmail((String) user.getProperty("email"));
-                parseUser.setUsername((String) user.getProperty("email"));
+                u.setName(user.getName());
+                u.setEmail((String) user.getProperty("email"));
+                u.setUsername((String) user.getProperty("email"));
 
                 return FacebookHelper.getProfilePictureAsync(user.getId());
             }
@@ -226,13 +228,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             public Task<Void> then(Task<Bitmap> task) throws Exception {
                 Bitmap img = task.getResult();
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                img.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                u.setImgPerfil(img);
 
-                ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
-                parseUser.put("img_perfil", pFile);
-
-                return parseUser.saveInBackground();
+                return u.saveInBackground();
             }
         }).continueWith(new Continuation<Void, Void>() {
 

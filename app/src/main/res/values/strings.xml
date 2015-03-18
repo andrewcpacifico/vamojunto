@@ -84,7 +84,7 @@
     <string name="date">Data</string>
     <string name="date_format">dd/MM/yyyy</string>
     <string name="destination">Destino</string>
-    <string name="error_num_lugares">Apenas números entre 0 e 7 são permitidos neste campo.</string>
+    <string name="error_num_lugares">Apenas números entre 1 e 7 são permitidos neste campo.</string>
     <string name="more_details">Outras Informações</string>
     <string name="num_lugares">Lugares disponíveis</string>
     <string name="starting_point">Origem</string>

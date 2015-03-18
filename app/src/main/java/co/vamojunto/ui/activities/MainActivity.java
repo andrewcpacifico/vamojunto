@@ -37,6 +37,7 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 import co.vamojunto.R;
+import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
@@ -62,7 +63,7 @@ public class MainActivity extends ActionBarActivity {
     /**
      * Usuário autenticado no sistema
      */
-    private ParseUser mCurrentUser;
+    private User mCurrentUser;
 
 
 /*************************************************************************************************
@@ -76,7 +77,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         // Verifica se o usuário está autenticado
-        mCurrentUser = ParseUser.getCurrentUser();
+        mCurrentUser = User.getCurrentUser();
         if (mCurrentUser == null) {
             Log.i(TAG, "Usuário não autenticado, exibindo tela de login");
 
@@ -115,19 +116,9 @@ public class MainActivity extends ActionBarActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
         mRecyclerView.setHasFixedSize(true);
 
-        ParseFile imgUsuarioPFile = mCurrentUser.getParseFile("img_perfil");
-        Bitmap imgUsuario = null;
+        Bitmap imgUsuario = mCurrentUser.getProfileImage();
 
-        // Caso o usuário não possua imagem de perfil cadastrada
-        if (imgUsuarioPFile != null) {
-            try {
-                imgUsuario = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getString("nome"),
+        mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getName(),
                 mCurrentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View v, int position) {
