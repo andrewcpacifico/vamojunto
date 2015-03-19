@@ -355,7 +355,14 @@ public class RideDetailsActivity extends ActionBarActivity {
         private void requestSeatButtonOnClick() {
             final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide);
 
-            startLoading(getString(R.string.sending_seat_request));
+            // checks if user is connected to the Internet
+            if ( ! NetworkUtil.isConnected(getActivity())) {
+                Toast.makeText(getActivity(),
+                        getString(R.string.error_msg_no_internet_connection), Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                startLoading(getString(R.string.sending_seat_request));
+            }
 
             request.exists().continueWithTask(new Continuation<Boolean, Task<Void>>() {
                 @Override

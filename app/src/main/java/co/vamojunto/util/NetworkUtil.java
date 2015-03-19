@@ -24,17 +24,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 /**
- * Contém funções utilitárias que envolvem manipulação de rede
+ * Utility class for tasks that involve network operations
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @since 0.1.01
+ * @version 1.0.0
+ * @since 0.1.0
  */
 public class NetworkUtil {
 
     /**
-     * Verifica se o usuário está conectado à Internet
+     * Checks if the user is connected to the Internet.
      *
-     * @return <code>true</code> caso esteja conectado e <code>false</code> caso contrário.
+     * @return <code>true</code> if the user is connected and <code>false</code> if not.
      */
     public static boolean isConnected(Context c) {
         ConnectivityManager connectivityManager
