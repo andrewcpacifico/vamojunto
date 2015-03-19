@@ -243,7 +243,7 @@ public class ListMyRequestsFragment extends Fragment {
      */
     private void displayErrorScreen(String errorMsg) {
         if (errorMsg == null)
-            mErrorScreenMsgTextView.setText(getString(R.string.default_error_screen_message));
+            mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
         else
             mErrorScreenMsgTextView.setText(errorMsg);
 
@@ -254,7 +254,7 @@ public class ListMyRequestsFragment extends Fragment {
      * Switches the viewFlipper to display the error screen using the default error screen message.
      */
     private void displayErrorScreen() {
-        mErrorScreenMsgTextView.setText(getString(R.string.default_error_screen_message));
+        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
 
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }

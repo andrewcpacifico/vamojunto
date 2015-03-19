@@ -40,9 +40,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.parse.ParseObject;
-import com.parse.ParseUser;
-
 import java.util.List;
 
 import bolts.Continuation;
@@ -68,7 +65,7 @@ public class RideDetailsActivity extends ActionBarActivity {
     public static final String TAG = "RideDetailsActivity";
 
     // constants used to define the input extras names
-    public static final String EXTRA_RIDE = "ride";
+    public static final String EXTRA_RIDE = TAG + ".ride";
 
     /**
      * The Activity toolbar
@@ -278,20 +275,24 @@ public class RideDetailsActivity extends ActionBarActivity {
          * @param rootView The Fragment's inflated layout.
          */
         private void initComponents(View rootView) {
-            CircleImageView driverImageView = (CircleImageView) rootView.findViewById(R.id.driver_picture);
+            CircleImageView driverImageView =
+                    (CircleImageView) rootView.findViewById(R.id.driver_picture);
 
             // checks if the driver have a profile image
             if (mRide.getDriver().getProfileImage() != null)
                 driverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
 
-            TextView driverNameTextView = (TextView) rootView.findViewById(R.id.driver_name_text_view);
+            TextView driverNameTextView =
+                    (TextView) rootView.findViewById(R.id.driver_name_text_view);
             driverNameTextView.setText(mRide.getDriver().getName());
 
-            TextView startingPointTextView = (TextView) rootView.findViewById(R.id.starting_point_text_view);
+            TextView startingPointTextView =
+                    (TextView) rootView.findViewById(R.id.starting_point_text_view);
             startingPointTextView.setText(getString(R.string.from) + ": " +
                     mRide.getStartingPoint().getTitulo());
 
-            TextView destinationTextView = (TextView) rootView.findViewById(R.id.destination_text_view);
+            TextView destinationTextView =
+                    (TextView) rootView.findViewById(R.id.destination_text_view);
             destinationTextView.setText(getString(R.string.to) + ": " +
                     mRide.getDestination().getTitulo());
 
@@ -358,7 +359,8 @@ public class RideDetailsActivity extends ActionBarActivity {
             // checks if user is connected to the Internet
             if ( ! NetworkUtil.isConnected(getActivity())) {
                 Toast.makeText(getActivity(),
-                        getString(R.string.error_msg_no_internet_connection), Toast.LENGTH_LONG).show();
+                        getString(R.string.error_msg_no_internet_connection),
+                        Toast.LENGTH_LONG).show();
                 return;
             } else {
                 startLoading(getString(R.string.sending_seat_request));
@@ -367,8 +369,12 @@ public class RideDetailsActivity extends ActionBarActivity {
             request.exists().continueWithTask(new Continuation<Boolean, Task<Void>>() {
                 @Override
                 public Task<Void> then(Task<Boolean> task) throws Exception {
+                    if (task.isFaulted()) {
+                        return Task.forError(task.getError());
+                    }
+
                     // checks if the user already sent a request to this ride
-                    if ( ! task.getResult()) {
+                    if (!task.getResult()) {
                         return request.saveInBackground();
                     }
 
@@ -385,7 +391,8 @@ public class RideDetailsActivity extends ActionBarActivity {
                             @Override
                             public void run() {
                                 Toast.makeText(getActivity(),
-                                        getString(R.string.seat_request_sent), Toast.LENGTH_LONG).show();
+                                        getString(R.string.seat_request_sent),
+                                        Toast.LENGTH_LONG).show();
                             }
                         });
                     } else if (task.isFaulted()) {
@@ -395,7 +402,18 @@ public class RideDetailsActivity extends ActionBarActivity {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getActivity(),
-                                            getString(R.string.error_request_already_sent), Toast.LENGTH_LONG).show();
+                                            getString(R.string.errormsg_request_already_sent),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            // if any other error occurs
+                        } else {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getActivity(),
+                                            getString(R.string.errormsg_default),
+                                            Toast.LENGTH_LONG).show();
                                 }
                             });
                         }

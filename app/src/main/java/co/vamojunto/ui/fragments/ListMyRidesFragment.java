@@ -37,9 +37,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.parse.ParseObject;
-import com.parse.ParseUser;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -259,7 +256,7 @@ public class ListMyRidesFragment extends Fragment {
      */
     private void displayErrorScreen(String errorMsg) {
         if (errorMsg == null)
-            mErrorScreenMsgTextView.setText(getString(R.string.default_error_screen_message));
+            mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
         else
             mErrorScreenMsgTextView.setText(errorMsg);
 
@@ -270,7 +267,7 @@ public class ListMyRidesFragment extends Fragment {
      * Switches the viewFlipper to display the error screen using the default error screen message.
      */
     private void displayErrorScreen() {
-        mErrorScreenMsgTextView.setText(getString(R.string.default_error_screen_message));
+        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
 
         mViewFlipper.setDisplayedChild(VIEW_ERRO);
     }

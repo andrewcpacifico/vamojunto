@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:text="@string/default_error_screen_message"
+                android:text="@string/errormsg_default"
                 android:textSize="@dimen/abc_text_size_medium_material"
                 />
         </LinearLayout>
