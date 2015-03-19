@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_img"
+
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/no_profile_pic"/>
+
+    <TextView
+        android:id="@+id/user_name"
+
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_toRightOf="@+id/user_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Agnaldo Timóteo"
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:id="@+id/message"
+
+        android:layout_alignLeft="@+id/user_name"
+        android:layout_below="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Ei cara eu vou sair aqui da UFAM esse mesmo horário, tem como eu ir contigo?"/>
+
+</RelativeLayout>

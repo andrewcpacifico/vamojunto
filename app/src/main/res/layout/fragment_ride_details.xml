@@ -157,7 +157,7 @@
             </RelativeLayout>
 
             <View
-                android:id="@+id/separator_2"
+                android:id="@+id/separator"
 
                 android:layout_below="@id/details"
                 android:layout_width="match_parent"
@@ -169,7 +169,7 @@
             <RelativeLayout
                 android:id="@+id/passengers"
 
-                android:layout_below="@id/separator_2"
+                android:layout_below="@id/separator"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
 

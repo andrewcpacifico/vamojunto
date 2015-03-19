@@ -88,7 +88,7 @@
             />
     </LinearLayout>
     <View
-        android:id="@+id/separator_2"
+        android:id="@+id/separator"
 
         android:layout_below="@id/destination_group"
         android:layout_width="match_parent"
@@ -99,7 +99,7 @@
 
     <LinearLayout
         android:id="@+id/datetime_group"
-        android:layout_below="@+id/separator_2"
+        android:layout_below="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
