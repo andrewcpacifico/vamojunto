@@ -20,15 +20,18 @@
 package co.vamojunto.ui.activities;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Ride;
+import co.vamojunto.model.SeatRequest;
 import co.vamojunto.ui.fragments.SeatRequestsFragment;
 
 /**
@@ -40,9 +43,38 @@ import co.vamojunto.ui.fragments.SeatRequestsFragment;
  */
 public class SeatRequestsActivity extends ActionBarActivity {
 
+    private static final String TAG = "SeatRequestActivity";
+
+    /**
+     * Key used to identify the ride sent this Activity as input.
+     */
+    public static final String INPUT_RIDE = TAG + ".ride";
+
+    /**
+     * The ride to get the seat requests to show.
+     */
+    private Ride mRide;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // retrieves the input ride
+        mRide = Ride.getStoredInstance(INPUT_RIDE);
+        SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
+            @Override
+            public Void then(Task<List<SeatRequest>> task) throws Exception {
+                List<SeatRequest> l = task.getResult();
+
+                // TODO tratar erros ao recuperar estes dados
+                for (SeatRequest sr: l) {
+                    Log.i(TAG, sr.toString());
+                }
+
+                return null;
+            }
+        });
+
         setContentView(R.layout.activity_seat_requests);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

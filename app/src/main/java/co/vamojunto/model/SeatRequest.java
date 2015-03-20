@@ -41,20 +41,39 @@ import bolts.Task;
 @ParseClassName("SeatRequest")
 public class SeatRequest extends ParseObject {
 
+    // constants to define the names of the fields of the class on the cloud
     private static final String FIELD_USER_ID = "user_id";
     private static final String FIELD_RIDE_ID = "ride_id";
     private static final String FIELD_STATUS = "status";
 
+    // flags used to map all valid SeatRequest states
     public static final int STATUS_WAITING = 0;
     public static final int STATUS_CONFIRMED = 1;
     public static final int STATUS_REJECTED = 2;
 
+    /**
+     * Used to transfer a SeatRequest instance between Activities. An Activity can store a SeatRequest
+     * and give it a key, to another Activity can user this key to get the instance.
+     */
     private static Map<String, SeatRequest> instances = new HashMap<String, SeatRequest>();
 
+    /**
+     * Stores a SeatRequest instance on a global context, then this instance can be transferred
+     * between Activities.
+     *
+     * @param key A key for that the instance can be retrieved.
+     * @param value The instance itself.
+     */
     public static void storeInstance(String key, SeatRequest value) {
         instances.put(key, value);
     }
 
+    /**
+     * Returns a SeatRequest instance, stored by an Activity to send it to another.
+     *
+     * @param key The key of the stored instance.
+     * @return The instance that have to be transferred between activities.
+     */
     public static SeatRequest getStoredInstance(String key) {
         SeatRequest request = instances.get(key);
         instances.remove(key);
@@ -66,42 +85,17 @@ public class SeatRequest extends ParseObject {
         // required default constructor
     }
 
+    /**
+     * Constructor that inits the request fields. The status of request is changed to <i>waiting</i>
+     * by default.
+     *
+     * @param u The requester.
+     * @param r The ride wanted.
+     */
     public SeatRequest(User u, Ride r) {
         this.setUser(u);
         this.setRide(r);
         this.setStatus(STATUS_WAITING);
-    }
-
-    public String getId() {
-        return getObjectId();
-    }
-
-    public User getUser() {
-        return (User) get(FIELD_USER_ID);
-    }
-
-    public void setUser(User u) {
-        User myUser = User.createWithoutData(User.class, u.getId());
-
-        put(FIELD_USER_ID, myUser);
-    }
-
-    public Ride getRide() {
-        return (Ride) get(FIELD_RIDE_ID);
-    }
-
-    public void setRide(Ride r) {
-        Ride myRide = Ride.createWithoutData(Ride.class, r.getId());
-
-        put(FIELD_RIDE_ID, myRide);
-    }
-
-    private int getStatus() {
-        return (int) get(FIELD_STATUS);
-    }
-
-    private void setStatus(int s) {
-        put(FIELD_STATUS, s);
     }
 
     /**
@@ -178,4 +172,67 @@ public class SeatRequest extends ParseObject {
         return saveInBackground();
     }
 
+    /**
+     * Gets a list of SeatRequests made to a specific ride.
+     *
+     * @param r The ride to get the requests.
+     * @return A {@link bolts.Task} that returns the list, if no error occurs..
+     */
+    public static Task<List<SeatRequest>> getByRide(Ride r) {
+        final Task<List<SeatRequest>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<SeatRequest> query = ParseQuery.getQuery(SeatRequest.class);
+        query.whereEqualTo(FIELD_RIDE_ID, r);
+
+        query.findInBackground(new FindCallback<SeatRequest>() {
+            @Override
+            public void done(List<SeatRequest> requests, ParseException e) {
+                if ( e == null ) {
+                    tcs.setResult(requests);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    public String getId() {
+        return getObjectId();
+    }
+
+    public User getUser() {
+        return (User) get(FIELD_USER_ID);
+    }
+
+    public void setUser(User u) {
+        User myUser = User.createWithoutData(User.class, u.getId());
+
+        put(FIELD_USER_ID, myUser);
+    }
+
+    public Ride getRide() {
+        return (Ride) get(FIELD_RIDE_ID);
+    }
+
+    public void setRide(Ride r) {
+        Ride myRide = Ride.createWithoutData(Ride.class, r.getId());
+
+        put(FIELD_RIDE_ID, myRide);
+    }
+
+    private int getStatus() {
+        return (int) get(FIELD_STATUS);
+    }
+
+    private void setStatus(int s) {
+        put(FIELD_STATUS, s);
+    }
+
+    @Override
+    public String toString() {
+        return "User: " + getUser().getName() + ", Ride: [from: " + getRide().getStartingPoint().getTitulo()
+                + ", to: " + getRide().getDestination().getTitulo() + "]";
+    }
 }

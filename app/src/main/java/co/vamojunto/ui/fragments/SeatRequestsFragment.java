@@ -41,6 +41,8 @@ import co.vamojunto.ui.adapters.SeatRequestRecyclerViewAdapter;
  */
 public class SeatRequestsFragment extends Fragment {
 
+    private static final String TAG = "SeatRequestsFragment";
+
     /**
      * The RecyclerView with the list of requests
      */

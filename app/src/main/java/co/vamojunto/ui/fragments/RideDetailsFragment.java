@@ -305,6 +305,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             requestSeatButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // sends the ride to SeatRequestsActivity
+                    Ride.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRide);
+
                     Intent intent = new Intent(getActivity(), SeatRequestsActivity.class);
                     startActivity(intent);
                 }
