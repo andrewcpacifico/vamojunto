@@ -62,5 +62,11 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="GreenTextLink">
+        <item name="android:clickable">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@drawable/green_text_link_selector</item>
+    </style>
+
 
 </resources>

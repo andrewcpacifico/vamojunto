@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import co.vamojunto.R;
+import co.vamojunto.ui.fragments.SeatRequestsFragment;
 
 /**
  * Activity to view the seat requests sent to a Ride.
@@ -73,19 +74,5 @@ public class SeatRequestsActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class SeatRequestsFragment extends Fragment {
 
-        public SeatRequestsFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_seat_requests, container, false);
-            return rootView;
-        }
-    }
 }

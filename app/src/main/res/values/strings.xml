@@ -158,6 +158,9 @@
     <string name="title_activity_my_ride_details">MyRideDetails</string>
     <string name="title_activity_seat_requests">SeatRequestsActivity</string>
     <string name="seat_requests">Solicitações</string>
+    <string name="view_requests">Solicitações para esta carona</string>
+    <string name="confirm">Confirmar</string>
+    <string name="reject">Rejeitar</string>
 
 
 </resources>

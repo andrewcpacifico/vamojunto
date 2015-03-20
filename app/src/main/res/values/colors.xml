@@ -44,5 +44,9 @@
     <color name="ColorPrimaryDark">#009e1a</color>
 
     <color name="separator">#dbdbdb</color>
+    <color name="green_text_link">@color/ColorPrimary</color>
+    <color name="green_text_link_pressed">@color/ColorPrimaryDark</color>
+    <color name="green_text_link_focused">@color/ColorPrimaryDark</color>
 
 </resources>
+
