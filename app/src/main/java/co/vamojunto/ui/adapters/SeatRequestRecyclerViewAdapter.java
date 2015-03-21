@@ -116,7 +116,7 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
     public void onBindViewHolder(ViewHolder holder, int position) {
         SeatRequest request = mDataset.get(position);
 
-        //holder.mMessageTextView.setText(request.getMessage());
+        holder.mMessageTextView.setText(request.getMessage());
         holder.mUserNameTextView.setText(request.getUser().getName());
         holder.mUserImage.setImageBitmap(request.getUser().getProfileImage());
     }

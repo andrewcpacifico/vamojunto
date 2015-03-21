@@ -60,6 +60,7 @@ public class SeatRequestsFragment extends Fragment {
     private static final int VIEW_PROGRESS = 0;
     private static final int VIEW_ERROR = 1;
     private static final int VIEW_LIST = 2;
+    private static final int VIEW_NO_REQUEST_MESSAGE = 3;
 
     /**
      * The RecyclerView with the list of requests
@@ -101,6 +102,12 @@ public class SeatRequestsFragment extends Fragment {
      * {@link Handler} used to run code on the main thread
      */
     private Handler mHandler;
+
+    /**
+     * TextView used to display the user a message indicating that this ride have not received
+     * any seat request.
+     */
+    private TextView mMessageTextView;
 
     public SeatRequestsFragment() {
     }
@@ -150,6 +157,9 @@ public class SeatRequestsFragment extends Fragment {
             }
         });
 
+        // inflates the "no request" message text view
+        mMessageTextView = (TextView) rootView.findViewById(R.id.message_text_view);
+
         loadSeatRequests();
     }
 
@@ -172,7 +182,14 @@ public class SeatRequestsFragment extends Fragment {
 
                         // gets the list of items returned by task, and use it as mAdapter dataset
                         List<SeatRequest> lst = task.getResult();
-                        mAdapter.setDataset(lst);
+
+                        // checks if there are some requests sent to this ride, if any requests
+                        // have been sent, just show a message to the user
+                        if (lst.size() > 0) {
+                            mAdapter.setDataset(lst);
+                        } else {
+                            mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                        }
                     } else if (task.isFaulted()) {
                         Log.e(TAG, task.getError().getMessage());
 

@@ -20,8 +20,10 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -282,7 +285,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         final Button requestSeatButton = (Button) rootView.findViewById(R.id.ask_button);
         if ( ! mRide.getDriver().equals(User.getCurrentUser()) ) {
             // case 1, the user is not the driver, and there is seats available
-            if (mRide.getSeatsAvailable() == 0) {
+            if (mRide.getSeatsAvailable() > 0) {
                 // sets the button action, to request a seat on the ride
                 requestSeatButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -348,7 +351,38 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * database, so the driver can view int, and can approve or reject.
      */
     private void requestSeatButtonOnClick() {
-        final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide);
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+
+        alert.setTitle(getString(R.string.type_a_message));
+        alert.setMessage(getString(R.string.enter_a_message_to_seat_request));
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(getActivity());
+        alert.setView(input);
+
+        alert.setPositiveButton(getString(R.string.send_seat_request), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String msg = input.getText().toString();
+                requestSeat(msg);
+            }
+        });
+
+        alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // cancel
+            }
+        });
+
+        alert.show();
+    }
+
+    /**
+     * Request a seat for the current user on the viewing ride.
+     *
+     * @param message The message sent by the user.
+     */
+    private void requestSeat(String message) {
+        final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide, message);
 
         // checks if user is connected to the Internet
         if ( ! NetworkUtil.isConnected(getActivity())) {

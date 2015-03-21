@@ -45,6 +45,7 @@ public class SeatRequest extends ParseObject {
     private static final String FIELD_USER_ID = "user_id";
     private static final String FIELD_RIDE_ID = "ride_id";
     private static final String FIELD_STATUS = "status";
+    private static final String FIELD_MESSAGE = "message";
 
     // flags used to map all valid SeatRequest states
     public static final int STATUS_WAITING = 0;
@@ -91,10 +92,12 @@ public class SeatRequest extends ParseObject {
      *
      * @param u The requester.
      * @param r The ride wanted.
+     * @param message The message sent by the requester.
      */
-    public SeatRequest(User u, Ride r) {
+    public SeatRequest(User u, Ride r, String message) {
         this.setUser(u);
         this.setRide(r);
+        this.setMessage(message);
         this.setStatus(STATUS_WAITING);
     }
 
@@ -236,4 +239,13 @@ public class SeatRequest extends ParseObject {
         return "User: " + getUser().getName() + ", Ride: [from: " + getRide().getStartingPoint().getTitulo()
                 + ", to: " + getRide().getDestination().getTitulo() + "]";
     }
+
+    public String getMessage() {
+        return getString(FIELD_MESSAGE);
+    }
+
+    public void setMessage(String msg) {
+        this.put(FIELD_MESSAGE, msg);
+    }
+
 }

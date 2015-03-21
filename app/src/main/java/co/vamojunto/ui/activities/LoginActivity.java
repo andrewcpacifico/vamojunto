@@ -291,7 +291,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                         if (parseUser != null ){
                             // Exibe a tela principal do sistema e finaliza a Activity de login.
                             //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            Intent intent = new Intent(LoginActivity.this, SearchPlaceActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                                     Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
