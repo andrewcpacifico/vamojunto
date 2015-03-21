@@ -27,6 +27,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.util.List;
@@ -38,6 +40,7 @@ import co.vamojunto.model.Ride;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.adapters.SeatRequestRecyclerViewAdapter;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  * A {@link android.support.v4.app.Fragment} where the user can view all seat requests made to a
@@ -75,6 +78,16 @@ public class SeatRequestsFragment extends Fragment {
      * The ride to get the seat requests to show.
      */
     private Ride mRide;
+
+    /**
+     * The {@link android.widget.TextView} that displays a error message, on the error screen View
+     */
+    private TextView mErrorScreenMessageTextView;
+
+    /**
+     * The button displayed on error screen view
+     */
+    private Button mErrorScreenButton;
 
     /**
      * {@link android.widget.ViewFlipper} used to switch between ProgressBar, error screen, and the
@@ -118,6 +131,18 @@ public class SeatRequestsFragment extends Fragment {
         // inflates the ViewFlipper
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.view_flipper);
 
+        // inflates the error screen messageTextView
+        mErrorScreenMessageTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+
+        // inflates the error screen button and defines its default action
+        mErrorScreenButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        mErrorScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadSeatRequests();
+            }
+        });
+
         loadSeatRequests();
     }
 
@@ -126,21 +151,29 @@ public class SeatRequestsFragment extends Fragment {
      * the screen's RecyclerView adapter, so the items are displayed on the screen.
      */
     private void loadSeatRequests() {
-        SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
-            @Override
-            public Void then(Task<List<SeatRequest>> task) throws Exception {
-                // checks if task finished with no problems
-                if (! task.isFaulted() && ! task.isCancelled()) {
-                    // switches the mViewFlipper to RecyclerView
-                    mViewFlipper.setDisplayedChild(VIEW_LIST);
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
 
-                    List<SeatRequest> lst = task.getResult();
+        //Loads the seat requests from the cloud, only if the user is connected to the Internet
+        if (NetworkUtil.isConnected(getActivity())) {
+            SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
+                @Override
+                public Void then(Task<List<SeatRequest>> task) throws Exception {
+                    // checks if task finished with no problems
+                    if (!task.isFaulted() && !task.isCancelled()) {
+                        // switches the mViewFlipper to RecyclerView
+                        mViewFlipper.setDisplayedChild(VIEW_LIST);
 
-                    mAdapter.setDataset(lst);
+                        List<SeatRequest> lst = task.getResult();
+
+                        mAdapter.setDataset(lst);
+                    }
+
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        }else {
+            mErrorScreenMessageTextView.setText(getString(R.string.error_msg_no_internet_connection));
+            mViewFlipper.setDisplayedChild(VIEW_ERROR);
+        }
     }
 }
