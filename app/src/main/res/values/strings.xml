@@ -132,7 +132,7 @@
     <string name="carona_cadastrada">Oferta de carona cadastrada com sucesso.</string>
     <string name="errormsg_default">Ocorreu um erro e ação não pôde ser concluída, por favor tente novamente.</string>
     <string name="default_error_screen_retry_text">Tentar novamente</string>
-    <string name="error_msg_no_internet_connection">Você não está conectado, por favor conecte-se à Internet e tente novamente.</string>
+    <string name="errormsg_no_internet_connection">Você não está conectado, por favor conecte-se à Internet e tente novamente.</string>
     <string name="title_activity_new_ride_request">Novo pedido de carona</string>
     <string name="saving_ride_request">Salvando pedido de carona...</string>
     <string name="error_ride_request_registration">Erro ao cadastrar pedido de carona, por favor tente novamente.</string>

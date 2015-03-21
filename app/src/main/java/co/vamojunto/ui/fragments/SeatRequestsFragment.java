@@ -21,9 +21,11 @@ package co.vamojunto.ui.fragments;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,6 +97,11 @@ public class SeatRequestsFragment extends Fragment {
      */
     private ViewFlipper mViewFlipper;
 
+    /**
+     * {@link Handler} used to run code on the main thread
+     */
+    private Handler mHandler;
+
     public SeatRequestsFragment() {
     }
 
@@ -163,16 +170,33 @@ public class SeatRequestsFragment extends Fragment {
                         // switches the mViewFlipper to RecyclerView
                         mViewFlipper.setDisplayedChild(VIEW_LIST);
 
+                        // gets the list of items returned by task, and use it as mAdapter dataset
                         List<SeatRequest> lst = task.getResult();
-
                         mAdapter.setDataset(lst);
+                    } else if (task.isFaulted()) {
+                        Log.e(TAG, task.getError().getMessage());
+
+                        // checks if mHandler have been already instantiated
+                        if (mHandler == null)
+                            mHandler = new Handler();
+
+                        // displays the error message to user
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mErrorScreenMessageTextView.setText(getString(R.string.errormsg_default));
+                                mViewFlipper.setDisplayedChild(VIEW_ERROR);
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "loadSeatRequests: task cancelled");
                     }
 
                     return null;
                 }
             });
         }else {
-            mErrorScreenMessageTextView.setText(getString(R.string.error_msg_no_internet_connection));
+            mErrorScreenMessageTextView.setText(getString(R.string.errormsg_no_internet_connection));
             mViewFlipper.setDisplayedChild(VIEW_ERROR);
         }
     }

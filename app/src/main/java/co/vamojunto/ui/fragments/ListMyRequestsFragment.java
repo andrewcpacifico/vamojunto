@@ -231,7 +231,7 @@ public class ListMyRequestsFragment extends Fragment {
                 }
             });
         } else {
-            displayErrorScreen(getString(R.string.error_msg_no_internet_connection));
+            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         }
     }
 

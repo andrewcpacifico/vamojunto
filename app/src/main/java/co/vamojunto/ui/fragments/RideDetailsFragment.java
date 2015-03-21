@@ -24,7 +24,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -354,7 +353,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         // checks if user is connected to the Internet
         if ( ! NetworkUtil.isConnected(getActivity())) {
             Toast.makeText(getActivity(),
-                    getString(R.string.error_msg_no_internet_connection),
+                    getString(R.string.errormsg_no_internet_connection),
                     Toast.LENGTH_LONG).show();
             return;
         } else {
@@ -459,7 +458,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             });
         } else {
             mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
-            mPassengersMessage.setText(getString(R.string.error_msg_no_internet_connection));
+            mPassengersMessage.setText(getString(R.string.errormsg_no_internet_connection));
             mPassengersRetryButton.setVisibility(View.VISIBLE);
         }
     }
