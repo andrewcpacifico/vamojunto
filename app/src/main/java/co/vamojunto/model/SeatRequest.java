@@ -182,6 +182,7 @@ public class SeatRequest extends ParseObject {
         final Task<List<SeatRequest>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<SeatRequest> query = ParseQuery.getQuery(SeatRequest.class);
+        query.include(FIELD_USER_ID);
         query.whereEqualTo(FIELD_RIDE_ID, r);
 
         query.findInBackground(new FindCallback<SeatRequest>() {

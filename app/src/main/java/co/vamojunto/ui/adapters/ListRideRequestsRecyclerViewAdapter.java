@@ -87,7 +87,7 @@ public class ListRideRequestsRecyclerViewAdapter extends RecyclerView.Adapter<Li
     }
 
     /**
-     * Updates the RecyclereView dataset
+     * Updates the RecyclerView dataset
      *
      * @param dataset The new dataset
      */

@@ -27,8 +27,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ViewFlipper;
 
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Ride;
+import co.vamojunto.model.SeatRequest;
+import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.adapters.SeatRequestRecyclerViewAdapter;
 
 /**
@@ -42,6 +50,11 @@ import co.vamojunto.ui.adapters.SeatRequestRecyclerViewAdapter;
 public class SeatRequestsFragment extends Fragment {
 
     private static final String TAG = "SeatRequestsFragment";
+
+    // constants to identify view on mViewFlipper
+    private static final int VIEW_PROGRESS = 0;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_LIST = 2;
 
     /**
      * The RecyclerView with the list of requests
@@ -58,6 +71,17 @@ public class SeatRequestsFragment extends Fragment {
      */
     private SeatRequestRecyclerViewAdapter mAdapter;
 
+    /**
+     * The ride to get the seat requests to show.
+     */
+    private Ride mRide;
+
+    /**
+     * {@link android.widget.ViewFlipper} used to switch between ProgressBar, error screen, and the
+     * list of items
+     */
+    private ViewFlipper mViewFlipper;
+
     public SeatRequestsFragment() {
     }
 
@@ -65,6 +89,9 @@ public class SeatRequestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_seat_requests, container, false);
+
+        // retrieves the input ride
+        mRide = Ride.getStoredInstance(SeatRequestsActivity.INPUT_RIDE);
 
         initComponents(rootView);
 
@@ -85,7 +112,35 @@ public class SeatRequestsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // instantiates the adapter and pass it to the recycler view
-        mAdapter = new SeatRequestRecyclerViewAdapter();
+        mAdapter = new SeatRequestRecyclerViewAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
+
+        // inflates the ViewFlipper
+        mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.view_flipper);
+
+        loadSeatRequests();
+    }
+
+    /**
+     * Loads all seat requests made to this ride from the cloud. The requests loaded are passed to
+     * the screen's RecyclerView adapter, so the items are displayed on the screen.
+     */
+    private void loadSeatRequests() {
+        SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
+            @Override
+            public Void then(Task<List<SeatRequest>> task) throws Exception {
+                // checks if task finished with no problems
+                if (! task.isFaulted() && ! task.isCancelled()) {
+                    // switches the mViewFlipper to RecyclerView
+                    mViewFlipper.setDisplayedChild(VIEW_LIST);
+
+                    List<SeatRequest> lst = task.getResult();
+
+                    mAdapter.setDataset(lst);
+                }
+
+                return null;
+            }
+        });
     }
 }

@@ -112,10 +112,6 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".ui.activities.MyRideDetailsActivity"
-            android:label="@string/title_activity_my_ride_details" >
-        </activity>
-        <activity
             android:name=".ui.activities.SeatRequestsActivity"
             android:label="@string/title_activity_seat_requests" >
         </activity>

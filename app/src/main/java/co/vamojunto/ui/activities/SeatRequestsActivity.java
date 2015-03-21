@@ -19,8 +19,10 @@
 
 package co.vamojunto.ui.activities;
 
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,31 +53,17 @@ public class SeatRequestsActivity extends ActionBarActivity {
     public static final String INPUT_RIDE = TAG + ".ride";
 
     /**
-     * The ride to get the seat requests to show.
+     * Activity's app bar
      */
-    private Ride mRide;
+    private Toolbar mAppBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // retrieves the input ride
-        mRide = Ride.getStoredInstance(INPUT_RIDE);
-        SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
-            @Override
-            public Void then(Task<List<SeatRequest>> task) throws Exception {
-                List<SeatRequest> l = task.getResult();
-
-                // TODO tratar erros ao recuperar estes dados
-                for (SeatRequest sr: l) {
-                    Log.i(TAG, sr.toString());
-                }
-
-                return null;
-            }
-        });
-
         setContentView(R.layout.activity_seat_requests);
+        setupAppBar();
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new SeatRequestsFragment())
@@ -83,12 +71,13 @@ public class SeatRequestsActivity extends ActionBarActivity {
         }
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_seat_requests, menu);
-        return true;
+    /**
+     * Initializes the application bar properties
+     */
+    private void setupAppBar() {
+        mAppBar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mAppBar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -98,13 +87,11 @@ public class SeatRequestsActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == android.R.id.home) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
-
 
 }

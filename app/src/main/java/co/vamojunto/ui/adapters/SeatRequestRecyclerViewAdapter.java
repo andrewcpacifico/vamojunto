@@ -19,14 +19,19 @@
 
 package co.vamojunto.ui.adapters;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import co.vamojunto.R;
+import co.vamojunto.model.SeatRequest;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -52,33 +57,50 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
         /**
          * The View that holds the requester picture
          */
-        private CircleImageView userImage;
+        public CircleImageView mUserImage;
 
         /**
          * The View that holds the requester name
          */
-        private TextView userName;
+        public TextView mUserNameTextView;
 
         /**
          * The View that holds the message sent by the requester, on the requesting moment.
          */
-        private TextView message;
+        public TextView mMessageTextView;
 
         /**
          * Class constructor
          *
          * @param itemView The root layout for the ViewHolder
-         * @param userName The requester name
-         * @param message The message sent by requester
-         * @param userImage The requester image
          */
-//        public ViewHolder(View itemView, String userName, String message, Bitmap userImage) {
-//            super(itemView);
-//        }
+        public ViewHolder(View itemView) {
+            super(itemView);
 
-          public ViewHolder(View itemView) {
-              super(itemView);
-          }
+            mUserNameTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
+            mUserImage = (CircleImageView) itemView.findViewById(R.id.user_image);
+            mMessageTextView = (TextView) itemView.findViewById(R.id.message_text_view);
+        }
+
+    }
+
+    /**
+     * Dataset containing the items to show on the RecyclerView
+     */
+    private List<SeatRequest> mDataset;
+
+    /**
+     * {@link android.os.Handler} used to run code on the main thread.
+     */
+    private Handler mHandler;
+
+    /**
+     * Class constructor
+     *
+     * @param context The context used to instantiate the {@link android.os.Handler}
+     */
+    public SeatRequestRecyclerViewAdapter(Context context) {
+        mHandler = new Handler(context.getMainLooper());
     }
 
     @Override
@@ -92,12 +114,34 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        SeatRequest request = mDataset.get(position);
 
+        //holder.mMessageTextView.setText(request.getMessage());
+        holder.mUserNameTextView.setText(request.getUser().getName());
+        holder.mUserImage.setImageBitmap(request.getUser().getProfileImage());
     }
 
     @Override
     public int getItemCount() {
-        return 20;
+        if (mDataset == null)
+            return 0;
+
+        return mDataset.size();
+    }
+
+    /**
+     * Changes the dataset and notifies all listeners
+     *
+     * @param lst The new list of items to be used as dataset.
+     */
+    public void setDataset(List<SeatRequest> lst) {
+        this.mDataset = lst;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
 }
