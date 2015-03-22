@@ -191,39 +191,46 @@ public class SeatRequestsFragment extends Fragment {
      * @param position The position of the SeatRequest on the mRecyclerView.
      */
     private void onRejectSeatRequest(final int position) {
-        // displays the loading dialog to user
-        startLoading(getString(R.string.rejecting_seat_request));
+        // checks the user network connection, before start the work
+        if (NetworkUtil.isConnected(getActivity())) {
+            // displays the loading dialog to user
+            startLoading(getString(R.string.rejecting_seat_request));
 
-        // inits the task to reject the seat request
-        mAdapter.getItem(position).reject().continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                stopLoading();
+            // inits the task to reject the seat request
+            mAdapter.getItem(position).reject().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    stopLoading();
 
-                // if no error happened on the task, removes the seat request of screen, and displays
-                // a message to user
-                if (!task.isFaulted() && !task.isCancelled()) {
-                    mAdapter.removeItem(position);
+                    // if no error happened on the task, removes the seat request of screen, and displays
+                    // a message to user
+                    if (!task.isFaulted() && !task.isCancelled()) {
+                        mAdapter.removeItem(position);
 
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // if the recycler view have no items to show, displays the specific message
-                            // for this case.
-                            if (mAdapter.getItemCount() == 0) {
-                                mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // if the recycler view have no items to show, displays the specific message
+                                // for this case.
+                                if (mAdapter.getItemCount() == 0) {
+                                    mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                                }
+
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.seat_request_rejected),
+                                        Toast.LENGTH_LONG).show();
                             }
+                        });
+                    }
 
-                            Toast.makeText(getActivity(),
-                                    getString(R.string.seat_request_rejected),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        } else {
+            Toast.makeText(getActivity(),
+                    getString(R.string.errormsg_no_internet_connection),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -233,41 +240,46 @@ public class SeatRequestsFragment extends Fragment {
      * @param position The position of the SeatRequest on the mRecyclerView.
      */
     private void onConfirmSeatRequest(final int position) {
-        SeatRequest item = mAdapter.getItem(position);
+        // checks the user network connection, before start the work
+        if (NetworkUtil.isConnected(getActivity())) {
+            // displays the loading dialog to user
+            startLoading(getString(R.string.confirming_seat_request));
 
-        // displays the loading dialog to user
-        startLoading(getString(R.string.confirming_seat_request));
+            // inits the task to confirm the seat request
+            mAdapter.getItem(position).confirm().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    stopLoading();
 
-        // inits the task to confirm the seat request
-        item.confirm().continueWith(new Continuation<Void, Void>() {
-            @Override
-            public Void then(Task<Void> task) throws Exception {
-                stopLoading();
+                    // if no error happened on the task, removes the seat request of screen, and displays
+                    // a message to user
+                    if (!task.isFaulted() && !task.isCancelled()) {
+                        mAdapter.removeItem(position);
 
-                // if no error happened on the task, removes the seat request of screen, and displays
-                // a message to user
-                if ( ! task.isFaulted() && ! task.isCancelled() ) {
-                    mAdapter.removeItem(position);
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // if the recycler view have no items to show, displays the specific message
+                                // for this case.
+                                if (mAdapter.getItemCount() == 0) {
+                                    mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                                }
 
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // if the recycler view have no items to show, displays the specific message
-                            // for this case.
-                            if (mAdapter.getItemCount() == 0) {
-                                mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.seat_request_confirmed),
+                                        Toast.LENGTH_LONG).show();
                             }
+                        });
+                    }
 
-                            Toast.makeText(getActivity(),
-                                    getString(R.string.seat_request_confirmed),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        } else {
+            Toast.makeText(getActivity(),
+                    getString(R.string.errormsg_no_internet_connection),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
