@@ -20,6 +20,7 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.List;
@@ -109,6 +111,11 @@ public class SeatRequestsFragment extends Fragment {
      */
     private TextView mMessageTextView;
 
+    /**
+     * ProgressDialog displayed when some network task is being executed.
+     */
+    private ProgressDialog mProDialog;
+
     public SeatRequestsFragment() {
     }
 
@@ -139,7 +146,19 @@ public class SeatRequestsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // instantiates the adapter and pass it to the recycler view
-        mAdapter = new SeatRequestRecyclerViewAdapter(getActivity());
+        mAdapter = new SeatRequestRecyclerViewAdapter(getActivity(), new SeatRequestRecyclerViewAdapter.OnClickListener() {
+            // method called when the confirmation button is clicked
+            @Override
+            public void onConfirmClick(int position) {
+                onConfirmSeatRequest(mAdapter.getItem(position));
+            }
+
+            // method called when the rejection butotn is clicked
+            @Override
+            public void onRejectClick(int position) {
+                mAdapter.getItem(position).reject();
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
 
         // inflates the ViewFlipper
@@ -161,6 +180,38 @@ public class SeatRequestsFragment extends Fragment {
         mMessageTextView = (TextView) rootView.findViewById(R.id.message_text_view);
 
         loadSeatRequests();
+    }
+
+    /**
+     * Called whe the user clicks on confirm button of a seat request on the recycler view. This
+     * method tries to confirm the request, and handles any error that can happen.
+     *
+     * @param item The {@link co.vamojunto.model.SeatRequest} to be confirmed.
+     */
+    private void onConfirmSeatRequest(SeatRequest item) {
+        // displays the loading dialog to user
+        startLoading(getString(R.string.confirming_seat_request));
+
+        // inits the task to confirm the seat request
+        item.confirm().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                stopLoading();
+
+                if ( ! task.isFaulted() && ! task.isCancelled() ) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(),
+                                    getString(R.string.seat_request_confirmed),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -216,5 +267,26 @@ public class SeatRequestsFragment extends Fragment {
             mErrorScreenMessageTextView.setText(getString(R.string.errormsg_no_internet_connection));
             mViewFlipper.setDisplayedChild(VIEW_ERROR);
         }
+    }
+
+    /**
+     * Shows a dialog indicating that some task is in progress.
+     *
+     * @param msg Message to be displayed on dialog.
+     */
+    private void startLoading(String msg) {
+        mProDialog = new ProgressDialog(getActivity());
+        mProDialog.setMessage(msg);
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finishes the loading dialog;
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 }

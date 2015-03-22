@@ -166,6 +166,8 @@
     <string name="enter_a_message_to_seat_request">Escreva uma mensagem para o motorista da carona</string>
     <string name="send_seat_request">Enviar pedido</string>
     <string name="cancel">Cancelar</string>
+    <string name="confirming_seat_request">Confirmando pedido de lugar...</string>
+    <string name="seat_request_confirmed">Pedido de carona aceito. Seu amigo será notificado que está confirmado como passageiro.</string>
 
 
 </resources>

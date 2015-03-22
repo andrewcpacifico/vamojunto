@@ -21,6 +21,7 @@ package co.vamojunto.model;
 
 import com.parse.FindCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -161,9 +163,16 @@ public class SeatRequest extends ParseObject {
      * Confirms the seat request on the ride.
      */
     public Task<Void> confirm() {
-        this.setStatus(STATUS_CONFIRMED);
+        // changes the status on this instance
+        setStatus(STATUS_CONFIRMED);
 
-        return saveInBackground();
+        // define the options to send to cloud function
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("seatRequestId", getId());
+        params.put("rideId", getRide().getId());
+
+        // call cloud function to confirm the seat
+        return ParseCloud.callFunctionInBackground("confirmSeatRequest", params);
     }
 
     /**

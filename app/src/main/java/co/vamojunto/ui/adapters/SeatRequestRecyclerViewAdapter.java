@@ -20,9 +20,9 @@
 package co.vamojunto.ui.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +42,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @since 0.1.0
  */
 public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatRequestRecyclerViewAdapter.ViewHolder> {
+
+    private static final String TAG = "SeatRequestRecyclerViewAdapter";
 
     /**
      * The ViewHolder for the items on the {@link co.vamojunto.ui.fragments.SeatRequestsFragment}.
@@ -70,18 +72,65 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
         public TextView mMessageTextView;
 
         /**
-         * Class constructor
+         * The {@link android.widget.TextView} used as a button for the user can confirm a SeatRequest
+         */
+        public TextView mConfirmButton;
+
+        /**
+         * The {@link android.widget.TextView} used as a button for the user can reject a SeatRequest
+         */
+        public TextView mRejectButton;
+
+        /**
+         * Class constructor, inflates all views and defines its click listeners.
          *
          * @param itemView The root layout for the ViewHolder
+         * @param clickListener Listener for clicks on this ViewHolder
          */
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, final OnClickListener clickListener) {
             super(itemView);
 
             mUserNameTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
             mUserImage = (CircleImageView) itemView.findViewById(R.id.user_image);
             mMessageTextView = (TextView) itemView.findViewById(R.id.message_text_view);
+
+            mConfirmButton = (TextView) itemView.findViewById(R.id.confirm_button_text_view);
+            mConfirmButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onConfirmClick(getPosition());
+                }
+            });
+
+            mRejectButton = (TextView) itemView.findViewById(R.id.reject_button_text_view);
+            mRejectButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onRejectClick(getPosition());
+                }
+            });
         }
 
+    }
+
+    /**
+     * Interface used to handle clicks on SeatRequest. Today, the only components that have an
+     * action is the two buttons used to confirm/reject a request.
+     */
+    public interface OnClickListener {
+        /**
+         * Called when the confirm button is clicked
+         *
+         * @param position The position of the item on RecyclerView
+         */
+        public void onConfirmClick(int position);
+
+        /**
+         * Called when the reject button is clicked
+         *
+         * @param position The position of the item on RecyclerView
+         */
+        public void onRejectClick(int position);
     }
 
     /**
@@ -95,12 +144,18 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
     private Handler mHandler;
 
     /**
+     * Listener for click events on RecyclerView items.
+     */
+    private OnClickListener mClickListener;
+
+    /**
      * Class constructor
      *
      * @param context The context used to instantiate the {@link android.os.Handler}
      */
-    public SeatRequestRecyclerViewAdapter(Context context) {
+    public SeatRequestRecyclerViewAdapter(Context context, OnClickListener clickListener) {
         mHandler = new Handler(context.getMainLooper());
+        mClickListener = clickListener;
     }
 
     @Override
@@ -109,7 +164,7 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
         View rootItemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.layout_seat_request, parent, false);
 
-        return new ViewHolder(rootItemView);
+        return new ViewHolder(rootItemView, mClickListener);
     }
 
     @Override
@@ -142,6 +197,27 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
                 notifyDataSetChanged();
             }
         });
+    }
+
+    /**
+     * Returns an item of recycler view in a specific position.
+     *
+     * @param position The position of the item on RecyclerView.
+     * @return The SeatRequest wanted, or null if the dataset is null or position is invalid.
+     */
+    public SeatRequest getItem(int position) {
+        if (mDataset == null)
+            return null;
+
+        SeatRequest sr = null;
+
+        try {
+            sr = mDataset.get(position);
+        } catch (IndexOutOfBoundsException e) {
+            Log.e(TAG, "Tentando obter item em posição inexistente.");
+        }
+
+        return sr;
     }
 
 }

@@ -72,6 +72,8 @@
             android:layout_below="@+id/message_text_view"
             android:gravity="center_horizontal">
             <TextView
+                android:id="@+id/reject_button_text_view"
+
                 android:layout_marginRight="18dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -81,6 +83,8 @@
                 android:textSize="@dimen/abc_text_size_body_1_material"/>
 
             <TextView
+                android:id="@+id/confirm_button_text_view"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
