@@ -179,9 +179,15 @@ public class SeatRequest extends ParseObject {
      * Rejects the seat request on the ride
      */
     public Task<Void> reject() {
-        this.setStatus(STATUS_REJECTED);
+        // changes the status on this instance
+        setStatus(STATUS_REJECTED);
 
-        return saveInBackground();
+        // define the options to send to cloud function
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("seatRequestId", getId());
+
+        // call cloud function to confirm the seat
+        return ParseCloud.callFunctionInBackground("rejectSeatRequest", params);
     }
 
     /**
