@@ -185,17 +185,21 @@ public class SeatRequest extends ParseObject {
     }
 
     /**
-     * Gets a list of SeatRequests made to a specific ride.
+     * Gets a list of SeatRequests made to a specific ride, that still waiting for a response.
      *
      * @param r The ride to get the requests.
      * @return A {@link bolts.Task} that returns the list, if no error occurs..
      */
-    public static Task<List<SeatRequest>> getByRide(Ride r) {
+    public static Task<List<SeatRequest>> getWaitingByRide(Ride r) {
         final Task<List<SeatRequest>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<SeatRequest> query = ParseQuery.getQuery(SeatRequest.class);
+        // includes the user data, to display on the list screen
         query.include(FIELD_USER_ID);
+        // filters by ride
         query.whereEqualTo(FIELD_RIDE_ID, r);
+        // filters by status
+        query.whereEqualTo(FIELD_STATUS, STATUS_WAITING);
 
         query.findInBackground(new FindCallback<SeatRequest>() {
             @Override

@@ -161,7 +161,7 @@
     <string name="view_requests">Solicitações para esta carona</string>
     <string name="confirm">Confirmar</string>
     <string name="reject">Rejeitar</string>
-    <string name="no_seat_request_sent">Esta carona ainda não recebeu nenhuma solicitação de lugar.</string>
+    <string name="no_seat_request_sent">Esta carona não possui nenhuma solicitação de lugar.</string>
     <string name="type_a_message">DIgite uma mensagem</string>
     <string name="enter_a_message_to_seat_request">Escreva uma mensagem para o motorista da carona</string>
     <string name="send_seat_request">Enviar pedido</string>

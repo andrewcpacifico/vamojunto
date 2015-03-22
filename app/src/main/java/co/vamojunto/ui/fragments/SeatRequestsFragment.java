@@ -127,6 +127,8 @@ public class SeatRequestsFragment extends Fragment {
         // retrieves the input ride
         mRide = Ride.getStoredInstance(SeatRequestsActivity.INPUT_RIDE);
 
+        mHandler = new Handler();
+
         initComponents(rootView);
 
         return rootView;
@@ -150,7 +152,7 @@ public class SeatRequestsFragment extends Fragment {
             // method called when the confirmation button is clicked
             @Override
             public void onConfirmClick(int position) {
-                onConfirmSeatRequest(mAdapter.getItem(position));
+                onConfirmSeatRequest(position);
             }
 
             // method called when the rejection butotn is clicked
@@ -186,9 +188,11 @@ public class SeatRequestsFragment extends Fragment {
      * Called whe the user clicks on confirm button of a seat request on the recycler view. This
      * method tries to confirm the request, and handles any error that can happen.
      *
-     * @param item The {@link co.vamojunto.model.SeatRequest} to be confirmed.
+     * @param position The position of the SeatRequest on the mRecyclerView.
      */
-    private void onConfirmSeatRequest(SeatRequest item) {
+    private void onConfirmSeatRequest(final int position) {
+        SeatRequest item = mAdapter.getItem(position);
+
         // displays the loading dialog to user
         startLoading(getString(R.string.confirming_seat_request));
 
@@ -198,10 +202,20 @@ public class SeatRequestsFragment extends Fragment {
             public Void then(Task<Void> task) throws Exception {
                 stopLoading();
 
+                // if no error happened on the task, removes the seat request of screen, and displays
+                // a message to user
                 if ( ! task.isFaulted() && ! task.isCancelled() ) {
+                    mAdapter.removeItem(position);
+
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            // if the recycler view have no items to show, displays the specific message
+                            // for this case.
+                            if (mAdapter.getItemCount() == 0) {
+                                mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
+                            }
+
                             Toast.makeText(getActivity(),
                                     getString(R.string.seat_request_confirmed),
                                     Toast.LENGTH_LONG).show();
@@ -223,7 +237,7 @@ public class SeatRequestsFragment extends Fragment {
 
         //Loads the seat requests from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            SeatRequest.getByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
+            SeatRequest.getWaitingByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
                 @Override
                 public Void then(Task<List<SeatRequest>> task) throws Exception {
                     // checks if task finished with no problems
@@ -243,10 +257,6 @@ public class SeatRequestsFragment extends Fragment {
                         }
                     } else if (task.isFaulted()) {
                         Log.e(TAG, task.getError().getMessage());
-
-                        // checks if mHandler have been already instantiated
-                        if (mHandler == null)
-                            mHandler = new Handler();
 
                         // displays the error message to user
                         mHandler.post(new Runnable() {

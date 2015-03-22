@@ -45,6 +45,7 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
 
     private static final String TAG = "SeatRequestRecyclerViewAdapter";
 
+
     /**
      * The ViewHolder for the items on the {@link co.vamojunto.ui.fragments.SeatRequestsFragment}.
      * Each item should display the requester name, picture, and a message. And gives the user
@@ -218,6 +219,21 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
         }
 
         return sr;
+    }
+
+    /**
+     * Removes an item of RecyclerView
+     *
+     * @param position The position of the item to remove.
+     */
+    public void removeItem(final int position) {
+        mDataset.remove(position);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                notifyItemRemoved(position);
+            }
+        });
     }
 
 }

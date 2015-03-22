@@ -210,6 +210,16 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         return rootView;
     }
 
+    /**
+     * Always load the confirmed passengers on fragment start.
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        showPassengers();
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -342,8 +352,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                 showPassengers();
             }
         });
-
-        showPassengers();
     }
 
     /**
