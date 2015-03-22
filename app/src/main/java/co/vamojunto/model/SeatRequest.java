@@ -166,6 +166,10 @@ public class SeatRequest extends ParseObject {
         // changes the status on this instance
         setStatus(STATUS_CONFIRMED);
 
+        // decrements the number of seats available on ride, so there is no need to fetch data from
+        // the cloud to update the screens on this ride is displayed
+        getRide().setSeatsAvailable(getRide().getSeatsAvailable() - 1);
+
         // define the options to send to cloud function
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("seatRequestId", getId());

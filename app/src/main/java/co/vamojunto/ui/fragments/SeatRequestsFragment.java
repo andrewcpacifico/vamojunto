@@ -254,6 +254,16 @@ public class SeatRequestsFragment extends Fragment {
     private void onConfirmSeatRequest(final int position) {
         // checks the user network connection, before start the work
         if (NetworkUtil.isConnected(getActivity())) {
+            // checks if the ride have any seat available, before confirm the seat request
+            if (mRide.getSeatsAvailable() == 0) {
+                Toast.makeText(getActivity(),
+                        getString(R.string.errormsg_no_seats_available),
+                        Toast.LENGTH_LONG).show();
+
+                // finishes the method, so the seat request confirmation is not made
+                return;
+            }
+
             // displays the loading dialog to user
             startLoading(getString(R.string.confirming_seat_request));
 

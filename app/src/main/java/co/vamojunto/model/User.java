@@ -119,7 +119,7 @@ public class User extends ParseUser {
         if (o.getClass() == User.class) {
             User u = (User) o;
 
-            return u.getId() == this.getId();
+            return u.getId().equals(this.getId());
         }
 
         return false;

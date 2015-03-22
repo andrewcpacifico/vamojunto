@@ -147,7 +147,6 @@ public class Ride extends ParseObject {
         put(FIELD_DESTINATION_TITLE, destino.getTitulo());
     }
 
-
     /**
      * Retrieves a list of rides, that have a specific user as driver, ie, retrieves all
      * the rides offered by that user.
@@ -160,8 +159,10 @@ public class Ride extends ParseObject {
         final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+
+        // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
-        //query.whereEqualTo(FIELD_DRIVER, u);
+        query.whereEqualTo(FIELD_DRIVER, u);
 
         query.findInBackground(new FindCallback<Ride>() {
             @Override

@@ -170,6 +170,7 @@
     <string name="seat_request_confirmed">Pedido de carona aceito. Seu amigo será notificado que está confirmado como passageiro.</string>
     <string name="rejecting_seat_request">Rejeitando pedido de lugar...</string>
     <string name="seat_request_rejected">O pedido de lugar foi recusado, o solicitante não fará parte da carona como passageiro.</string>
+    <string name="errormsg_no_seats_available">Esta carona não possui mais nenhum lugar disponível.</string>
 
 
 </resources>

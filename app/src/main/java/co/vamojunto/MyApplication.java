@@ -39,7 +39,7 @@ public class MyApplication extends Application {
         super.onCreate();
 
         // Enable Local Datastore.
-        Parse.enableLocalDatastore(this);
+        //Parse.enableLocalDatastore(this);
 
         String appId = getResources().getString(R.string.parse_app_id);
         String clientId = getResources().getString(R.string.parse_client_id);
