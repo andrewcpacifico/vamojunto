@@ -221,6 +221,18 @@ public class SeatRequestsFragment extends Fragment {
                                         Toast.LENGTH_LONG).show();
                             }
                         });
+                    // if some error happen on the process, tells that to user
+                    } else if (task.isFaulted()) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.errormsg_default),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "Task cancelada.");
                     }
 
                     return null;
@@ -270,6 +282,18 @@ public class SeatRequestsFragment extends Fragment {
                                         Toast.LENGTH_LONG).show();
                             }
                         });
+                    // if some error happen on the process, tells that to user
+                    } else if (task.isFaulted()) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),
+                                        getString(R.string.errormsg_default),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "Task cancelada.");
                     }
 
                     return null;
