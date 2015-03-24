@@ -19,10 +19,14 @@
 
 package co.vamojunto.ui.activities;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -32,10 +36,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseUser;
-
 import co.vamojunto.R;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
@@ -43,32 +43,55 @@ import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
 
 /**
- * Activity principal do sistema.
+ * System's Main Activity
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
+ * @version 1.0.0
  */
 public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
 
+    /**
+     * Application bar
+     */
     private Toolbar mToolbar;
 
+    /**
+     * RecyclerView containing the items on application's navigation drawer
+     */
     private RecyclerView mRecyclerView;
+
+    /**
+     * Adapter used by mRecyclerView
+     */
     private RecyclerView.Adapter mAdapter;
+
+    /**
+     * LayoutManager used by mRecyclerView
+     */
     private RecyclerView.LayoutManager mLayoutManager;
+
+    /**
+     * NavigationDrawer instance
+     */
     private DrawerLayout mDrawerLayout;
+
+    /**
+     *
+     */
     private ActionBarDrawerToggle mDrawerToggle;
 
     /**
-     * Usuário autenticado no sistema
+     * Authenticated user
      */
     private User mCurrentUser;
 
 
 /*************************************************************************************************
  *
- * Implementação dos eventos da Activity
+ * Activity's events
  *
  *************************************************************************************************/
 
@@ -76,15 +99,17 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Verifica se o usuário está autenticado
+        // checks if the user is authenticated, if not, displays the login screen.
         mCurrentUser = User.getCurrentUser();
         if (mCurrentUser == null) {
-            Log.i(TAG, "Usuário não autenticado, exibindo tela de login");
+            Log.i(TAG, "User not authenticated. Displaying the login screen...");
 
-            // Caso não haja usuário autenticado exibe a tela de login.
+            // starts the login screen to the user
             Intent intent = new Intent(this, LoginActivity.class);
             this.startActivity(intent);
             this.finish();
+
+        // if user is authenticated, setups the main screen
         } else {
             setContentView(R.layout.activity_main);
 
@@ -94,23 +119,23 @@ public class MainActivity extends ActionBarActivity {
                         .commit();
             }
 
-            // Inicializa a AppBar
+            // setups the application bar
             mToolbar = (Toolbar) findViewById(R.id.tool_bar);
             setSupportActionBar(mToolbar);
 
-            // Inicializa o NavigationDrawer da aplicação
+            // setups the application's NavigationDrawer
             initDrawer();
         }
     }
 
 /***************************************************************************************************
  *
- * Implementação dos outros métodos criados
+ * Other methods
  *
  **************************************************************************************************/
 
     /**
-     * Constrói o NavigationDrawer da aplicação, que contém o menu com as principais funcionalidades.
+     * Setups the NavigationDrawer
      */
     private void initDrawer() {
         mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
@@ -122,7 +147,7 @@ public class MainActivity extends ActionBarActivity {
                 mCurrentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View v, int position) {
-                navigationDrawerItemClicked(v, position);
+                navigationDrawerItemClicked(position);
             }
         });
 
@@ -140,16 +165,14 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                // Código executado quando o Drawer é fechado.
             }
 
-            // Executado quando o Drawer é deslizado.
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 super.onDrawerSlide(drawerView, slideOffset);
 
-                // Código adicionado para corrigir o erro do mapa ficando sobre o menu no
-                // Android 4.0.4
+                // added to fix the bug where the NavigationDrawer was placed under the screen,
+                // if the screen has a map. This error happened on Android 4.0.4
                 mDrawerLayout.bringChildToFront(drawerView);
                 mDrawerLayout.requestLayout();
             }
@@ -159,11 +182,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /**
-     * Trata ações de cliques nos items do NavigationDrawer
-     * @param v Instância da linha clicada no NavigationDrawer
-     * @param position Posição do item clicado.
+     * Handles the clicks on NavigationDrawer items
+     *
+     * @param position Position of the item clicked, used to define what action have to be executed.
      */
-    private void navigationDrawerItemClicked(View v, int position) {
+    private void navigationDrawerItemClicked(int position) {
         switch (position) {
             // Primeiro item do menu.
             case 1:
@@ -173,7 +196,7 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
 
-        // Fecha o NavigationDrawer após o clique.
+        // always closes the navigation drawer after the click
         mDrawerLayout.closeDrawers();
     }
 }
