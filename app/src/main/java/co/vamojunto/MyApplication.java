@@ -20,9 +20,17 @@
 package co.vamojunto;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.ParsePushBroadcastReceiver;
+import com.parse.PushService;
+import com.parse.SaveCallback;
 
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
@@ -49,6 +57,22 @@ public class MyApplication extends Application {
         ParseObject.registerSubclass(RideRequest.class);
         ParseObject.registerSubclass(SeatRequest.class);
         Parse.initialize(this, appId, clientId);
+        ParseFacebookUtils.initialize();
+
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
+        ParsePush.subscribeInBackground("andrew", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+                } else {
+                    Log.e("com.parse.push", "failed to subscribe for push", e);
+                }
+            }
+        });
+
+        Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
 
        /* new Session(this).closeAndClearTokenInformation();
 

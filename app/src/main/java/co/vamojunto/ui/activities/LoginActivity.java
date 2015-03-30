@@ -39,10 +39,8 @@ import com.mobsandgeeks.saripaar.annotation.Required;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseFile;
 import com.parse.ParseUser;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 import bolts.Continuation;
@@ -108,21 +106,21 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             }
         });
 
-        Button cadastroButton = (Button) findViewById(R.id.register_button);
-        cadastroButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cadastroButtonOnClick(v);
-            }
-        });
-
-        Button loginButton = (Button) findViewById(R.id.login_button);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginButtonOnClick(v);
-            }
-        });
+//        Button cadastroButton = (Button) findViewById(R.id.register_button);
+//        cadastroButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                cadastroButtonOnClick(v);
+//            }
+//        });
+//
+//        Button loginButton = (Button) findViewById(R.id.login_button);
+//        loginButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                loginButtonOnClick(v);
+//            }
+//        });
     }
 
     /**

@@ -39,6 +39,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -94,6 +95,11 @@ public class GetLocationActivity extends ActionBarActivity
     /** Guarda uma instância de um local, caso o usuário tenha feito uma busca. */
     private Place mLocal;
 
+    /**
+     * Handler to run code on main thread, inside callbacks.
+     */
+    private Handler mHandler;
+
     private ProgressDialog mProDialog;
 
     @Override
@@ -148,11 +154,12 @@ public class GetLocationActivity extends ActionBarActivity
     }
 
     /**
-     * Posiciona o mapa da tela, em um local passado por parâmetro.
+     * Positions the map on a given {@link Place}.
      *
-     * @param p Instância de {@link Place} representando o local onde o mapa deve ser posicionado.
+     * @param p The place where the map have to be positioned.
      */
     private void posicionaMapaLocal(Place p) {
+        // helper to find the place coordinates
         GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
 
         // Utilizado para gerenciar a execução da tarefa de busca pelas coordenadas, e posicionamento
@@ -161,37 +168,69 @@ public class GetLocationActivity extends ActionBarActivity
         // com a ProgressDialog.
         final Task<LatLng>.TaskCompletionSource tcs = Task.create();
 
-        startLoading("Posicionando mapa no local selecionado...", tcs);
+        // show the loading dialog to user
+        startLoading(getString(R.string.loadingmsg_positioning_map), tcs);
 
+        // gets the place coordinates
         placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
             @Override
             public Void then(final Task<LatLng> task) {
-                tcs.setResult(task.getResult());
+                if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else {
+                    tcs.setResult(task.getResult());
+                }
 
                 return null;
             }
         });
 
-        // Trata o resultado da operação de busca e posicionamento do mapa.
+        // procedure called when the place coordinates are retrieved
         tcs.getTask().continueWith(new Continuation<LatLng, Void>() {
             @Override
             public Void then(final Task<LatLng> task) throws Exception {
+                // dismiss the loading dialog
+                stopLoading();
+
+                // handles the specific actions in the case of the task was cancelled, triggered
+                // an error, or finished successfully
                 if (task.isCancelled()) {
-                    Log.d(TAG, "Busca cancelada");
+                    // on task cancellation just log that this happened
+                    Log.e(TAG, "Task for positioning the map on a place was cancelled.");
                 } else if (!task.isFaulted()) {
+                    // on task successfully finishing, positions the map on the place coordinates
                     if (task.getResult() != null && mMap != null) {
-                        Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
-                        handler.post(new Runnable() {
+                        mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(task.getResult(), Globals.DEFAULT_ZOOM_LEVEL));
+                                mMap.animateCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                            task.getResult(),
+                                            Globals.DEFAULT_ZOOM_LEVEL
+                                    )
+                                );
 
+                                // changes the mLocal coordinates for the activity result
                                 mLocal.setLatitude(task.getResult().latitude);
                                 mLocal.setLongitude(task.getResult().longitude);
-                                stopLoading();
                             }
                         });
                     }
+                } else {
+                    // on task fault, displays a default error message to the user, and logs th error
+                    Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e(TAG, task.getError().getMessage());
+
+                            Toast.makeText(GetLocationActivity.this,
+                                    getString(R.string.errormsg_default),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
 
                 return null;
@@ -203,6 +242,8 @@ public class GetLocationActivity extends ActionBarActivity
      * Inicializa os componentes da tela
      */
     private void initComponents() {
+        mHandler = new Handler();
+
         mLocal = null;
 
         // Constrói o GoogleApiClient
@@ -421,7 +462,9 @@ public class GetLocationActivity extends ActionBarActivity
         mProDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                task.setCancelled();
+                if ( !task.getTask().isCompleted()) {
+                    task.setCancelled();
+                }
             }
         });
         mProDialog.show();

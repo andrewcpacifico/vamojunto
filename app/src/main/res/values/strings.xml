@@ -162,7 +162,7 @@
     <string name="confirm">Confirmar</string>
     <string name="reject">Rejeitar</string>
     <string name="no_seat_request_sent">Esta carona não possui nenhuma solicitação de lugar.</string>
-    <string name="type_a_message">DIgite uma mensagem</string>
+    <string name="type_a_message">Digite uma mensagem</string>
     <string name="enter_a_message_to_seat_request">Escreva uma mensagem para o motorista da carona</string>
     <string name="send_seat_request">Enviar pedido</string>
     <string name="cancel">Cancelar</string>
@@ -171,6 +171,11 @@
     <string name="rejecting_seat_request">Rejeitando pedido de lugar...</string>
     <string name="seat_request_rejected">O pedido de lugar foi recusado, o solicitante não fará parte da carona como passageiro.</string>
     <string name="errormsg_no_seats_available">Esta carona não possui mais nenhum lugar disponível.</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="loadingmsg_positioning_map">Posicionando o mapa...</string>
+    <string name="notifymsg_seat_requested">Você recebeu um pedido de lugar.</string>
+    <string name="notifymsg_seatrequest_confirmed">%1s confirmou a carona.</string>
+    <string name="errormsg_already_passenger">Você já é passageiro desta carona.</string>
 
 
 </resources>

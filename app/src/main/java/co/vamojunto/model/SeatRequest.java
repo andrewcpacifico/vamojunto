@@ -166,10 +166,6 @@ public class SeatRequest extends ParseObject {
         // changes the status on this instance
         setStatus(STATUS_CONFIRMED);
 
-        // decrements the number of seats available on ride, so there is no need to fetch data from
-        // the cloud to update the screens on this ride is displayed
-        getRide().setSeatsAvailable(getRide().getSeatsAvailable() - 1);
-
         // define the options to send to cloud function
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("seatRequestId", getId());
@@ -271,4 +267,19 @@ public class SeatRequest extends ParseObject {
         this.put(FIELD_MESSAGE, msg);
     }
 
+    /**
+     * Calls the cloud code that saves the SeatRequest on database, and pushes the notification
+     * to driver.
+     *
+     * @return
+     */
+    public Task<Void> send() {
+        // define the options to send to cloud function
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", getUser().getId());
+        params.put("rideId", getRide().getId());
+
+        // call cloud function to confirm the seat
+        return ParseCloud.callFunctionInBackground("requestSeat", params);
+    }
 }

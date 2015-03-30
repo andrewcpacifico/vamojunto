@@ -278,6 +278,9 @@ public class SeatRequestsFragment extends Fragment {
                     if (!task.isFaulted() && !task.isCancelled()) {
                         mAdapter.removeItem(position);
 
+                        // decrements the number of seats available in mRide
+                        mRide.setSeatsAvailable(mRide.getSeatsAvailable() - 1);
+
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -335,6 +338,9 @@ public class SeatRequestsFragment extends Fragment {
 
                         // gets the list of items returned by task, and use it as mAdapter dataset
                         List<SeatRequest> lst = task.getResult();
+                        for (SeatRequest sr: lst) {
+                            sr.setRide(mRide);
+                        }
 
                         // checks if there are some requests sent to this ride, if any requests
                         // have been sent, just show a message to the user

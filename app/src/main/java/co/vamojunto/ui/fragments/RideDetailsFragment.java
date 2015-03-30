@@ -42,6 +42,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.parse.ParseQuery;
+
 import java.util.List;
 
 import bolts.Continuation;
@@ -68,9 +70,22 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
     private static final String TAG = "RideDetailsFragment";
 
+    private static final int PASSENGERS_VIEW_PROGRESS = 0;
+    private static final int PASSENGERS_VIEW_MAIN = 1;
+    private static final int PASSENGERS_VIEW_ERROR = 2;
+
     private static final int VIEW_PROGRESS = 0;
-    private static final int VIEW_PASSENGERS = 1;
-    private static final int VIEW_ERROR = 2;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_MAIN = 2;
+
+    private CircleImageView mDriverImageView;
+    private TextView mDriverNameTextView;
+    private TextView mStartingPointTextView;
+    private TextView mDestinationTextView;
+    private TextView mDatetimeTextView;
+    private TextView mDetailsTextView;
+    private Button mRequestSeatButton;
+    private TextView mSeatsAvailableTextView;
 
     /**
      * An adapter used by the {@link android.widget.GridView} where the confirmed passengers on
@@ -142,12 +157,31 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
             return gridView;
         }
+
+        /**
+         * Checks if the adapater dataset has any entry for a given user.
+         *
+         * @param user The user to find in dataset.
+         * @return <code>true</code> if the user is on dataset, and <code>false</code> if not.
+         */
+        public boolean hasPassenger(User user) {
+            if (mDataset == null)
+                return false;
+
+            return mDataset.indexOf(user) != -1;
+        }
     }
 
     /**
      * The ride to be displayed on the screen
      */
     private Ride mRide;
+
+    /**
+     * This field is used when no ride instance is passed to activity. In this cases a ride id is
+     * required to fetch data before display the screen to user.
+     */
+    private String mRideId;
 
     /**
      * The edit ride menu item
@@ -168,6 +202,11 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * ViewFlipper used to alternate between views on the passengers area
      */
     private ViewFlipper mPassengersViewFlipper;
+
+    /**
+     * ViewFlipper used to alternate between views on main area.
+     */
+    private ViewFlipper mViewFlipper;
 
     /**
      * TextView used to display a message to the user, when an error occurs on the passengers loading
@@ -199,8 +238,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_ride_details, container, false);
 
-        //Bundle arguments = getArguments();
-        //mRide = arguments.getParcelable(RideDetailsActivity.EXTRA_RIDE);
+        // gets the data sent to activity
         mRide = Ride.getStoredInstance(RideDetailsActivity.EXTRA_RIDE);
 
         initComponents(rootView);
@@ -217,19 +255,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     public void onStart() {
         super.onStart();
 
-        showPassengers();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_ride_details, menu);
-
-        // enables the edit menu only if the user is the driver of this ride
-        mEditMenu = menu.findItem(R.id.action_edit);
-        if (! mRide.getDriver().equals(User.getCurrentUser())) {
-            mEditMenu.setEnabled(false);
-            mEditMenu.setVisible(false);
+        // if the ride data was already fetched, show the ride passengers on screen
+        if (mRide != null) {
+            showPassengers();
         }
     }
 
@@ -242,9 +270,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         if (id == android.R.id.home) {
             getActivity().finish();
-        } else if (id == R.id.action_edit) {
-            Toast.makeText(getActivity(), "Calma aí arrombado, chegou agora e já quer tirar onda?"
-                    + "Deixa de ser folgado ... Se liga!", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -256,87 +281,26 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @param rootView The Fragment's inflated layout.
      */
     private void initComponents(View rootView) {
-        CircleImageView driverImageView =
-                (CircleImageView) rootView.findViewById(R.id.driver_picture);
+        mDriverImageView = (CircleImageView) rootView.findViewById(R.id.driver_picture);
 
-        // checks if the driver have a profile image
-        if (mRide.getDriver().getProfileImage() != null)
-            driverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
+        mDriverNameTextView = (TextView) rootView.findViewById(R.id.driver_name_text_view);
 
-        TextView driverNameTextView =
-                (TextView) rootView.findViewById(R.id.driver_name_text_view);
-        driverNameTextView.setText(mRide.getDriver().getName());
+        mStartingPointTextView = (TextView) rootView.findViewById(R.id.starting_point_text_view);
 
-        TextView startingPointTextView =
-                (TextView) rootView.findViewById(R.id.starting_point_text_view);
-        startingPointTextView.setText(getString(R.string.from) + ": " +
-                mRide.getStartingPoint().getTitulo());
+        mDestinationTextView = (TextView) rootView.findViewById(R.id.destination_text_view);
 
-        TextView destinationTextView =
-                (TextView) rootView.findViewById(R.id.destination_text_view);
-        destinationTextView.setText(getString(R.string.to) + ": " +
-                mRide.getDestination().getTitulo());
+        mDatetimeTextView = (TextView) rootView.findViewById(R.id.datetime_text_view);
 
-        TextView datetimeTextView = (TextView) rootView.findViewById(R.id.datetime_text_view);
-        datetimeTextView.setText(getString(R.string.when) + ": " +
-                DateUtil.getFormattedDateTime(getActivity(), mRide.getDatetime()));
+        mDetailsTextView = (TextView) rootView.findViewById(R.id.detais_text_view);
 
-        TextView detailsTextView = (TextView) rootView.findViewById(R.id.detais_text_view);
-        detailsTextView.setText(getString(R.string.details) + ": " + mRide.getDetails());
+        mRequestSeatButton = (Button) rootView.findViewById(R.id.ask_button);
 
-        // configures the bottom screen button based on the following cases:
-        //   - if the user is not the driver of this ride, and the ride still have seats available,
-        // the button will be displayed and will be used to request a seat on the ride
-        //   - if the user is not the driver of this ride, but the ride do not have any seats
-        // available, the button will be hide
-        //   - if the user is the driver of this ride, the button will always be displayed and
-        // will be used to redirect the user to a screen where he can view the seat requests
-        // made to this ride.
-        final Button requestSeatButton = (Button) rootView.findViewById(R.id.ask_button);
-        if ( ! mRide.getDriver().equals(User.getCurrentUser()) ) {
-            // case 1, the user is not the driver, and there is seats available
-            if (mRide.getSeatsAvailable() > 0) {
-                // sets the button action, to request a seat on the ride
-                requestSeatButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        requestSeatButtonOnClick();
-                    }
-                });
-            // case 2, the user is not the driver, but there is no seats available
-            } else {
-                // hide the button
-                requestSeatButton.setVisibility(View.GONE);
-            }
-        // case 3, the user is the driver
-        } else {
-            // changes the button label
-            requestSeatButton.setText(getString(R.string.view_requests));
-
-            // sets the button action, to show the SeatRequestsActivity
-            requestSeatButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // sends the ride to SeatRequestsActivity
-                    Ride.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRide);
-
-                    Intent intent = new Intent(getActivity(), SeatRequestsActivity.class);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        TextView seatsAvailableTextView =
-                (TextView) rootView.findViewById(R.id.seats_available_text_view);
-        if (mRide.getSeatsAvailable() > 0) {
-            seatsAvailableTextView.setText(getString(R.string.seats_available) + ": "
-                    + mRide.getSeatsAvailable());
-        } else {
-            seatsAvailableTextView.setText(getString(R.string.no_seats_available));
-        }
+        mSeatsAvailableTextView = (TextView) rootView.findViewById(R.id.seats_available_text_view);
 
         mPassengersViewFlipper =
                 (ViewFlipper) rootView.findViewById(R.id.passengers_view_flipper);
+
+        mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
         mPassengersGrid = (ExpandableHeightGridView) rootView.findViewById(R.id.grid_passengers);
         mAdapter = new PassengersGridAdapter(getActivity(), null);
@@ -352,6 +316,91 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                 showPassengers();
             }
         });
+
+        // if no ride was sent to activity, fetch ride data and shows a progress bar to user while
+        // this process is being executed
+        if (mRide == null) {
+            mRideId = getActivity().getIntent()
+                    .getStringExtra(RideDetailsActivity.EXTRA_RIDE_ID);
+            fetchRideData();
+        } else {
+            bindRideData();
+        }
+    }
+
+    /**
+     * Binds the data from mRide to corresponding components on screen.
+     */
+    private void bindRideData() {
+        // finishes the method if mRide have no data to display
+        if (mRide == null) return;
+
+        // checks if the driver have a profile image
+        if (mRide.getDriver().getProfileImage() != null)
+            mDriverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
+
+        mDriverNameTextView.setText(mRide.getDriver().getName());
+
+        mStartingPointTextView.setText(getString(R.string.from) + ": " +
+                mRide.getStartingPoint().getTitulo());
+
+        mDestinationTextView.setText(getString(R.string.to) + ": " +
+                mRide.getDestination().getTitulo());
+
+        mDatetimeTextView.setText(getString(R.string.when) + ": " +
+                DateUtil.getFormattedDateTime(getActivity(), mRide.getDatetime()));
+
+        mDetailsTextView.setText(getString(R.string.details) + ": " + mRide.getDetails());
+
+        // configures the bottom screen button based on the following cases:
+        //   - if the user is not the driver of this ride, and the ride still have seats available,
+        // the button will be displayed and will be used to request a seat on the ride
+        //   - if the user is not the driver of this ride, but the ride do not have any seats
+        // available, the button will be hide
+        //   - if the user is the driver of this ride, the button will always be displayed and
+        // will be used to redirect the user to a screen where he can view the seat requests
+        // made to this ride.
+        if ( ! mRide.getDriver().equals(User.getCurrentUser()) ) {
+            // case 1, the user is not the driver, and there is seats available
+            if (mRide.getSeatsAvailable() > 0) {
+                // sets the button action, to request a seat on the ride
+                mRequestSeatButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        requestSeatButtonOnClick();
+                    }
+                });
+                // case 2, the user is not the driver, but there is no seats available
+            } else {
+                // hide the button
+                mRequestSeatButton.setVisibility(View.GONE);
+            }
+            // case 3, the user is the driver
+        } else {
+            // changes the button label
+            mRequestSeatButton.setText(getString(R.string.view_requests));
+
+            // sets the button action, to show the SeatRequestsActivity
+            mRequestSeatButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // sends the ride to SeatRequestsActivity
+                    Ride.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRide);
+
+                    Intent intent = new Intent(getActivity(), SeatRequestsActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+
+        if (mRide.getSeatsAvailable() > 0) {
+            mSeatsAvailableTextView.setText(getString(R.string.seats_available) + ": "
+                    + mRide.getSeatsAvailable());
+        } else {
+            mSeatsAvailableTextView.setText(getString(R.string.no_seats_available));
+        }
+
+        showPassengers();
     }
 
     /**
@@ -402,6 +451,17 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             startLoading(getString(R.string.sending_seat_request));
         }
 
+        // checks if the current user is already a passenger of the ride
+        // TODO handle this error, when the passengers aren't loaded
+        if (mAdapter.hasPassenger(User.getCurrentUser())) {
+            Toast.makeText(getActivity(),
+                    getString(R.string.errormsg_already_passenger),
+                    Toast.LENGTH_LONG).show();
+
+            stopLoading();
+            return;
+        }
+
         request.exists().continueWithTask(new Continuation<Boolean, Task<Void>>() {
             @Override
             public Task<Void> then(Task<Boolean> task) throws Exception {
@@ -411,7 +471,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
                 // checks if the user already sent a request to this ride
                 if (!task.getResult()) {
-                    return request.saveInBackground();
+                    return request.send();
                 }
 
                 return Task.forError(new Exception("Request already sent"));
@@ -468,7 +528,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * Displays the list of confirmed passengers in this ride
      */
     private void showPassengers() {
-        mPassengersViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+        mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_PROGRESS);
 
         if (NetworkUtil.isConnected(getActivity())) {
             mRide.getPassengers().continueWith(new Continuation<List<User>, Void>() {
@@ -481,16 +541,16 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                         // to the user
                         if (l.size() > 0) {
                             mAdapter.setDataset(l);
-                            mPassengersViewFlipper.setDisplayedChild(VIEW_PASSENGERS);
+                            mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_MAIN);
                         } else {
-                            mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+                            mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_ERROR);
                             mPassengersMessage.setText(getString(R.string.no_passengers));
                             mPassengersRetryButton.setVisibility(View.GONE);
                         }
                     } else if (task.isFaulted()) {
                         Log.d(TAG, task.getError().getMessage());
 
-                        mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+                        mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_ERROR);
                         mPassengersMessage.setText(getString(R.string.error_load_passengers));
                         mPassengersRetryButton.setVisibility(View.VISIBLE);
                     }
@@ -499,7 +559,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                 }
             });
         } else {
-            mPassengersViewFlipper.setDisplayedChild(VIEW_ERROR);
+            mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_ERROR);
             mPassengersMessage.setText(getString(R.string.errormsg_no_internet_connection));
             mPassengersRetryButton.setVisibility(View.VISIBLE);
         }
@@ -522,6 +582,42 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     private void stopLoading() {
         mProgressDialog.dismiss();
         mProgressDialog = null;
+    }
+
+    /**
+     * Fetches the ride data from cloud, and updates the screen to show the data.
+     */
+    private void fetchRideData() {
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+        Log.i(TAG, "Fetching ride data to display...");
+
+        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        query.include(Ride.FIELD_DRIVER);
+        query.getInBackground(mRideId).continueWith(new Continuation<Ride, Void>() {
+            @Override
+            public Void then(Task<Ride> task) throws Exception {
+                if (! task.isCancelled() && ! task.isFaulted()) {
+                    Log.i(TAG, "Ride data fetched.");
+
+                    // task result contains the ride instance with complete data for mRide
+                    mRide = task.getResult();
+
+                    // visual components have to be executed on the main thread
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            // displays the main screen
+                            mViewFlipper.setDisplayedChild(VIEW_MAIN);
+
+                            // binds mRide data to screen components
+                            bindRideData();
+                        }
+                    });
+                }
+
+                return null;
+            }
+        });
     }
 }
 

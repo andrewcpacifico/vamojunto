@@ -68,6 +68,9 @@ public class RideDetailsActivity extends ActionBarActivity {
     // constants used to define the input extras names
     public static final String EXTRA_RIDE = TAG + ".ride";
 
+    // constants used to define the input extras names
+    public static final String EXTRA_RIDE_ID = TAG + ".rideId";
+
     /**
      * The Activity toolbar
      */

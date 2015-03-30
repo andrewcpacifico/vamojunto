@@ -19,14 +19,9 @@
 
 package co.vamojunto.ui.activities;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,6 +30,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+
+import com.facebook.Session;
+import com.parse.ParseInstallation;
+import com.parse.ParseUser;
 
 import co.vamojunto.R;
 import co.vamojunto.model.User;
@@ -99,18 +98,25 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //startService(new Intent(this, SimpleService.class));
+
         // checks if the user is authenticated, if not, displays the login screen.
         mCurrentUser = User.getCurrentUser();
         if (mCurrentUser == null) {
             Log.i(TAG, "User not authenticated. Displaying the login screen...");
 
             // starts the login screen to the user
-            Intent intent = new Intent(this, LoginActivity.class);
+            Intent intent = new Intent(this, SplashActivity.class);
             this.startActivity(intent);
             this.finish();
 
         // if user is authenticated, setups the main screen
         } else {
+            // Associate the device with a user
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.put("user",ParseUser.getCurrentUser());
+            installation.saveInBackground();
+
             setContentView(R.layout.activity_main);
 
             if (savedInstanceState == null) {
@@ -193,6 +199,15 @@ public class MainActivity extends ActionBarActivity {
                 // Carrega o Fragment MinhasCaronas para a tela principal.
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new MinhasCaronasFragment()).commit();
+                break;
+
+            case 3:
+                new Session(this).closeAndClearTokenInformation();
+                ParseUser.logOut();
+
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
                 break;
         }
 

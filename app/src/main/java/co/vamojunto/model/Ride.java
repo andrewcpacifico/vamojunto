@@ -43,16 +43,16 @@ import bolts.Task;
 @ParseClassName("Ride")
 public class Ride extends ParseObject {
 
-    private static final String FIELD_DATETIME = "datetime";
-    private static final String FIELD_DRIVER = "driver";
-    private static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
-    private static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
-    private static final String FIELD_STARTING_POINT_TITLE = "starting_point_title";
-    private static final String FIELD_DESTINATION_LAT = "destination_lat";
-    private static final String FIELD_DESTINATION_LNG = "destination_lng";
-    private static final String FIELD_DESTINATION_TITLE = "destination_title";
-    private static final String FIELD_SEATS = "seats";
-    private static final String FIELD_DETAILS = "details";
+    public static final String FIELD_DATETIME = "datetime";
+    public static final String FIELD_DRIVER = "driver";
+    public static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
+    public static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
+    public static final String FIELD_STARTING_POINT_TITLE = "starting_point_title";
+    public static final String FIELD_DESTINATION_LAT = "destination_lat";
+    public static final String FIELD_DESTINATION_LNG = "destination_lng";
+    public static final String FIELD_DESTINATION_TITLE = "destination_title";
+    public static final String FIELD_SEATS = "seats";
+    public static final String FIELD_DETAILS = "details";
 
     private static Map<String, Ride> instances = new HashMap<String, Ride>();
 
@@ -162,7 +162,7 @@ public class Ride extends ParseObject {
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
-        query.whereEqualTo(FIELD_DRIVER, u);
+        //query.whereEqualTo(FIELD_DRIVER, u);
 
         query.findInBackground(new FindCallback<Ride>() {
             @Override
