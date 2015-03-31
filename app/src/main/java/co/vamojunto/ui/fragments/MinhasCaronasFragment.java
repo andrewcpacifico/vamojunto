@@ -57,15 +57,15 @@ public class MinhasCaronasFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_minhas_caronas, container, false);
 
-        // Assigning ViewPager View and setting the adapter
+        // assigning ViewPager View and setting the adapter
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
 
-        // Assiging the Sliding Tab Layout View
+        // assigning the Sliding Tab Layout View
         SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
         tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
 
-        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        // setting Custom Color for the Scroll bar indicator of the Tab View
         tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
             @Override
             public int getIndicatorColor(int position) {
@@ -73,10 +73,10 @@ public class MinhasCaronasFragment extends Fragment {
             }
         });
 
-        // Setting the ViewPager For the SlidingTabsLayout
+        // setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
 
-        // Muda o título da ActionBar
+        // changes the action bar title
         ((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
 
         return rootView;

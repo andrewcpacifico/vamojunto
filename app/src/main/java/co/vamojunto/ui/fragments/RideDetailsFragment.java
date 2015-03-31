@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -52,6 +53,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.widget.ExpandableHeightGridView;
@@ -269,7 +271,10 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            getActivity().finish();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+
+            NavUtils.navigateUpTo(getActivity(), intent);
         }
 
         return super.onOptionsItemSelected(item);

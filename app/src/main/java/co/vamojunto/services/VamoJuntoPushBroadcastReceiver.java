@@ -113,8 +113,8 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             // This ensures that navigating backward from the Activity leads out of
             // your application to the Home screen.
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-            // Adds the back stack for the Intent (but not the Intent itself)
-            stackBuilder.addParentStack(MainActivity.class);
+            Intent i = new Intent(context, MainActivity.class);
+            stackBuilder.addNextIntent(i);
             // Adds the Intent that starts the Activity to the top of the stack
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent resultPendingIntent =

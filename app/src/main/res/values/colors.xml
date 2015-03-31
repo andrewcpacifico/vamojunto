@@ -40,8 +40,8 @@
     <color name="twitter_login_button_focus">#2788BE</color>
 
     <!-- App Values -->
-    <color name="ColorPrimary">#30d26f</color>
-    <color name="ColorPrimaryDark">#009e1a</color>
+    <color name="ColorPrimary">#26A65B</color>
+    <color name="ColorPrimaryDark">#1e824c</color>
 
     <color name="separator">#dbdbdb</color>
     <color name="green_text_link">@color/ColorPrimary</color>

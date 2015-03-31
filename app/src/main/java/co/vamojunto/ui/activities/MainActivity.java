@@ -52,6 +52,10 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
 
+    public static final int VIEW_MY_RIDES = 0;
+
+    public static final String EXTRA_INITIAL_VIEW = TAG + ".InitialView";
+
     /**
      * Application bar
      */
@@ -98,8 +102,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //startService(new Intent(this, SimpleService.class));
-
         // checks if the user is authenticated, if not, displays the login screen.
         mCurrentUser = User.getCurrentUser();
         if (mCurrentUser == null) {
@@ -119,7 +121,11 @@ public class MainActivity extends ActionBarActivity {
 
             setContentView(R.layout.activity_main);
 
-            if (savedInstanceState == null) {
+            // checks if an initial view was sent to activity
+            if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
+                int viewCode = getIntent().getIntExtra(EXTRA_INITIAL_VIEW, -1);
+                displayView(viewCode);
+            } else if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new MainFragment())
                         .commit();
@@ -193,9 +199,16 @@ public class MainActivity extends ActionBarActivity {
      * @param position Position of the item clicked, used to define what action have to be executed.
      */
     private void navigationDrawerItemClicked(int position) {
-        switch (position) {
+        displayView(position - 1);
+
+        // always closes the navigation drawer after the click
+        mDrawerLayout.closeDrawers();
+    }
+
+    protected void displayView(int code) {
+        switch (code) {
             // Primeiro item do menu.
-            case 1:
+            case VIEW_MY_RIDES:
                 // Carrega o Fragment MinhasCaronas para a tela principal.
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new MinhasCaronasFragment()).commit();
@@ -209,9 +222,11 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
                 finish();
                 break;
-        }
 
-        // always closes the navigation drawer after the click
-        mDrawerLayout.closeDrawers();
+            default:
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MainFragment()).commit();
+                break;
+        }
     }
 }
