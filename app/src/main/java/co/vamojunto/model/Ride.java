@@ -203,4 +203,30 @@ public class Ride extends ParseObject {
         return tcs.getTask();
     }
 
+    /**
+     * TODO this method documentation
+     * @param currentUser
+     * @return
+     */
+    public static Task<List<Ride>> getFriendsOffersAsync(User currentUser) {
+        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+
+        // includes the driver data, to display on list screen
+        query.include(FIELD_DRIVER);
+
+        query.findInBackground(new FindCallback<Ride>() {
+            @Override
+            public void done(List<Ride> rides, ParseException e) {
+                if ( e == null ) {
+                    tcs.setResult(rides);
+                } else {
+                    tcs.setError(e);
+                }
+            }
+        });
+
+        return tcs.getTask();
+    }
 }

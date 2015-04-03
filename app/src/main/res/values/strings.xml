@@ -176,6 +176,9 @@
     <string name="notifymsg_seat_requested">Você recebeu um pedido de lugar.</string>
     <string name="notifymsg_seatrequest_confirmed">%1s confirmou a carona.</string>
     <string name="errormsg_already_passenger">Você já é passageiro desta carona.</string>
+    <string name="ride_offers">Ofertas</string>
+    <string name="ride_requests">Pedidos</string>
+    <string name="my_friends_feed">Caronas de amigos</string>
 
 
 </resources>

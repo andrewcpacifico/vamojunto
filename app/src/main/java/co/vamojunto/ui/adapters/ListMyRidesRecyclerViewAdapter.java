@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import co.vamojunto.R;
-import co.vamojunto.model.Place;
 import co.vamojunto.model.Ride;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -44,7 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRidesRecyclerViewAdapter.ViewHolder> {
+public class ListMyRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListMyRidesRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = "ListRidesRecyclerViewAdapter";
     /**
@@ -91,7 +90,7 @@ public class ListRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListRides
         public void OnItemClick(int position);
     }
 
-    public ListRidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
+    public ListMyRidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());

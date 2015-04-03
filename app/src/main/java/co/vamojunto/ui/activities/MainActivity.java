@@ -41,6 +41,7 @@ import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
+import co.vamojunto.ui.fragments.MyFriendsFeedFragment;
 
 /**
  * System's Main Activity
@@ -53,7 +54,15 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MainActivity";
 
+    /**
+     * Code for user rides screen
+     */
     public static final int VIEW_MY_RIDES = 0;
+
+    /**
+     * Code for user friends feed screen
+     */
+    public static final int VIEW_FRIENDS_FEED = 1;
 
     public static final String EXTRA_INITIAL_VIEW = TAG + ".InitialView";
 
@@ -211,6 +220,8 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
+
+            return;
         }
 
         displayView(position - 1);
@@ -225,13 +236,24 @@ public class MainActivity extends ActionBarActivity {
         }, 30);
     }
 
+    /**
+     * Switches the view displayed on the main screen.
+     *
+     * @param code The code of the view to display.
+     */
     protected void displayView(int code) {
         switch (code) {
-            // Primeiro item do menu.
+            // the first item on navigation drawer displays the user's rides management screen
             case VIEW_MY_RIDES:
-                // Carrega o Fragment MinhasCaronas para a tela principal.
+                // loads the MinhaCaronasFragment to the main screen
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new MinhasCaronasFragment()).commit();
+                break;
+
+            // the second item on navigation drawer displays the user's friends feed screen
+            case VIEW_FRIENDS_FEED:
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MyFriendsFeedFragment()).commit();
                 break;
 
 

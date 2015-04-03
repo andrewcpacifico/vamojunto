@@ -19,12 +19,8 @@
 
 package co.vamojunto.ui.fragments;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
@@ -44,31 +39,41 @@ import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
-import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
-import co.vamojunto.ui.activities.RideDetailsActivity;
-import co.vamojunto.ui.adapters.ListMyRidesRecyclerViewAdapter;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.NewRideActivity;
+import co.vamojunto.ui.activities.RideDetailsActivity;
+import co.vamojunto.ui.adapters.ListMyRidesRecyclerViewAdapter;
 import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
 
 /**
- * {@link android.support.v4.app.Fragment} to list all the rides that a user is participating, as
- * a driver or passenger.
+ * A {@link Fragment} to display a list of ride offers. The fragment allows the definition of a
+ * type of ride listing. As this fragment will be used on all screens that wants to display a
+ * list of rides, this is the current method to define which list it have to display.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
  * @since 0.1.0
+ * @version 1.0.0
  */
-public class ListMyRidesFragment extends Fragment {
+public class ListRidesFragment extends Fragment {
 
-    private static final String TAG = "ListMyRidesFragment";
+    private static final String TAG = "ListRidesFragment";
 
     // the constants below are used to identify the views loaded by the ViewFlipper
-    private static final int VIEW_PROGRESS = 0;
-    private static final int VIEW_ERRO = 1;
-    private static final int VIEW_PADRAO = 2;
+    private static final int PROGRESS_VIEW = 0;
+    private static final int ERROR_VIEW = 1;
+    private static final int DEFAULT_VIEW = 2;
+
+    // constants used to define which type of listing the fragment have to display
+    public static final int TYPE_FRIEND = 0;
+    public static final int TYPE_UFAM = 1;
+
+    /**
+     * Constant used to get the listing type argument, sent to fragment as a bundle.
+     */
+    public static final String ARG_TYPE = TAG + "argType";
 
     /**
      * RecyclerView where the rides are displayed
@@ -103,49 +108,31 @@ public class ListMyRidesFragment extends Fragment {
     private Button mErrorScreenRetryButton;
 
     /**
+     * The type of listing to dysplay, currently there are two types of listing:
+     *   <ul>
+     *     <li>The ride offers from the user friends.</li>
+     *       <li>The ride offers from the ufam students.</li>
+     *   </ul>
+     */
+    private int mListType;
+
+    /**
      * Required default constructor
      */
-    public ListMyRidesFragment() { }
+    public ListRidesFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_lista_caronas, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_list_rides, container, false);
+
+        mListType = getArguments().getInt(ARG_TYPE, -1);
 
         initComponents(rootView);
-
-        loadMyRides();
+        loadRides();
 
         return rootView;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE) {
-                final Ride c = Ride.getStoredInstance(NewRideActivity.RES_RIDE);
-
-                // was necessary to use a delay to add the item to the screen, so that the RecyclerView
-                // could show the animation, and positioning at the new item
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        addItem(c);
-                    }
-                }, 500);
-
-                Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("teste", 1);
     }
 
     /**
@@ -168,7 +155,7 @@ public class ListMyRidesFragment extends Fragment {
             @Override
             public void OnItemClick(int position) {
                 Ride choosenRide = mRidesAdapter.getItem(position);
-                Intent intent = new Intent(ListMyRidesFragment.this.getActivity(),
+                Intent intent = new Intent(ListRidesFragment.this.getActivity(),
                         RideDetailsActivity.class);
 
                 Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
@@ -176,16 +163,6 @@ public class ListMyRidesFragment extends Fragment {
             }
         });
         mRidesRecyclerView.setAdapter(mRidesAdapter);
-
-        Button okButton = (Button) rootView.findViewById(R.id.ok_button);
-        okButton.setText(getText(R.string.oferecer_carona));
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewRideActivity.class);
-                getParentFragment().startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
-            }
-        });
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
@@ -195,60 +172,51 @@ public class ListMyRidesFragment extends Fragment {
         mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadMyRides();
+                loadRides();
             }
         });
     }
 
     /**
-     * Adds a ride record to the screen, this method is called after a new ride registration,so its
-     * not necessary reload all the data from the cloud
-     *
-     * @param c Ride to be added to the UI.
+     * TODO this method documentation
      */
-    private void addItem(Ride c) {
-        mRidesAdapter.addItem(c);
-
-        // after the item addition, scrolls the recyclerview to the first position, so that the user
-        // can see the inserted record
-        if (mRidesLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-            mRidesLayoutManager.scrollToPosition(0);
-        }
-    }
-
-    /**
-     * Loads the user's ride offers. At the end of the method, the user's rides list is defined
-     * as the dataset from mRideRecyclerView
-     */
-    public void loadMyRides() {
-        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+    public void loadRides() {
+        mViewFlipper.setDisplayedChild(PROGRESS_VIEW);
 
         // Loads the rides from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            Ride.getByDriverAsync((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
-                @Override
-                public Void then(Task<List<Ride>> task) throws Exception {
-                    mViewFlipper.setDisplayedChild(VIEW_PADRAO);
+            Task<List<Ride>> loadRidesTask = null;
 
-                    if (!task.isFaulted() && !task.isCancelled()) {
-                        List<Ride> lstRides = task.getResult();
-                        Collections.sort(lstRides, new Comparator<Ride>() {
-                            @Override
-                            public int compare(Ride lhs, Ride rhs) {
-                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                            }
-                        });
+            if (mListType == TYPE_FRIEND) {
+                loadRidesTask = Ride.getFriendsOffersAsync((User) User.getCurrentUser());
+            }
 
-                        mRidesAdapter.setDataset(lstRides);
-                    } else {
-                        Log.e(TAG, task.getError().getMessage());
+            if (loadRidesTask != null) {
+                loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
+                    @Override
+                    public Void then(Task<List<Ride>> task) throws Exception {
+                        mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
-                        displayErrorScreen();
+                        if (!task.isFaulted() && !task.isCancelled()) {
+                            List<Ride> lstRides = task.getResult();
+                            Collections.sort(lstRides, new Comparator<Ride>() {
+                                @Override
+                                public int compare(Ride lhs, Ride rhs) {
+                                    return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                }
+                            });
+
+                            mRidesAdapter.setDataset(lstRides);
+                        } else {
+                            Log.e(TAG, task.getError().getMessage());
+
+                            displayErrorScreen();
+                        }
+
+                        return null;
                     }
-
-                    return null;
-                }
-            });
+                });
+            }
         } else {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         }
@@ -266,7 +234,7 @@ public class ListMyRidesFragment extends Fragment {
         else
             mErrorScreenMsgTextView.setText(errorMsg);
 
-        mViewFlipper.setDisplayedChild(VIEW_ERRO);
+        mViewFlipper.setDisplayedChild(ERROR_VIEW);
     }
 
     /**
@@ -275,6 +243,8 @@ public class ListMyRidesFragment extends Fragment {
     private void displayErrorScreen() {
         mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
 
-        mViewFlipper.setDisplayedChild(VIEW_ERRO);
+        mViewFlipper.setDisplayedChild(ERROR_VIEW);
     }
+
 }
+

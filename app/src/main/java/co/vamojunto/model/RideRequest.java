@@ -151,6 +151,7 @@ public class RideRequest extends ParseObject {
         final Task<List<RideRequest>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+        query.include(FIELD_REQUESTER);
         query.whereEqualTo(FIELD_REQUESTER, u);
 
         query.findInBackground(new FindCallback<RideRequest>() {

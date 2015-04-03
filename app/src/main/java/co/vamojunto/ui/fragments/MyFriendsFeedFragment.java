@@ -37,27 +37,34 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import co.vamojunto.R;
+import co.vamojunto.model.User;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
- * Tela de visualização das caronas cadastradas pelo usuário, tanto os pedidos, quanto as ofertas.
+ * Fragment to display the feed from user friends. All data posted by the user friends have to be
+ * displayed, the rides offered and requested.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
+ * @version 1.0.0
  */
-public class MinhasCaronasFragment extends Fragment {
+public class MyFriendsFeedFragment extends Fragment {
 
-    private static final String TAG = "MinhasCaronasFragment";
+    private static final String TAG = "MyFriendsFeedFragment";
+
+    /**
+     * ProgressDialog displayed when the data is being loaded
+     */
     private ProgressDialog mProDialog;
 
-    public MinhasCaronasFragment() {
+    public MyFriendsFeedFragment() {
         // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_minhas_caronas, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_my_friends_feed, container, false);
 
         // assigning ViewPager View and setting the adapter
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
@@ -79,37 +86,29 @@ public class MinhasCaronasFragment extends Fragment {
         tabs.setViewPager(pager);
 
         // changes the action bar title
-        ((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
+        ((ActionBarActivity)getActivity()).getSupportActionBar()
+                .setTitle(getString(R.string.my_friends_feed));
 
         setHasOptionsMenu(true);
 
         return rootView;
     }
 
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-    }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        List<Fragment> fragments = getChildFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                fragment.onActivityResult(requestCode, resultCode, data);
-            }
-        }
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_my_friends_feed, menu);
     }
 
     /**
-     * Adapter utilizado para preencher as páginas exibidas em cada uma das abas do Fragment.
-     * São exibidas duas páginas, uma contendo as ofertas de caronas do usuário, e outra contendo
-     * os pedidos.
+     * Adapter to fill the pages on this Fragment tabs.  Two tabs are displayed, one where the
+     * user can view the rides offered by his friends, and another where the user can view the
+     * rides requested by his friends.
      *
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
      * @since 0.1.0
+     * @version 1.0.0
      */
     public class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -120,26 +119,33 @@ public class MinhasCaronasFragment extends Fragment {
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0)
-                return getString(R.string.minhas_caronas_fragment_tab1);
+                return getString(R.string.ride_offers);
             else if (position == 1)
-                return getString(R.string.minhas_caronas_fragment_tab2);
+                return getString(R.string.ride_requests);
 
-            return getString(R.string.minhas_caronas_fragment_tab3);
+            return "";
         }
 
         @Override
-        public Fragment getItem(int position) {
-            if (position == 0)
-                return new ListMyRidesFragment();
-            else if (position == 2)
+        public android.support.v4.app.Fragment getItem(int position) {
+            if (position == 0) {
+                Bundle argsBundle = new Bundle();
+                argsBundle.putInt(ListRidesFragment.ARG_TYPE, ListRidesFragment.TYPE_FRIEND);
+
+                Fragment f = new ListRidesFragment();
+                f.setArguments(argsBundle);
+
+                return f;
+            }
+            else if (position == 1)
                 return new ListMyRequestsFragment();
 
-            return new RegistrationFragment();
+            else return null;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
     }
 
