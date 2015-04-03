@@ -22,6 +22,7 @@ package co.vamojunto.ui.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -91,6 +92,8 @@ public class MainActivity extends ActionBarActivity {
      */
     private User mCurrentUser;
 
+    private Handler mHandler;
+
 
 /*************************************************************************************************
  *
@@ -101,6 +104,8 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHandler = new Handler();
 
         // checks if the user is authenticated, if not, displays the login screen.
         mCurrentUser = User.getCurrentUser();
@@ -199,10 +204,25 @@ public class MainActivity extends ActionBarActivity {
      * @param position Position of the item clicked, used to define what action have to be executed.
      */
     private void navigationDrawerItemClicked(int position) {
+        if (position == 3) {
+            new Session(this).closeAndClearTokenInformation();
+            ParseUser.logOut();
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         displayView(position - 1);
 
-        // always closes the navigation drawer after the click
-        mDrawerLayout.closeDrawers();
+        // always closes the navigation drawer after the click, adds a delay to wait for animation
+        // before closing the drawer
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerLayout.closeDrawers();
+            }
+        }, 30);
     }
 
     protected void displayView(int code) {
@@ -214,14 +234,6 @@ public class MainActivity extends ActionBarActivity {
                         .add(R.id.container, new MinhasCaronasFragment()).commit();
                 break;
 
-            case 3:
-                new Session(this).closeAndClearTokenInformation();
-                ParseUser.logOut();
-
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-                break;
 
             default:
                 getSupportFragmentManager().beginTransaction()

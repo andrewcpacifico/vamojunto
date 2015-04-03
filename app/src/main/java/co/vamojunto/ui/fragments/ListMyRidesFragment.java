@@ -121,10 +121,17 @@ public class ListMyRidesFragment extends Fragment {
 
         initComponents(rootView);
 
-        loadMyRides();
+        if (gambi) {
+            loadMyRides();
+            gambi = !gambi;
+        } else {
+            mViewFlipper.setDisplayedChild(VIEW_PADRAO);
+        }
 
         return rootView;
     }
+
+    static boolean gambi = true;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -146,6 +153,12 @@ public class ListMyRidesFragment extends Fragment {
                 Toast.makeText(getActivity(), getString(R.string.carona_cadastrada), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("teste", 1);
     }
 
     /**
@@ -170,8 +183,8 @@ public class ListMyRidesFragment extends Fragment {
                 Ride choosenRide = mRidesAdapter.getItem(position);
                 Intent intent = new Intent(ListMyRidesFragment.this.getActivity(),
                         RideDetailsActivity.class);
-                intent.putExtra(RideDetailsActivity.EXTRA_RIDE_ID, choosenRide.getId());
-                //Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+
+                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
                 startActivity(intent);
             }
         });

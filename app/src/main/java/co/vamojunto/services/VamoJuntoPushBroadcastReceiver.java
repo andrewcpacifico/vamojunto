@@ -119,8 +119,8 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent resultPendingIntent =
                     stackBuilder.getPendingIntent(
-                            0,
-                            PendingIntent.FLAG_UPDATE_CURRENT
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
                     );
             mBuilder.setContentIntent(resultPendingIntent);
             mBuilder.setAutoCancel(true);

@@ -20,6 +20,7 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -29,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -271,10 +273,18 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+            if (getActivity().isTaskRoot()) {
+                // code to navigate up to MainActivity
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            NavUtils.navigateUpTo(getActivity(), intent);
+                startActivity(intent);
+                getActivity().finish();
+            } else {
+                getActivity().finish();
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -404,6 +414,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         } else {
             mSeatsAvailableTextView.setText(getString(R.string.no_seats_available));
         }
+
+        // displays the main screen
+        mViewFlipper.setDisplayedChild(VIEW_MAIN);
 
         showPassengers();
     }
@@ -611,9 +624,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            // displays the main screen
-                            mViewFlipper.setDisplayedChild(VIEW_MAIN);
-
                             // binds mRide data to screen components
                             bindRideData();
                         }

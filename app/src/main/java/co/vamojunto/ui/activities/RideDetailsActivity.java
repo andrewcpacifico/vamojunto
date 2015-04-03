@@ -21,6 +21,7 @@ package co.vamojunto.ui.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -100,4 +101,24 @@ public class RideDetailsActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    /**
+     * Overriding the onBackPressed method, to make an "up" navigation when this activity is
+     * opened from a notification.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if (isTaskRoot()) {
+            // code to navigate up to MainActivity
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            startActivity(intent);
+            finish();
+        } else {
+            finish();
+        }
+    }
 }

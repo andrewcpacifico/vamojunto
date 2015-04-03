@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -71,6 +72,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     /** Utilizado para validar o formulário de login */
     private Validator validator;
 
+    private Handler mHandler;
+
     // Campos do formulário de login
     @Required(order = 1, messageResId = R.string.error_required_field)
     @Email(order = 2, messageResId = R.string.error_invalid_email)
@@ -87,6 +90,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
         validator = new Validator(this);
         validator.setValidationListener(this);
+
+        mHandler = new Handler();
 
         initComponents();
     }
@@ -145,11 +150,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     }
 
     /**
-     * Ação executada ao pressionar o botão de autenticação com Facebook. O usuário é autenticado
-     * com a sua conta do FB, caso o usuário ainda não esteja cadastrado em nossa base de dados,
-     * é criado um novo usuário, com as informações retiradas da conta do Facebook.
-     *
-     * @param v View do botão que foi pressionado.
+     * Called when the Facebook authentication button is pressed. The user is logged in with
+     * your Facebook account. If the user was not registered on our database, a new user is created
+     * on Parse.com, using the information given by Facebook API.
      */
     private void fbAuthButtonClick(View v) {
         startLoading();
@@ -158,22 +161,36 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                 this, new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException err) {
-                        if (user == null) {
+                        // if any error happen on facebook login
+                        if (err != null) {
                             stopLoading();
-                            Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
+
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(LoginActivity.this,
+                                            getString(R.string.errormsg_default),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
                         } else {
-                            if (user.isNew()) {
-                                Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
-
-                                cadastroFacebook(user);
-                            } else {
-                                Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
-
+                            if (user == null) {
                                 stopLoading();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
+                                Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
+                            } else {
+                                if (user.isNew()) {
+                                    Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
+
+                                    cadastroFacebook(user);
+                                } else {
+                                    Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
+
+                                    stopLoading();
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                }
                             }
                         }
                     }
