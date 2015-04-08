@@ -45,11 +45,11 @@ import java.util.Map;
 @ParseClassName("_User")
 public class User extends ParseUser {
 
-    private final static String FIELD_ID = "objectId";
-    private final static String FIELD_NAME = "name";
-    private final static String FIELD_USERNAME = "username";
-    private final static String FIELD_EMAIL = "email";
-    private final static String FIELD_PROFILE_IMG = "profile_img";
+    public final static String FIELD_ID = "objectId";
+    public final static String FIELD_NAME = "name";
+    public final static String FIELD_USERNAME = "username";
+    public final static String FIELD_EMAIL = "email";
+    public final static String FIELD_PROFILE_IMG = "profile_img";
 
     private Bitmap profileImage;
 

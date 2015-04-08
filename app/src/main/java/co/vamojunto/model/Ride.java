@@ -204,14 +204,22 @@ public class Ride extends ParseObject {
     }
 
     /**
-     * TODO this method documentation
-     * @param currentUser
-     * @return
+     * Gets a list of rides offered by the users followed by a given user. Usually this method is
+     * called passing the currentUser as argument, to display the friends feed.
+     *
+     * @param currentUser The user to get the friends offers.
+     * @return A {@link bolts.Task} containing the result of the operation.
      */
     public static Task<List<Ride>> getFriendsOffersAsync(User currentUser) {
         final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
 
+        // selects all friendships where the currentUser is the follower
+        ParseQuery<Friendship> qFriendship = ParseQuery.getQuery(Friendship.class);
+        qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, currentUser);
+
+        // gets all rides offered by the users followed by the currentUser
         ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
