@@ -21,13 +21,13 @@ package co.vamojunto.ui.fragments;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +42,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.ManageFriendsActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
@@ -114,15 +115,8 @@ public class MyFriendsFeedFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_manage_friends) {
-            Friendship.getFollowedByUser(User.getCurrentUser())
-                    .continueWith(new Continuation<List<User>, Void>() {
-                        @Override
-                        public Void then(Task<List<User>> task) throws Exception {
-                            Log.d(TAG, task.getResult().toString());
-
-                            return null;
-                        }
-                    });
+            Intent intent = new Intent(getActivity(), ManageFriendsActivity.class);
+            getActivity().startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

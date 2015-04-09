@@ -34,10 +34,11 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <permission android:protectionLevel="signature"
-        android:name="co.vamojunto.permission.C2D_MESSAGE" />
-    <uses-permission android:name="co.vamojunto.permission.C2D_MESSAGE" />
+    <permission
+        android:name="co.vamojunto.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
+    <uses-permission android:name="co.vamojunto.permission.C2D_MESSAGE" />
 
     <!--
         This notifies external services of the requirement. In particular, it has the effect of
@@ -134,22 +135,25 @@
 
         <!-- Definitions for Parse Push Service -->
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParseBroadcastReceiver">
+
+        <receiver android:name="com.parse.ParseBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-        <receiver android:name="co.vamojunto.services.VamoJuntoPushBroadcastReceiver"
-            android:exported="false">
+        <receiver
+            android:name=".services.VamoJuntoPushBroadcastReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
                 <action android:name="com.parse.push.intent.DELETE" />
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -157,6 +161,11 @@
                 <category android:name="co.vamojunto" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".ui.activities.ManageFriendsActivity"
+            android:label="@string/title_activity_manage_friends" >
+        </activity>
     </application>
 
 </manifest>

@@ -19,10 +19,7 @@
 
 package co.vamojunto.model;
 
-import com.parse.FindCallback;
 import com.parse.ParseClassName;
-import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -106,11 +103,43 @@ public class Friendship extends ParseObject {
                     List<Friendship> lstFriendship = task.getResult();
                     List<User> lstUsers = new ArrayList<User>();
 
+                    // iterates over the friendship list, to build the user list to return
                     for (Friendship f: lstFriendship) {
                         lstUsers.add(f.getFollowing());
                     }
+
+                    // stores the users on the local datastore
+                    ParseObject.pinAllInBackground("myFriends", lstUsers);
                     tcs.setResult(lstUsers);
                 }
+
+                return null;
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    /**
+     * Gets a list of users who is followed by another user. Fetches the data from local datastore.
+     *
+     * @param u The user to get the list of followings.
+     * @return The list of users followed by u.
+     */
+    public static Task<List<User>> getFollowedByUserFromLocal(User u) {
+        final Task<List<User>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<User> query = ParseQuery.getQuery(User.class);
+        query.fromPin("myFriends");
+        query.findInBackground().continueWith(new Continuation<List<User>, Void>() {
+            @Override
+            public Void then(Task<List<User>> task) throws Exception {
+                if (task.isFaulted())
+                    tcs.setError(task.getError());
+                else if (task.isCancelled())
+                    tcs.setCancelled();
+                else
+                    tcs.setResult(task.getResult());
 
                 return null;
             }
