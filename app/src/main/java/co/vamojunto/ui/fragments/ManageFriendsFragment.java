@@ -19,7 +19,9 @@
 
 package co.vamojunto.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -69,6 +71,13 @@ public class ManageFriendsFragment extends Fragment {
     private LinearLayoutManager mFriendsLayoutManager;
 
     /**
+     * A {@link android.os.Handler} to run code on the main thread.
+     *
+     * @since 0.1.0
+     */
+    private Handler mHandler;
+
+    /**
      * Required default constructor
      *
      * @since 0.1.0
@@ -80,8 +89,12 @@ public class ManageFriendsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage_friends, container, false);
 
+        mHandler = new Handler();
+
+        // setups the screen
         initComponents(rootView);
 
+        // loads the currentUser's friends
         loadFriends();
 
         return rootView;
@@ -94,7 +107,7 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void initComponents(View rootView) {
-        mFriendsAdapter = new FriendsRecyclerViewAdapter();
+        mFriendsAdapter = new FriendsRecyclerViewAdapter(getActivity());
 
         mFriendsLayoutManager = new LinearLayoutManager(getActivity());
 
@@ -111,11 +124,14 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
+        // search for users that is being followed by current user, and defines this list of users
+        // as the recyclerView dataset
         Friendship.getFollowedByUserFromLocal(User.getCurrentUser())
                 .continueWith(new Continuation<List<User>, Void>() {
                     @Override
                     public Void then(Task<List<User>> task) throws Exception {
                         List<User> lst = task.getResult();
+                        mFriendsAdapter.setDataset(lst);
 
                         return null;
                     }
@@ -151,6 +167,27 @@ public class ManageFriendsFragment extends Fragment {
          * @since 0.1.0
          */
         private static final int VIEW_FRIEND = 1;
+
+        /**
+         * Dataset containing the users to display on the recyclerView.
+         *
+         * @since 0.1.0
+         */
+        private List<User> mDataset;
+
+        /**
+         * A {@link android.os.Handler} to run code on the main thread.
+         *
+         * @since 0.1.0
+         */
+        private Handler mHandler;
+
+        /**
+         * Current context, will be used to access resources.
+         *
+         * @since 0.1.0
+         */
+        private Context mContext;
 
         /**
          * ViewHolder for items on the ManageFriends RecyclerView.
@@ -200,6 +237,27 @@ public class ManageFriendsFragment extends Fragment {
             }
         }
 
+        public FriendsRecyclerViewAdapter(Context context) {
+            mHandler = new Handler();
+            mContext = context;
+        }
+
+        /**
+         * Changes the recyclerView dataset, and notifies all listeners;
+         *
+         * @param dataset The new dataset
+         * @since 0.1.0
+         */
+        public void setDataset(List<User> dataset) {
+            mDataset = dataset;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             ViewHolder holder = null;
@@ -209,6 +267,7 @@ public class ManageFriendsFragment extends Fragment {
             if (viewType == VIEW_FRIEND) {
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.recyclerview_manage_friends_item, parent, false);
+
             // inflates the layout for view_header viewType
             } else {
                 v = LayoutInflater.from(parent.getContext())
@@ -222,21 +281,29 @@ public class ManageFriendsFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (holder.holderType == VIEW_FRIEND) {
-                holder.mFriendName.setText("Usuário");
-                holder.mFriendPicture.setImageResource(R.drawable.no_profile_pic);
+                User u = mDataset.get(position - 1);
+
+                holder.mFriendName.setText(u.getName());
+                holder.mFriendPicture.setImageBitmap(u.getProfileImage());
             } else {
-                holder.mHeaderTextView.setText("Amigos");
+                if (position == 0)
+                    holder.mHeaderTextView.setText(mContext.getString(R.string.followed_friends));
+                else
+                    holder.mHeaderTextView.setText(mContext.getString(R.string.facebook_friends));
             }
         }
 
         @Override
         public int getItemCount() {
-            return 30;
+            if (mDataset == null)
+                return 1;
+
+            return mDataset.size() + 2;
         }
 
         @Override
         public int getItemViewType(int position) {
-            if (position == 0)
+            if (position == 0 || (mDataset != null && position == (mDataset.size() + 1)))
                 return VIEW_HEADER;
             else
                 return VIEW_FRIEND;

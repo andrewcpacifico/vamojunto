@@ -179,7 +179,9 @@
     <string name="ride_offers">Ofertas</string>
     <string name="ride_requests">Pedidos</string>
     <string name="my_friends_feed">Caronas de amigos</string>
-    <string name="title_activity_manage_friends">ManageFriendsActivity</string>
+    <string name="title_activity_manage_friends">Meus amigos</string>
+    <string name="followed_friends">Amigos que sigo</string>
+    <string name="facebook_friends">Amigos do facebook</string>
 
 
 </resources>
