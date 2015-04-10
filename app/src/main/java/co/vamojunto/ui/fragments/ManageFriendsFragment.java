@@ -21,9 +21,12 @@ package co.vamojunto.ui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -32,6 +35,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A {@link android.support.v4.app.Fragment} where the user can manage the other users that he
@@ -43,13 +47,40 @@ import co.vamojunto.model.User;
  */
 public class ManageFriendsFragment extends Fragment {
 
-    public ManageFriendsFragment() {
-    }
+    /**
+     * RecyclerView to list the users followed by current user.
+     *
+     * @since 0.1.0
+     */
+    private RecyclerView mFriendsRecyclerView;
+
+    /**
+     * Adapter for the friends RecyclerView
+     *
+     * @since 0.1.0
+     */
+    private FriendsRecyclerViewAdapter mFriendsAdapter;
+
+    /**
+     * LayoutManager for the friends RecyclerView
+     *
+     * @since 0.1.0
+     */
+    private LinearLayoutManager mFriendsLayoutManager;
+
+    /**
+     * Required default constructor
+     *
+     * @since 0.1.0
+     */
+    public ManageFriendsFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage_friends, container, false);
+
+        initComponents(rootView);
 
         loadFriends();
 
@@ -57,17 +88,158 @@ public class ManageFriendsFragment extends Fragment {
     }
 
     /**
+     * Setups the screen components
+     *
+     * @param rootView The inflated layout view.
+     * @since 0.1.0
+     */
+    public void initComponents(View rootView) {
+        mFriendsAdapter = new FriendsRecyclerViewAdapter();
+
+        mFriendsLayoutManager = new LinearLayoutManager(getActivity());
+
+        // inflates the friendsRecyclerView and defines its layoutManager and adapter
+        mFriendsRecyclerView = (RecyclerView) rootView.findViewById(R.id.friends_recycler_view);
+        mFriendsRecyclerView.setLayoutManager(mFriendsLayoutManager);
+        mFriendsRecyclerView.setAdapter(mFriendsAdapter);
+        mFriendsRecyclerView.setHasFixedSize(true);
+    }
+
+    /**
      * Loads all users followed by the current user. This data are stored on the local datastore.
+     *
+     * @since 0.1.0
      */
     public void loadFriends() {
         Friendship.getFollowedByUserFromLocal(User.getCurrentUser())
                 .continueWith(new Continuation<List<User>, Void>() {
-            @Override
-            public Void then(Task<List<User>> task) throws Exception {
-                List<User> lst = task.getResult();
+                    @Override
+                    public Void then(Task<List<User>> task) throws Exception {
+                        List<User> lst = task.getResult();
 
-                return null;
+                        return null;
+                    }
+                });
+    }
+
+    /**
+     * Adapter for the RecyclerViews where the user can see its friends. On this RecyclerView there
+     * is two different item layouts, the default layout displays a row with a user's friend data,
+     * the other layout is used as a header for the two list sections:
+     * <ul>
+     *     <li>The users already followed by the current user</li>
+     *     <li>The Facebook friends of the user, that aren't being followed yet.</li>
+     * </ul>
+     *
+     * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+     * @version 1.0.0
+     * @since 0.1.0
+     */
+    public static class FriendsRecyclerViewAdapter
+            extends RecyclerView.Adapter<FriendsRecyclerViewAdapter.ViewHolder> {
+
+        /**
+         * Code indicating a viewType for a header row
+         *
+         * @since 0.1.0
+         */
+        private static final int VIEW_HEADER = 0;
+
+        /**
+         * Code indicating a viewType for a default row, displaying a friend.
+         *
+         * @since 0.1.0
+         */
+        private static final int VIEW_FRIEND = 1;
+
+        /**
+         * ViewHolder for items on the ManageFriends RecyclerView.
+         *
+         * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+         * @version 1.0.0
+         * @since 0.1.0
+         */
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+
+            /**
+             * The type of the holder, used to define which views that have to be inflated.
+             *
+             * @since 0.1.0
+             */
+            public int holderType;
+
+            // views for view_friend layout
+            public TextView mFriendName;
+            public CircleImageView mFriendPicture;
+
+            // views for view_header layout
+            public TextView mHeaderTextView;
+
+            /**
+             * Constructor, inflates the holder views based on a given viewType to define which
+             * layout was used to inflate the holder.
+             *
+             * @param itemView The holder's inflated layout.
+             * @param viewType Defines the type of the holder.
+             * @since 0.1.0
+             */
+            public ViewHolder(View itemView, int viewType) {
+                super(itemView);
+
+                holderType = viewType;
+
+                // if the holder is a view_friend, i.e a recyclerview.manage_friends_item layout
+                if (viewType == VIEW_FRIEND) {
+                    mFriendName = (TextView) itemView.findViewById(R.id.friend_name);
+                    mFriendPicture = (CircleImageView) itemView.findViewById(R.id.friend_picture);
+
+                // if the holder is a view_header, i.e a recyclerview.manage_friends_header layout
+                } else {
+                    mHeaderTextView = (TextView) itemView.findViewById(R.id.header_text);
+                }
             }
-        });
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            ViewHolder holder = null;
+            View v = null;
+
+            // inflates the layout for view_friend viewType
+            if (viewType == VIEW_FRIEND) {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.recyclerview_manage_friends_item, parent, false);
+            // inflates the layout for view_header viewType
+            } else {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.recyclerview_manage_friends_header, parent, false);
+            }
+
+            holder = new ViewHolder(v, viewType);
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            if (holder.holderType == VIEW_FRIEND) {
+                holder.mFriendName.setText("Usuário");
+                holder.mFriendPicture.setImageResource(R.drawable.no_profile_pic);
+            } else {
+                holder.mHeaderTextView.setText("Amigos");
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return 30;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == 0)
+                return VIEW_HEADER;
+            else
+                return VIEW_FRIEND;
+        }
     }
 }

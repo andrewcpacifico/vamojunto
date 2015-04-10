@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
   ~
@@ -17,15 +18,26 @@
   ~ See LICENSE.txt
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="co.vamojunto.ui.fragments.ManageFriendsFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    >
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/friends_recycler_view"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/friend_picture"
 
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="5dp"
+        android:src="@drawable/no_profile_pic"/>
+    <TextView
+        android:id="@+id/friend_name"
 
-</RelativeLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Amado Batista"
+        android:textSize="@dimen/abc_text_size_body_1_material"
+        />
+
+</LinearLayout>
