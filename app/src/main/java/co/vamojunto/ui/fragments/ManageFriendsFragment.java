@@ -28,7 +28,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -107,7 +109,15 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void initComponents(View rootView) {
-        mFriendsAdapter = new FriendsRecyclerViewAdapter(getActivity());
+        mFriendsAdapter = new FriendsRecyclerViewAdapter(
+            getActivity(),
+            new FriendsRecyclerViewAdapter.OnItemClickListener() {
+                @Override
+                public void onClick(FriendsRecyclerViewAdapter.ViewHolder holder) {
+                    mFriendsAdapter.toggleFollow(holder);
+                }
+            }
+        );
 
         mFriendsLayoutManager = new LinearLayoutManager(getActivity());
 
@@ -190,6 +200,13 @@ public class ManageFriendsFragment extends Fragment {
         private Context mContext;
 
         /**
+         * Listener for clicks on recyclerView items
+         *
+         * @since 0.1.0
+         */
+        private OnItemClickListener mClickListener;
+
+        /**
          * ViewHolder for items on the ManageFriends RecyclerView.
          *
          * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
@@ -208,6 +225,7 @@ public class ManageFriendsFragment extends Fragment {
             // views for view_friend layout
             public TextView mFriendName;
             public CircleImageView mFriendPicture;
+            public CheckBox mFollowCheckBox;
 
             // views for view_header layout
             public TextView mHeaderTextView;
@@ -218,9 +236,11 @@ public class ManageFriendsFragment extends Fragment {
              *
              * @param itemView The holder's inflated layout.
              * @param viewType Defines the type of the holder.
+             * @param clickListener Listener for clicks on item, if the viewType is VIEW_FRIEND,
+             *                      or <code>null</code> if there is no action for this item.
              * @since 0.1.0
              */
-            public ViewHolder(View itemView, int viewType) {
+            public ViewHolder(final View itemView, int viewType, final OnItemClickListener clickListener) {
                 super(itemView);
 
                 holderType = viewType;
@@ -229,6 +249,15 @@ public class ManageFriendsFragment extends Fragment {
                 if (viewType == VIEW_FRIEND) {
                     mFriendName = (TextView) itemView.findViewById(R.id.friend_name);
                     mFriendPicture = (CircleImageView) itemView.findViewById(R.id.friend_picture);
+                    mFollowCheckBox = (CheckBox) itemView.findViewById(R.id.follow_checkbox);
+
+                    itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (clickListener != null)
+                                clickListener.onClick(ViewHolder.this);
+                        }
+                    });
 
                 // if the holder is a view_header, i.e a recyclerview.manage_friends_header layout
                 } else {
@@ -237,9 +266,39 @@ public class ManageFriendsFragment extends Fragment {
             }
         }
 
-        public FriendsRecyclerViewAdapter(Context context) {
+        /**
+         * Interface to handle the clicks on recyclerView items
+         *
+         * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+         * @since 0.1.0
+         */
+        public static interface OnItemClickListener {
+            public void onClick(ViewHolder holder);
+        }
+
+        /**
+         * Adapter constructor to initialize some fields.
+         *
+         * @param context Current context.
+         * @param clickListener Listener for clicks on recyclerView items.
+         * @since 0.1.0
+         */
+        public FriendsRecyclerViewAdapter(Context context, OnItemClickListener clickListener) {
             mHandler = new Handler();
             mContext = context;
+            mClickListener = clickListener;
+        }
+
+        /**
+         * Switches the following status of the user on a given position, i.e. if the user on that
+         * position is being followed, he won't be anymore, and if he is not being followed, he
+         * will starts to be.
+         *
+         * @param holder The ViewHolder clicked.
+         * @since 0.1.0
+         */
+        public void toggleFollow(ViewHolder holder) {
+            holder.mFollowCheckBox.setChecked(!holder.mFollowCheckBox.isChecked());
         }
 
         /**
@@ -274,7 +333,7 @@ public class ManageFriendsFragment extends Fragment {
                         .inflate(R.layout.recyclerview_manage_friends_header, parent, false);
             }
 
-            holder = new ViewHolder(v, viewType);
+            holder = new ViewHolder(v, viewType, mClickListener);
             return holder;
         }
 
