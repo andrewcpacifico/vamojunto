@@ -21,13 +21,10 @@ package co.vamojunto.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseFile;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
@@ -123,5 +120,10 @@ public class User extends ParseUser {
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "User: {Name: " + getName() + ", Email: " + getEmail() + "}";
     }
 }

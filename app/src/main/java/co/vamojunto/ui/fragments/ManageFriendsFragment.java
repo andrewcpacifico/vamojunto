@@ -20,6 +20,7 @@
 package co.vamojunto.ui.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -30,8 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -39,6 +40,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
+import co.vamojunto.util.Globals;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -51,6 +53,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ManageFriendsFragment extends Fragment {
 
+    private static final String TAG = "ManageFriendsFragment";
     /**
      * RecyclerView to list the users followed by current user.
      *
@@ -103,6 +106,18 @@ public class ManageFriendsFragment extends Fragment {
     }
 
     /**
+     * On Fragment Stop, persists the changes made by the current user to the cloud database.
+     *
+     * @since 0.1.0
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Friendship.unfollow(User.getCurrentUser(), mFriendsAdapter.getUnfollowed());
+    }
+
+    /**
      * Setups the screen components
      *
      * @param rootView The inflated layout view.
@@ -134,18 +149,40 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
-        // search for users that is being followed by current user, and defines this list of users
-        // as the recyclerView dataset
-        Friendship.getFollowedByUserFromLocal(User.getCurrentUser())
-                .continueWith(new Continuation<List<User>, Void>() {
-                    @Override
-                    public Void then(Task<List<User>> task) throws Exception {
-                        List<User> lst = task.getResult();
-                        mFriendsAdapter.setDataset(lst);
+        // get the default preferences for app
+        final SharedPreferences settings = getActivity().getSharedPreferences(
+                Globals.DEFAULT_PREF_NAME,
+                Context.MODE_PRIVATE
+        );
 
-                        return null;
-                    }
-                });
+        // gets the preference that defines if the current user friends have been already fetched
+        // from the cloud database
+        final boolean fetchedFromCloud =
+                settings.getBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, false);
+
+        // search for users that is being followed by current user, if the user's friends have
+        // already been fetched, searches on the local database
+        Task<List<User>> tskGetFollowed = (fetchedFromCloud)
+                ? Friendship.getFollowedByUserFromLocal(User.getCurrentUser())
+                : Friendship.getFollowedByUser(User.getCurrentUser());
+
+        // after search for the user friends, sets the list of friends as the recyclerview dataset
+        tskGetFollowed.continueWith(new Continuation<List<User>, Void>() {
+            @Override
+            public Void then(Task<List<User>> task) throws Exception {
+                List<User> lst = task.getResult();
+                mFriendsAdapter.setDataset(lst);
+
+                // if it is the first time that current user friends have been fetched
+                if (!fetchedFromCloud) {
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
+                    editor.commit();
+                }
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -184,6 +221,13 @@ public class ManageFriendsFragment extends Fragment {
          * @since 0.1.0
          */
         private List<User> mDataset;
+
+        /**
+         * A list containing all friends unfollowed by user.
+         *
+         * @since 0.1.0
+         */
+        private List<User> mRemovedFriends;
 
         /**
          * A {@link android.os.Handler} to run code on the main thread.
@@ -259,6 +303,8 @@ public class ManageFriendsFragment extends Fragment {
                         }
                     });
 
+                    mFollowCheckBox.setClickable(false);
+
                 // if the holder is a view_header, i.e a recyclerview.manage_friends_header layout
                 } else {
                     mHeaderTextView = (TextView) itemView.findViewById(R.id.header_text);
@@ -287,6 +333,7 @@ public class ManageFriendsFragment extends Fragment {
             mHandler = new Handler();
             mContext = context;
             mClickListener = clickListener;
+            mRemovedFriends = new ArrayList<>();
         }
 
         /**
@@ -298,7 +345,25 @@ public class ManageFriendsFragment extends Fragment {
          * @since 0.1.0
          */
         public void toggleFollow(ViewHolder holder) {
+            // if the user is removing a friend
+            if (holder.mFollowCheckBox.isChecked()) {
+                // adds the clicked user to unfollowed list, the position on dataset is the position
+                // of the clicked holder minus one, because of the header
+                mRemovedFriends.add(mDataset.get(holder.getPosition() - 1));
+            }
+
             holder.mFollowCheckBox.setChecked(!holder.mFollowCheckBox.isChecked());
+        }
+
+        /**
+         * Returns the list of the users unfollowed by the user.
+         *
+         * @return An {@link java.util.ArrayList} containing all users that current user wants to
+         *         unfollow.
+         * @since 0.1.0
+         */
+        public List<User> getUnfollowed() {
+            return mRemovedFriends;
         }
 
         /**
@@ -344,11 +409,10 @@ public class ManageFriendsFragment extends Fragment {
 
                 holder.mFriendName.setText(u.getName());
                 holder.mFriendPicture.setImageBitmap(u.getProfileImage());
+                holder.mFollowCheckBox.setChecked(true);
             } else {
                 if (position == 0)
                     holder.mHeaderTextView.setText(mContext.getString(R.string.followed_friends));
-                else
-                    holder.mHeaderTextView.setText(mContext.getString(R.string.facebook_friends));
             }
         }
 
@@ -357,12 +421,12 @@ public class ManageFriendsFragment extends Fragment {
             if (mDataset == null)
                 return 1;
 
-            return mDataset.size() + 2;
+            return mDataset.size() + 1;
         }
 
         @Override
         public int getItemViewType(int position) {
-            if (position == 0 || (mDataset != null && position == (mDataset.size() + 1)))
+            if (position == 0)
                 return VIEW_HEADER;
             else
                 return VIEW_FRIEND;

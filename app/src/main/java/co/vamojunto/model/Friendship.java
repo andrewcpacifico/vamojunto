@@ -19,7 +19,10 @@
 
 package co.vamojunto.model;
 
+import android.util.Log;
+
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -40,6 +43,8 @@ import bolts.Task;
  */
 @ParseClassName("Friendship")
 public class Friendship extends ParseObject {
+
+    private static final String TAG = "Friendship";
 
     public static final String FIELD_FOLLOWING = "following";
     public static final String FIELD_FOLLOWER = "follower";
@@ -109,7 +114,7 @@ public class Friendship extends ParseObject {
                     }
 
                     // stores the users on the local datastore
-                    ParseObject.pinAllInBackground("myFriends", lstUsers);
+                    ParseObject.pinAllInBackground("myFriendships", lstFriendship);
                     tcs.setResult(lstUsers);
                 }
 
@@ -125,21 +130,32 @@ public class Friendship extends ParseObject {
      *
      * @param u The user to get the list of followings.
      * @return The list of users followed by u.
+     * @since 0.1.0
      */
     public static Task<List<User>> getFollowedByUserFromLocal(User u) {
         final Task<List<User>>.TaskCompletionSource tcs = Task.create();
 
-        ParseQuery<User> query = ParseQuery.getQuery(User.class);
-        query.fromPin("myFriends");
-        query.findInBackground().continueWith(new Continuation<List<User>, Void>() {
+        ParseQuery<Friendship> query = ParseQuery.getQuery(Friendship.class);
+        query.fromPin("myFriendships");
+        query.include(Friendship.FIELD_FOLLOWING);
+        query.findInBackground().continueWith(new Continuation<List<Friendship>, Void>() {
             @Override
-            public Void then(Task<List<User>> task) throws Exception {
-                if (task.isFaulted())
+            public Void then(Task<List<Friendship>> task) throws Exception {
+                if (task.isFaulted()) {
                     tcs.setError(task.getError());
-                else if (task.isCancelled())
+                } else if (task.isCancelled()) {
                     tcs.setCancelled();
-                else
-                    tcs.setResult(task.getResult());
+                } else {
+                    List<Friendship> lstFriendship = task.getResult();
+                    List<User> lstUsers = new ArrayList<User>();
+
+                    // iterates over the friendship list, to build the user list to return
+                    for (Friendship f: lstFriendship) {
+                        lstUsers.add(f.getFollowing());
+                    }
+
+                    tcs.setResult(lstUsers);
+                }
 
                 return null;
             }
@@ -148,4 +164,32 @@ public class Friendship extends ParseObject {
         return tcs.getTask();
     }
 
+    /**
+     * Deletes the friendships between a given user, and a list of another users
+     *
+     * @param user The user to remove the friendships, usually this parameter have the current user.
+     * @param unfollowed The list of users that the current user wants to unfollow.
+     * @since 0.1.0
+     */
+    public static void unfollow(User user, List<User> unfollowed) {
+        ParseQuery<Friendship> query = ParseQuery.getQuery(Friendship.class);
+        query.whereEqualTo(FIELD_FOLLOWER, user);
+        query.whereContainedIn(FIELD_FOLLOWING, unfollowed);
+        query.fromPin("myFriendships");
+        try {
+            final List<Friendship> myFriendships = query.find();
+
+            Friendship.deleteAllInBackground(myFriendships).continueWith(new Continuation<Void, Object>() {
+                @Override
+                public Object then(Task<Void> task) throws Exception {
+                    Friendship.unpinAll("myFriendships", myFriendships);
+                    Log.i(TAG, "Friends removed");
+
+                    return null;
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 }
