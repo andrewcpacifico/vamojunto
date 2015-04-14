@@ -40,6 +40,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.ManageFriendsActivity;
@@ -155,6 +156,8 @@ public class MyFriendsFeedFragment extends Fragment {
 
                 Fragment f = new ListRidesFragment();
                 f.setArguments(argsBundle);
+
+                FacebookHelper.getUserFriendsAsync(User.getCurrentUser());
 
                 return f;
             }

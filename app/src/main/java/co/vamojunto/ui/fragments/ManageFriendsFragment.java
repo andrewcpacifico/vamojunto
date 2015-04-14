@@ -38,6 +38,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.util.Globals;
@@ -149,6 +150,8 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
+        FacebookHelper.getUserFriendsAsync(User.getCurrentUser());
+
         // get the default preferences for app
         final SharedPreferences settings = getActivity().getSharedPreferences(
                 Globals.DEFAULT_PREF_NAME,
@@ -174,7 +177,7 @@ public class ManageFriendsFragment extends Fragment {
                 mFriendsAdapter.setDataset(lst);
 
                 // if it is the first time that current user friends have been fetched
-                if (!fetchedFromCloud) {
+                if (! fetchedFromCloud) {
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
                     editor.commit();

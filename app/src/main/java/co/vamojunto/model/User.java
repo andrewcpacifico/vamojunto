@@ -21,11 +21,15 @@ package co.vamojunto.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -42,11 +46,14 @@ import java.util.Map;
 @ParseClassName("_User")
 public class User extends ParseUser {
 
+    private static final String TAG = "User";
+
     public final static String FIELD_ID = "objectId";
     public final static String FIELD_NAME = "name";
     public final static String FIELD_USERNAME = "username";
     public final static String FIELD_EMAIL = "email";
     public final static String FIELD_PROFILE_IMG = "profile_img";
+    public final static String FIELD_FB_AUTH_DATA = "authData";
 
     private Bitmap profileImage;
 
@@ -102,6 +109,24 @@ public class User extends ParseUser {
         this.profileImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         ParseFile pFile = new ParseFile("img_perfil.jpg", stream.toByteArray());
         put(FIELD_PROFILE_IMG, pFile);
+    }
+
+    /**
+     * Returns the facebook id of the user.
+     *
+     * @return The facebook id of the user, or <code>null</code> if some error occurs.
+     * @since 0.1.0
+     */
+    public String getFacebookId() {
+        JSONObject fbAuthData = getJSONObject(FIELD_FB_AUTH_DATA);
+        String fbId = null;
+        try {
+            fbId = fbAuthData.getJSONObject("facebook").getString("id");
+        } catch (JSONException e) {
+            Log.e(TAG, "[getFacebookId] Error on parsing JSON: ", e);
+        }
+
+        return fbId;
     }
 
     public static User getCurrentUser() {
