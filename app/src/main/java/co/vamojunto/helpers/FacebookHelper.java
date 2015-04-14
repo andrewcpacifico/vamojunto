@@ -39,16 +39,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import co.vamojunto.model.Place;
 import co.vamojunto.model.User;
-import co.vamojunto.util.Globals;
 
 /**
  * Helper to deal with Facebook actions.
@@ -129,7 +126,7 @@ public class FacebookHelper {
      * @since 0.1.0
      */
     public static Task<List<String>> getUserFriendsAsync(User user) {
-        final String fbId = user.getFacebookId();
+        final String fbId = user.parseFacebookIdFromAuthData();
         final Task<List<String>>.TaskCompletionSource tcs = Task.create();
 
         Task.callInBackground(new Callable<String>() {

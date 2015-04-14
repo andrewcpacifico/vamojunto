@@ -26,6 +26,7 @@ import android.util.Log;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -33,7 +34,12 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import bolts.Continuation;
+import bolts.Task;
+import co.vamojunto.helpers.FacebookHelper;
 
 /**
  * System's User Model. Currently is just an extension of {@link com.parse.ParseUser} class, with
@@ -54,6 +60,7 @@ public class User extends ParseUser {
     public final static String FIELD_EMAIL = "email";
     public final static String FIELD_PROFILE_IMG = "profile_img";
     public final static String FIELD_FB_AUTH_DATA = "authData";
+    public final static String FIELD_FB_ID = "fbId";
 
     private Bitmap profileImage;
 
@@ -117,16 +124,39 @@ public class User extends ParseUser {
      * @return The facebook id of the user, or <code>null</code> if some error occurs.
      * @since 0.1.0
      */
-    public String getFacebookId() {
+    public String parseFacebookIdFromAuthData() {
         JSONObject fbAuthData = getJSONObject(FIELD_FB_AUTH_DATA);
         String fbId = null;
         try {
             fbId = fbAuthData.getJSONObject("facebook").getString("id");
         } catch (JSONException e) {
-            Log.e(TAG, "[getFacebookId] Error on parsing JSON: ", e);
+            Log.e(TAG, "[parseFacebookIdFromAuthData] Error on parsing JSON: ", e);
         }
 
         return fbId;
+    }
+
+    public String getFacebookId() {
+        return getString(FIELD_FB_ID);
+    }
+
+    public void setFacebookId(String fbId) {
+        put(FIELD_FB_ID, fbId);
+    }
+
+    public Task<List<User>> getFacebookFriends() {
+        return FacebookHelper.getUserFriendsAsync(this).continueWithTask(
+                new Continuation<List<String>, Task<List<User>>>() {
+            @Override
+            public Task<List<User>> then(Task<List<String>> task) throws Exception {
+                List<String> friendsFbId = task.getResult();
+
+                ParseQuery<User> query = ParseQuery.getQuery(User.class);
+                query.whereContainedIn(FIELD_FB_ID, friendsFbId);
+
+                return query.findInBackground();
+            }
+        });
     }
 
     public static User getCurrentUser() {
@@ -151,4 +181,5 @@ public class User extends ParseUser {
     public String toString() {
         return "User: {Name: " + getName() + ", Email: " + getEmail() + "}";
     }
+
 }

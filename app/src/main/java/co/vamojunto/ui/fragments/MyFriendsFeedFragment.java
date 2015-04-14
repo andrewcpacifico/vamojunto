@@ -157,8 +157,6 @@ public class MyFriendsFeedFragment extends Fragment {
                 Fragment f = new ListRidesFragment();
                 f.setArguments(argsBundle);
 
-                FacebookHelper.getUserFriendsAsync(User.getCurrentUser());
-
                 return f;
             }
             else if (position == 1)

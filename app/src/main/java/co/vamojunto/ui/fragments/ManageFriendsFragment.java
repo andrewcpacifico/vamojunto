@@ -150,12 +150,19 @@ public class ManageFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
-        FacebookHelper.getUserFriendsAsync(User.getCurrentUser());
+        User.getCurrentUser().getFacebookFriends().continueWith(new Continuation<List<User>, Object>() {
+            @Override
+            public Object then(Task<List<User>> task) throws Exception {
+                List<User> lst = task.getResult();
+
+                return null;
+            }
+        });
 
         // get the default preferences for app
         final SharedPreferences settings = getActivity().getSharedPreferences(
-                Globals.DEFAULT_PREF_NAME,
-                Context.MODE_PRIVATE
+            Globals.DEFAULT_PREF_NAME,
+            Context.MODE_PRIVATE
         );
 
         // gets the preference that defines if the current user friends have been already fetched

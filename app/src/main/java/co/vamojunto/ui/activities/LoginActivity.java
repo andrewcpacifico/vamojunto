@@ -231,6 +231,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                 u.setName(user.getName());
                 u.setEmail((String) user.getProperty("email"));
                 u.setUsername((String) user.getProperty("email"));
+                u.setFacebookId(user.getId());
 
                 return FacebookHelper.getProfilePictureAsync(user.getId());
             }
