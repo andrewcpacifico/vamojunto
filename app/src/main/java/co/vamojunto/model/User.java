@@ -33,10 +33,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import bolts.Capture;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.helpers.FacebookHelper;
@@ -144,25 +146,93 @@ public class User extends ParseUser {
         put(FIELD_FB_ID, fbId);
     }
 
+    /**
+     *
+     * @return
+     * @since 0.1.0
+     */
     public Task<List<User>> getFacebookFriends() {
-        return FacebookHelper.getUserFriendsAsync(this).continueWithTask(
+        final Task<List<User>>.TaskCompletionSource tcs = Task.create();
+        final Capture<Map<String, User>> friendsMap = new Capture<>(null);
+
+        FacebookHelper.getUserFriendsAsync(this).continueWithTask(
                 new Continuation<List<String>, Task<List<User>>>() {
+                    @Override
+                    public Task<List<User>> then(Task<List<String>> task) throws Exception {
+                        if (task.isCancelled()) {
+                            return Task.cancelled();
+                        } else if (task.isFaulted()) {
+                            return Task.forError(task.getError());
+                        } else {
+                            List<String> friendsFbId = task.getResult();
+
+                            ParseQuery<User> query = ParseQuery.getQuery(User.class);
+                            query.whereContainedIn(FIELD_FB_ID, friendsFbId);
+
+                            return query.findInBackground();
+                        }
+                    }
+                }
+        ).continueWithTask(new Continuation<List<User>, Task<List<User>>>() {
             @Override
-            public Task<List<User>> then(Task<List<String>> task) throws Exception {
-                List<String> friendsFbId = task.getResult();
+            public Task<List<User>> then(Task<List<User>> task) throws Exception {
+                if (task.isCancelled()) {
+                    return Task.cancelled();
+                } else if (task.isFaulted()) {
+                    return Task.forError(task.getError());
+                } else {
+                    // list with all users that are friends of this user on Facebook
+                    List<User> fbFriends = task.getResult();
 
-                ParseQuery<User> query = ParseQuery.getQuery(User.class);
-                query.whereContainedIn(FIELD_FB_ID, friendsFbId);
+                    // creates a map with Facebook friends, to speed up the searching on the next
+                    // block
+                    Map<String, User> fbFriendsMap = new HashMap<String, User>();
+                    for (User user: fbFriends) {
+                        fbFriendsMap.put(user.getId(), user);
+                    }
+                    friendsMap.set(fbFriendsMap);
 
-                return query.findInBackground();
+                    return Friendship.getFollowedByUser(User.this);
+                }
+            }
+        }).continueWith(new Continuation<List<User>, Void>() {
+            @Override
+            public Void then(Task<List<User>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    List<User> friendsFollowed = task.getResult();
+                    Map<String, User> fbFriendsMap = friendsMap.get();
+
+                    // removes all facebook friends already followed
+                    for (User user: friendsFollowed) {
+                        fbFriendsMap.remove(user.getId());
+                    }
+
+                    // the remaining users are set as task result
+                    tcs.setResult(new ArrayList<User>(fbFriendsMap.values()));
+                }
+
+                return null;
             }
         });
+
+        return tcs.getTask();
     }
 
     public static User getCurrentUser() {
         return (User) ParseUser.getCurrentUser();
     }
 
+    /**
+     * Compares two users, using their id as the comparison criteria.
+     *
+     * @param o The user to compare.
+     * @return <code>true</code> if the users are the same, and <code>false</code> if not.
+     * @since 0.1.0
+     */
     @Override
     public boolean equals(Object o) {
         if (o == null)
@@ -175,6 +245,11 @@ public class User extends ParseUser {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 
     @Override

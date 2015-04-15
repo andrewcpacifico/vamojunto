@@ -182,6 +182,8 @@
     <string name="title_activity_manage_friends">Meus amigos</string>
     <string name="followed_friends">Amigos que sigo</string>
     <string name="facebook_friends">Amigos do facebook</string>
+    <string name="following">Seguindo</string>
+    <string name="fb_friends">Amigos do Facebook</string>
 
 
 </resources>

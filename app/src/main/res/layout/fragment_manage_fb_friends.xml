@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
   ~
@@ -18,25 +17,15 @@
   ~ See LICENSE.txt
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="co.vamojunto.ui.fragments.ManageFollowedFragment"
-    android:orientation="vertical">
+    tools:context="co.vamojunto.ui.fragments.ManageFbFriendsFragment">
 
-    <co.vamojunto.ui.widget.SlidingTabLayout
-        android:id="@+id/tabs"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/friends_recycler_view"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="2dp"
-        android:background="@color/ColorPrimary"/>
+        android:layout_height="match_parent" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:layout_weight="1"
-        />
-
-</LinearLayout>
+</RelativeLayout>
