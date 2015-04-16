@@ -184,6 +184,9 @@
     <string name="facebook_friends">Amigos do facebook</string>
     <string name="following">Seguindo</string>
     <string name="fb_friends">Amigos do Facebook</string>
+    <string name="follow_fb_friends">Marque os amigos para seguir.</string>
+    <string name="no_following_message">Você ainda não está seguindo ninguém. Escolha seus amigos do Facebook para seguir no aplicativo.</string>
+    <string name="no_ride_to_display">Não há nenhuma carona para ser exibida.</string>
 
 
 </resources>

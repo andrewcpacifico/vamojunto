@@ -21,11 +21,26 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="co.vamojunto.ui.fragments.ManageFbFriendsFragment">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/friends_recycler_view"
+    <ViewFlipper
+        android:id="@+id/flipper"
 
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/progress_bar" />
+
+        <include
+            layout="@layout/layout_default_error_screen" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/friends_recycler_view"
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ViewFlipper>
 
 </RelativeLayout>

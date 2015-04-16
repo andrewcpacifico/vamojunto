@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -108,6 +109,13 @@ public class ListRidesFragment extends Fragment {
     private Button mErrorScreenRetryButton;
 
     /**
+     * Icon displayed on error screen.
+     *
+     * @since 0.1.0
+     */
+    private ImageView mErrorScreenIcon;
+
+    /**
      * The type of listing to dysplay, currently there are two types of listing:
      *   <ul>
      *     <li>The ride offers from the user friends.</li>
@@ -175,6 +183,7 @@ public class ListRidesFragment extends Fragment {
                 loadRides();
             }
         });
+        mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
     }
 
     /**
@@ -207,6 +216,11 @@ public class ListRidesFragment extends Fragment {
                             });
 
                             mRidesAdapter.setDataset(lstRides);
+
+                            // if there is no ride, displays a specific message to the user
+                            if (lstRides.size() == 0) {
+                                displayNoRideMessage();
+                            }
                         } else {
                             Log.e(TAG, task.getError().getMessage());
 
@@ -220,6 +234,17 @@ public class ListRidesFragment extends Fragment {
         } else {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         }
+    }
+
+    /**
+     * Displays a message to user, when there is no ride to display on feed.
+     *
+     * @since 0.1.0
+     */
+    private void displayNoRideMessage() {
+        displayErrorScreen(getString(R.string.no_ride_to_display));
+        mErrorScreenRetryButton.setVisibility(View.GONE);
+        mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
     }
 
     /**

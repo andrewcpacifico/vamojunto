@@ -28,15 +28,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  * A simple {@link Fragment}, where the user can manage his Facebook friends, and choose to follow
@@ -50,6 +52,12 @@ public class ManageFbFriendsFragment extends Fragment {
 
 
     private static final String TAG = "ManageFbFriendsFragment";
+
+    // the constants below are used to identify the views loaded by the ViewFlipper
+    private static final int VIEW_PROGRESS = 0;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_DEFAULT = 2;
+
     /**
      * RecyclerView to list the users followed by current user.
      *
@@ -72,11 +80,27 @@ public class ManageFbFriendsFragment extends Fragment {
     private LinearLayoutManager mFriendsLayoutManager;
 
     /**
+     * ViewFlipper used to alternate between the ProgressBar, that is displayed when the friends
+     * are loading, the error screen displayed when any error occurs, and the main screen with
+     * the friends list.
+     *
+     * @since 0.1.0
+     */
+    private ViewFlipper mViewFlipper;
+
+    /**
      * A {@link android.os.Handler} to run code on the main thread.
      *
      * @since 0.1.0
      */
     private Handler mHandler;
+
+    /**
+     * TextView containing message on the error screen.
+     *
+     * @since 0.1.0
+     */
+    private TextView mErrorScreenMsgTextView;
 
     /**
      * Required default constructor
@@ -110,8 +134,6 @@ public class ManageFbFriendsFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        if (mFriendsAdapter.getUnfollowed().size() > 0)
-            Friendship.unfollow(User.getCurrentUser(), mFriendsAdapter.getUnfollowed());
     }
 
     /**
@@ -123,6 +145,8 @@ public class ManageFbFriendsFragment extends Fragment {
     public void initComponents(View rootView) {
         mFriendsAdapter = new FriendsRecyclerViewAdapter(
             getActivity(),
+            false,
+            getString(R.string.follow_fb_friends),
             new FriendsRecyclerViewAdapter.OnItemClickListener() {
                 @Override
                 public void onClick(FriendsRecyclerViewAdapter.ViewHolder holder) {
@@ -138,6 +162,11 @@ public class ManageFbFriendsFragment extends Fragment {
         mFriendsRecyclerView.setLayoutManager(mFriendsLayoutManager);
         mFriendsRecyclerView.setAdapter(mFriendsAdapter);
         mFriendsRecyclerView.setHasFixedSize(true);
+
+        mErrorScreenMsgTextView =
+                (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+
+        mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
     }
 
     /**
@@ -146,18 +175,55 @@ public class ManageFbFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
-        // after search for the user friends, sets the list of friends as the recyclerview dataset
-        User.getCurrentUser().getFacebookFriends()
-                .continueWith(new Continuation<List<User>, Void>() {
-                    @Override
-                    public Void then(Task<List<User>> task) throws Exception {
-                        List<User> lst = task.getResult();
-                        mFriendsAdapter.setDataset(lst);
+        if (! NetworkUtil.isConnected(getActivity())) {
+            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
+        } else {
+            // after search for the user friends, sets the list of friends as the recyclerview dataset
+            User.getCurrentUser().getFacebookFriends()
+                    .continueWith(new Continuation<List<User>, Void>() {
+                        @Override
+                        public Void then(Task<List<User>> task) throws Exception {
+                            if (task.isFaulted() || task.isCancelled()) {
+                                displayErrorScreen();
+                            } else {
+                                List<User> lst = task.getResult();
+                                mFriendsAdapter.setDataset(lst);
 
-                        return null;
-                    }
-                });
+                                // after the loading, switches the viewflipper to display the list to user
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                    }
+                                });
+                            }
+
+                            return null;
+                        }
+                    });
+        }
     }
 
+
+    /**
+     * Switches the viewFlipper to display the error screen, with the default message.
+     *
+     * @since 0.1.0
+     */
+    private void displayErrorScreen() {
+        displayErrorScreen(getString(R.string.errormsg_default));
+    }
+
+    /**
+     * Switches the viewFlipper to display the error screen. and customizes the error message.
+     *
+     * @param errorMsg The message displayed on the screen.
+     * @since 0.1.0
+     */
+    private void displayErrorScreen(String errorMsg) {
+        mErrorScreenMsgTextView.setText(errorMsg);
+
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
+    }
 
 }

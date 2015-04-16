@@ -26,13 +26,15 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import bolts.Continuation;
@@ -42,7 +44,7 @@ import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
 import co.vamojunto.util.Globals;
-import de.hdodenhof.circleimageview.CircleImageView;
+import co.vamojunto.util.NetworkUtil;
 
 /**
  * A {@link android.support.v4.app.Fragment} where the user can manage the other users that he
@@ -55,6 +57,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ManageFollowedFragment extends Fragment {
 
     private static final String TAG = "ManageFriendsFragment";
+
+    // the constants below are used to identify the views loaded by the ViewFlipper
+    private static final int VIEW_PROGRESS = 0;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_DEFAULT = 2;
+
     /**
      * RecyclerView to list the users followed by current user.
      *
@@ -82,6 +90,36 @@ public class ManageFollowedFragment extends Fragment {
      * @since 0.1.0
      */
     private Handler mHandler;
+
+    /**
+     * ViewFlipper used to alternate between the ProgressBar, that is displayed when the friends
+     * are loading, the error screen displayed when any error occurs, and the main screen with
+     * the friends list.
+     *
+     * @since 0.1.0
+     */
+    private ViewFlipper mViewFlipper;
+
+    /**
+     * TextView containing message on the error screen.
+     *
+     * @since 0.1.0
+     */
+    private TextView mErrorScreenMsgTextView;
+
+    /**
+     * Button displayed on error screen.
+     *
+     * @since 0.1.0
+     */
+    private Button mErrorScreenButton;
+
+    /**
+     * Icon displayed on error screen.
+     *
+     * @since 0.1.0
+     */
+    private ImageView mErrorScreenIcon;
 
     /**
      * Required default constructor
@@ -128,6 +166,8 @@ public class ManageFollowedFragment extends Fragment {
     public void initComponents(View rootView) {
         mFriendsAdapter = new FriendsRecyclerViewAdapter(
             getActivity(),
+            true,
+            getString(R.string.followed_friends),
             new FriendsRecyclerViewAdapter.OnItemClickListener() {
                 @Override
                 public void onClick(FriendsRecyclerViewAdapter.ViewHolder holder) {
@@ -143,6 +183,21 @@ public class ManageFollowedFragment extends Fragment {
         mFriendsRecyclerView.setLayoutManager(mFriendsLayoutManager);
         mFriendsRecyclerView.setAdapter(mFriendsAdapter);
         mFriendsRecyclerView.setHasFixedSize(true);
+
+        mErrorScreenMsgTextView =
+                (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+
+        mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
+
+        mErrorScreenButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        mErrorScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadFriends();
+            }
+        });
+
+        mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
     }
 
     /**
@@ -151,6 +206,8 @@ public class ManageFollowedFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+
         // get the default preferences for app
         final SharedPreferences settings = getActivity().getSharedPreferences(
             Globals.DEFAULT_PREF_NAME,
@@ -168,23 +225,84 @@ public class ManageFollowedFragment extends Fragment {
                 ? Friendship.getFollowedByUserFromLocal(User.getCurrentUser())
                 : Friendship.getFollowedByUser(User.getCurrentUser());
 
-        // after search for the user friends, sets the list of friends as the recyclerview dataset
-        tskGetFollowed.continueWith(new Continuation<List<User>, Void>() {
-            @Override
-            public Void then(Task<List<User>> task) throws Exception {
-                List<User> lst = task.getResult();
-                mFriendsAdapter.setDataset(lst);
+        // if the user have to fetch friends from web, and is not connected to internet
+        // just displays an error message
+        if (! fetchedFromCloud && ! NetworkUtil.isConnected(getActivity())) {
+            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
+        } else {
+            // after search for the user friends, sets the list of friends as the recyclerview dataset
+            tskGetFollowed.continueWith(new Continuation<List<User>, Void>() {
+                @Override
+                public Void then(Task<List<User>> task) throws Exception {
+                    if (task.isCancelled() || task.isFaulted()) {
+                        displayErrorScreen();
+                        if (task.isFaulted()) {
+                            Log.e(TAG, "Error on fetch user friends.", task.getError());
+                        }
+                    } else {
+                        List<User> lst = task.getResult();
+                        mFriendsAdapter.setDataset(lst);
 
-                // if it is the first time that current user friends have been fetched
-                if (! fetchedFromCloud) {
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
-                    editor.commit();
+                        if (lst.size() == 0) {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    displayNoFriends();
+                                }
+                            });
+                        } else {
+                            // if it is the first time that current user friends have been fetched
+                            if (!fetchedFromCloud) {
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
+                                editor.commit();
+                            }
+
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                }
+                            });
+                        }
+                    }
+
+                    return null;
                 }
+            });
+        }
+    }
 
-                return null;
-            }
-        });
+    /**
+     * Displays a message to user, when he have no following friends.
+     *
+     * @since 0.1.0
+     */
+    private void displayNoFriends() {
+        displayErrorScreen(getString(R.string.no_following_message));
+        mErrorScreenButton.setVisibility(View.GONE);
+        mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
+    }
+
+    /**
+     * Switches the viewFlipper to display the error screen, with the default message.
+     *
+     * @since 0.1.0
+     */
+    private void displayErrorScreen() {
+        displayErrorScreen(getString(R.string.errormsg_default));
+    }
+
+    /**
+     * Switches the viewFlipper to display the error screen. and customizes the error message.
+     *
+     * @param errorMsg The message displayed on the screen.
+     * @since 0.1.0
+     */
+    private void displayErrorScreen(String errorMsg) {
+        mErrorScreenMsgTextView.setText(errorMsg);
+
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
 
 }

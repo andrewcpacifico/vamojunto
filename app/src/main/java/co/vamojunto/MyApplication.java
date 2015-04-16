@@ -20,6 +20,8 @@
 package co.vamojunto;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.parse.Parse;
@@ -37,15 +39,27 @@ import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
+import co.vamojunto.util.Globals;
 
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
  */
 public class MyApplication extends Application {
+    private static final String TAG = "MyApplication";
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // get the default preferences for app
+        final SharedPreferences settings = getSharedPreferences(
+            Globals.DEFAULT_PREF_NAME,
+            Context.MODE_PRIVATE
+        );
+
+        // defines an editor to preferences
+        final SharedPreferences.Editor editor = settings.edit();
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(getApplicationContext());
@@ -61,18 +75,49 @@ public class MyApplication extends Application {
         Parse.initialize(this, appId, clientId);
         ParseFacebookUtils.initialize();
 
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        // gets the preference that defines if the current user have already saved his installation
+        // on parse database
+        final boolean savedInstallation =
+                settings.getBoolean(Globals.PARSE_SAVED_INSTALLATION, false);
 
-        ParsePush.subscribeInBackground("andrew", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
+        if (! savedInstallation) {
+            ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Log.i(TAG, "Installation successfully saved on background");
+
+                        editor.putBoolean(Globals.PARSE_SAVED_INSTALLATION, true);
+                        editor.commit();
+                    } else {
+                        Log.e(TAG, "Error on save installation", e);
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        // gets the preference that defines if the current user have already subscribed to
+        // parse push service
+        final boolean subscribedToPush =
+                settings.getBoolean(Globals.PARSE_PUSH_SUBSCRIBED, false);
+
+        // if the user has not subscribed, subscribe in background and changes this status on
+        // application preferences
+        if (! subscribedToPush) {
+            ParsePush.subscribeInBackground("", new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+
+                        editor.putBoolean(Globals.PARSE_PUSH_SUBSCRIBED, true);
+                        editor.commit();
+                    } else {
+                        Log.e("com.parse.push", "failed to subscribe for push", e);
+                    }
+                }
+            });
+        }
 
         Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
 

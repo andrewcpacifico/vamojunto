@@ -102,6 +102,20 @@ public class FriendsRecyclerViewAdapter
     private OnItemClickListener mClickListener;
 
     /**
+     * Defines if the checkboxes have to be checked or not.
+     *
+     * @since 0.1.0
+     */
+    private boolean mChecked;
+
+    /**
+     * The header title
+     *
+     * @since 0.1.0
+     */
+    private String mHeaderTitle;
+
+    /**
      * ViewHolder for items on the ManageFriends RecyclerView.
      *
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
@@ -177,10 +191,19 @@ public class FriendsRecyclerViewAdapter
      * Adapter constructor to initialize some fields.
      *
      * @param context Current context.
+     * @param checked Defines the statuses of the checkboxes.
+     * @param headerTitle The header title.
      * @param clickListener Listener for clicks on recyclerView items.
      * @since 0.1.0
      */
-    public FriendsRecyclerViewAdapter(Context context, OnItemClickListener clickListener) {
+    public FriendsRecyclerViewAdapter(
+        Context context,
+        boolean checked,
+        String headerTitle,
+        OnItemClickListener clickListener
+    ) {
+        mHeaderTitle = headerTitle;
+        mChecked = checked;
         mHandler = new Handler();
         mContext = context;
         mClickListener = clickListener;
@@ -260,10 +283,10 @@ public class FriendsRecyclerViewAdapter
 
             holder.mFriendName.setText(u.getName());
             holder.mFriendPicture.setImageBitmap(u.getProfileImage());
-            holder.mFollowCheckBox.setChecked(true);
+            holder.mFollowCheckBox.setChecked(mChecked);
         } else {
             if (position == 0)
-                holder.mHeaderTextView.setText(mContext.getString(R.string.followed_friends));
+                holder.mHeaderTextView.setText(mHeaderTitle);
         }
     }
 

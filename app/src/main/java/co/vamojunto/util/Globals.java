@@ -31,6 +31,8 @@ public class Globals {
     public static final String FETCHED_FRIENDS_PREF_KEY = "fetched_friends";
     public static final String LAT_PREF_KEY = "lat";
     public static final String LNG_PREF_KEY = "lng";
+    public static final String PARSE_PUSH_SUBSCRIBED = "push_subscribed";
+    public static final String PARSE_SAVED_INSTALLATION = "parse_saved_install";
     public static final String ZOOM_PREF_KEY = "zoom";
     // end of preference keys
 
@@ -41,4 +43,6 @@ public class Globals {
     // activities request codes
     public static final int NEW_RIDE_ACTIVITY_REQUEST_CODE = 1;
     public static final int NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE = 2;
+
+
 }
