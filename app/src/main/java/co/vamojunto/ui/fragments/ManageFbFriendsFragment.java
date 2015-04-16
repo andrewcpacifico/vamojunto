@@ -36,6 +36,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
@@ -134,6 +135,9 @@ public class ManageFbFriendsFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
+        List<User> added = mFriendsAdapter.getAdded();
+        if (added.size() > 0)
+            Friendship.follow(User.getCurrentUser(), added);
     }
 
     /**

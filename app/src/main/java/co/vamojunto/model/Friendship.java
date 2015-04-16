@@ -67,6 +67,16 @@ public class Friendship extends ParseObject {
      */
     public Friendship() { }
 
+    /**
+     * A constructor that initializes the fields.
+     *
+     * @since 0.1.0
+     */
+    public Friendship(User follower, User following) {
+        setFollower(follower);
+        setFollowing(following);
+    }
+
     public User getFollowing() {
         return (User) getParseUser(FIELD_FOLLOWING);
     }
@@ -191,5 +201,30 @@ public class Friendship extends ParseObject {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Creates a list of friendships between a given user, and a list of another users
+     *
+     * @param user The user to add the friendships, usually this parameter have the current user.
+     * @param followed The list of users that the current user wants to follow.
+     * @since 0.1.0
+     */
+    public static void follow(User user, List<User> followed) {
+        final List<Friendship> lst = new ArrayList<>();
+
+        for (User friend: followed) {
+            lst.add(new Friendship(user, friend));
+        }
+
+        Friendship.saveAllInBackground(lst).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                Friendship.pinAll("myFriendships", lst);
+                Log.i(TAG, "Friends added");
+
+                return null;
+            }
+        });
     }
 }

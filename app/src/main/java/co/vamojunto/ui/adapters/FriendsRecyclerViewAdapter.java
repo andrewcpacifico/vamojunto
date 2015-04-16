@@ -29,7 +29,9 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import co.vamojunto.R;
 import co.vamojunto.model.User;
@@ -74,11 +76,18 @@ public class FriendsRecyclerViewAdapter
     private List<User> mDataset;
 
     /**
-     * A list containing all friends unfollowed by user.
+     * A set containing all friends unfollowed by user.
      *
      * @since 0.1.0
      */
-    private List<User> mRemovedFriends;
+    private Set<User> mRemovedFriends;
+
+    /**
+     * A set containing all friends followed by user.
+     *
+     * @since 0.1.0
+     */
+    private Set<User> mAddedFriends;
 
     /**
      * A {@link android.os.Handler} to run code on the main thread.
@@ -207,7 +216,8 @@ public class FriendsRecyclerViewAdapter
         mHandler = new Handler();
         mContext = context;
         mClickListener = clickListener;
-        mRemovedFriends = new ArrayList<>();
+        mRemovedFriends = new HashSet<>();
+        mAddedFriends = new HashSet<>();
     }
 
     /**
@@ -224,6 +234,8 @@ public class FriendsRecyclerViewAdapter
             // adds the clicked user to unfollowed list, the position on dataset is the position
             // of the clicked holder minus one, because of the header
             mRemovedFriends.add(mDataset.get(holder.getPosition() - 1));
+        } else {
+            mAddedFriends.add(mDataset.get(holder.getPosition() - 1));
         }
 
         holder.mFollowCheckBox.setChecked(!holder.mFollowCheckBox.isChecked());
@@ -237,7 +249,17 @@ public class FriendsRecyclerViewAdapter
      * @since 0.1.0
      */
     public List<User> getUnfollowed() {
-        return mRemovedFriends;
+        return new ArrayList<>(mRemovedFriends);
+    }
+
+    /**
+     * Returns the list of the users added by the user.
+     *
+     * @return An {@link java.util.ArrayList} containing all users that current user wants to follow.
+     * @since 0.1.0
+     */
+    public List<User> getAdded() {
+        return new ArrayList<>(mAddedFriends);
     }
 
     /**
