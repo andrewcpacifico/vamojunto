@@ -20,14 +20,18 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -38,6 +42,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 
@@ -104,6 +109,20 @@ public class ManageFbFriendsFragment extends Fragment {
     private TextView mErrorScreenMsgTextView;
 
     /**
+     * Button to save the changes made by user.
+     *
+     * @since 0.1.0
+     */
+    private Button mSaveButton;
+
+    /**
+     * A progress dialog, displayed when any data is being loaded.
+     *
+     * @since 0.1.0
+     */
+    private ProgressDialog mProDialog;
+
+    /**
      * Required default constructor
      *
      * @since 0.1.0
@@ -124,20 +143,6 @@ public class ManageFbFriendsFragment extends Fragment {
         loadFriends();
 
         return rootView;
-    }
-
-    /**
-     * On Fragment Stop, persists the changes made by the current user to the cloud database.
-     *
-     * @since 0.1.0
-     */
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        List<User> added = mFriendsAdapter.getAdded();
-        if (added.size() > 0)
-            Friendship.follow(User.getCurrentUser(), added);
     }
 
     /**
@@ -171,6 +176,40 @@ public class ManageFbFriendsFragment extends Fragment {
                 (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
+
+        mSaveButton = (Button) rootView.findViewById(R.id.save_button);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            // on button click, persists the changes made by the current user to the cloud database.
+            @Override
+            public void onClick(View v) {
+                List<User> added = mFriendsAdapter.getAdded();
+
+                // save changes, only if there is any new friend to follow
+                if (added.size() > 0) {
+                    startLoading();
+
+                    Friendship.follow(User.getCurrentUser(), added)
+                        .continueWith(new Continuation<Void, Void>() {
+                            @Override
+                            public Void then(Task<Void> task) throws Exception {
+                                stopLoading();
+
+                                // code to navigate up to MainActivity
+                                Intent intent = new Intent(getActivity(), MainActivity.class);
+                                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                                startActivity(intent);
+                                getActivity().finish();
+
+                                return null;
+                            }
+                        });
+                } else {
+                    getActivity().finish();
+                }
+            }
+        });
     }
 
     /**
@@ -228,6 +267,29 @@ public class ManageFbFriendsFragment extends Fragment {
         mErrorScreenMsgTextView.setText(errorMsg);
 
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
+    }
+
+    /**
+     * Shows a dialog indicating that the main screen is bein loaded.
+     *
+     * @since 0.1.0
+     */
+    private void startLoading() {
+        mProDialog = new ProgressDialog(getActivity());
+        mProDialog.setMessage(getString(R.string.saving));
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
+    }
+
+    /**
+     * Finishes the loading dialog;
+     *
+     * @since 0.1.0
+     */
+    private void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
 }

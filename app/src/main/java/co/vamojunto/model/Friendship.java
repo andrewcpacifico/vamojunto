@@ -181,7 +181,9 @@ public class Friendship extends ParseObject {
      * @param unfollowed The list of users that the current user wants to unfollow.
      * @since 0.1.0
      */
-    public static void unfollow(User user, List<User> unfollowed) {
+    public static Task<Void> unfollow(User user, List<User> unfollowed) {
+        final Task<Void>.TaskCompletionSource tcs = Task.create();
+
         ParseQuery<Friendship> query = ParseQuery.getQuery(Friendship.class);
         query.whereEqualTo(FIELD_FOLLOWER, user);
         query.whereContainedIn(FIELD_FOLLOWING, unfollowed);
@@ -192,8 +194,16 @@ public class Friendship extends ParseObject {
             Friendship.deleteAllInBackground(myFriendships).continueWith(new Continuation<Void, Object>() {
                 @Override
                 public Object then(Task<Void> task) throws Exception {
-                    Friendship.unpinAll("myFriendships", myFriendships);
-                    Log.i(TAG, "Friends removed");
+                    if (task.isCancelled()) {
+                        tcs.setCancelled();
+                    } else if (task.isFaulted()) {
+                        tcs.setError(task.getError());
+                    } else {
+                        Friendship.unpinAll("myFriendships", myFriendships);
+                        Log.i(TAG, "Friends removed");
+
+                        tcs.setResult(null);
+                    }
 
                     return null;
                 }
@@ -201,6 +211,8 @@ public class Friendship extends ParseObject {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        return tcs.getTask();
     }
 
     /**
@@ -210,7 +222,9 @@ public class Friendship extends ParseObject {
      * @param followed The list of users that the current user wants to follow.
      * @since 0.1.0
      */
-    public static void follow(User user, List<User> followed) {
+    public static Task<Void> follow(User user, List<User> followed) {
+        final Task<Void>.TaskCompletionSource tcs = Task.create();
+
         final List<Friendship> lst = new ArrayList<>();
 
         for (User friend: followed) {
@@ -220,11 +234,21 @@ public class Friendship extends ParseObject {
         Friendship.saveAllInBackground(lst).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                Friendship.pinAll("myFriendships", lst);
-                Log.i(TAG, "Friends added");
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    Friendship.pinAll("myFriendships", lst);
+                    Log.i(TAG, "Friends added");
+
+                    tcs.setResult(null);
+                }
 
                 return null;
             }
         });
+
+        return tcs.getTask();
     }
 }

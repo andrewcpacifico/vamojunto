@@ -36,11 +36,34 @@
         <include
             layout="@layout/layout_default_error_screen" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/friends_recycler_view"
-
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@color/white">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/friends_recycler_view"
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+
+                android:scrollbars="vertical"
+                />
+
+            <Button
+                android:id="@+id/save_button"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_margin="0dp"
+                android:padding="0dp"
+                android:text="@string/save_changes"
+                android:textColor="@color/white"
+                style="@style/Save.Button"
+                />
+        </LinearLayout>
     </ViewFlipper>
 
 </RelativeLayout>
