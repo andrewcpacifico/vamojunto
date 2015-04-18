@@ -35,14 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
-import bolts.Continuation;
-import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.helpers.FacebookHelper;
-import co.vamojunto.model.Friendship;
-import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.ManageFriendsActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
@@ -151,11 +144,7 @@ public class MyFriendsFeedFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                Bundle argsBundle = new Bundle();
-                argsBundle.putInt(ListRidesFragment.ARG_TYPE, ListRidesFragment.TYPE_FRIEND);
-
-                Fragment f = new ListRidesFragment();
-                f.setArguments(argsBundle);
+                Fragment f = new MyFriendsOffersFragment();
 
                 return f;
             }

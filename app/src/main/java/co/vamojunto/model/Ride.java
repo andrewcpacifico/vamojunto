@@ -162,7 +162,7 @@ public class Ride extends ParseObject {
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
-        //query.whereEqualTo(FIELD_DRIVER, u);
+        query.whereEqualTo(FIELD_DRIVER, u);
 
         query.findInBackground(new FindCallback<Ride>() {
             @Override

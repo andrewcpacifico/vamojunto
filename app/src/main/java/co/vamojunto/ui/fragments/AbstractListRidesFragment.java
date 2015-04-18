@@ -19,6 +19,7 @@
 
 package co.vamojunto.ui.fragments;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,39 +43,41 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
-import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.ListMyRidesRecyclerViewAdapter;
-import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
 
 /**
- * A {@link Fragment} to display a list of ride offers. The fragment allows the definition of a
- * type of ride listing. As this fragment will be used on all screens that wants to display a
- * list of rides, this is the current method to define which list it have to display.
+ * An abstract fragment to display a list of rides.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public class ListRidesFragment extends Fragment {
+public abstract class AbstractListRidesFragment extends Fragment {
 
-    private static final String TAG = "ListRidesFragment";
-
-    // the constants below are used to identify the views loaded by the ViewFlipper
-    private static final int PROGRESS_VIEW = 0;
-    private static final int ERROR_VIEW = 1;
-    private static final int DEFAULT_VIEW = 2;
-
-    // constants used to define which type of listing the fragment have to display
-    public static final int TYPE_FRIEND = 0;
-    public static final int TYPE_UFAM = 1;
+    private static final String TAG = "co.vamojunto";
 
     /**
-     * Constant used to get the listing type argument, sent to fragment as a bundle.
+     * Code of the view that displays a progress bar on the viewflipper.
+     *
+     * @since 0.1.0
      */
-    public static final String ARG_TYPE = TAG + "argType";
+    private static final int PROGRESS_VIEW = 0;
+
+    /**
+     * Code of the view that displays an error screen on the viewflipper.
+     *
+     * @since 0.1.0
+     */
+    private static final int ERROR_VIEW = 1;
+
+    /**
+     * Code of the view that displays the default view on the viewflipper.
+     *
+     * @since 0.1.0
+     */
+    private static final int DEFAULT_VIEW = 2;
 
     /**
      * RecyclerView where the rides are displayed
@@ -115,29 +118,17 @@ public class ListRidesFragment extends Fragment {
      */
     private ImageView mErrorScreenIcon;
 
-    /**
-     * The type of listing to dysplay, currently there are two types of listing:
-     *   <ul>
-     *     <li>The ride offers from the user friends.</li>
-     *       <li>The ride offers from the ufam students.</li>
-     *   </ul>
-     */
-    private int mListType;
-
-    /**
-     * Required default constructor
-     */
-    public ListRidesFragment() { }
+    public AbstractListRidesFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_list_rides, container, false);
-
-        mListType = getArguments().getInt(ARG_TYPE, -1);
+        View rootView = inflater.inflate(getLayoutResource(), container, false);
 
         initComponents(rootView);
+
         loadRides();
 
         return rootView;
@@ -148,7 +139,7 @@ public class ListRidesFragment extends Fragment {
      *
      * @param rootView The Fragment's inflated layout.
      */
-    public void initComponents(View rootView) {
+    protected void initComponents(View rootView) {
         // inits the RecyclerView
         mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
         mRidesRecyclerView.setHasFixedSize(true);
@@ -163,7 +154,7 @@ public class ListRidesFragment extends Fragment {
             @Override
             public void OnItemClick(int position) {
                 Ride choosenRide = mRidesAdapter.getItem(position);
-                Intent intent = new Intent(ListRidesFragment.this.getActivity(),
+                Intent intent = new Intent(AbstractListRidesFragment.this.getActivity(),
                         RideDetailsActivity.class);
 
                 Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
@@ -187,18 +178,42 @@ public class ListRidesFragment extends Fragment {
     }
 
     /**
+     * Getter for the fragment layout
+     *
+     * @return The layout resource.
+     * @since 0.1.0
+     */
+    protected abstract int getLayoutResource();
+
+    /**
+     * Defines if this list is an offline feed or not. This value is used to know if it is necessary
+     * to check the user connection, before to call the getRides task.
+     *
+     * @return <code>true</code> if this list will be displayed on an offline feed,
+     *         or <code>false</code> if it is not.
+     * @since 0.1.0
+     */
+    protected abstract boolean isOfflineFeed();
+
+    /**
+     * Get a list of rides that will be displayed on the feed.
+     *
+     * @return A {@link bolts.Task} containing the list as result.
+     * @since 0.1.0
+     */
+    protected abstract Task<List<Ride>> getRidesAsync();
+
+    /**
      * TODO this method documentation
      */
-    public void loadRides() {
+    protected void loadRides() {
         mViewFlipper.setDisplayedChild(PROGRESS_VIEW);
 
-        // Loads the rides from the cloud, only if the user is connected to the Internet
-        if (NetworkUtil.isConnected(getActivity())) {
-            Task<List<Ride>> loadRidesTask = null;
-
-            if (mListType == TYPE_FRIEND) {
-                loadRidesTask = Ride.getFriendsOffersAsync((User) User.getCurrentUser());
-            }
+        // check for user's network connection if this fragment is not used on an offline feed
+        if (! isOfflineFeed() && ! NetworkUtil.isConnected(getActivity())) {
+            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
+        } else {
+            Task<List<Ride>> loadRidesTask = getRidesAsync();
 
             if (loadRidesTask != null) {
                 loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
@@ -231,8 +246,6 @@ public class ListRidesFragment extends Fragment {
                     }
                 });
             }
-        } else {
-            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         }
     }
 
@@ -241,7 +254,7 @@ public class ListRidesFragment extends Fragment {
      *
      * @since 0.1.0
      */
-    private void displayNoRideMessage() {
+    protected void displayNoRideMessage() {
         displayErrorScreen(getString(R.string.no_ride_to_display));
         mErrorScreenRetryButton.setVisibility(View.GONE);
         mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
@@ -253,7 +266,7 @@ public class ListRidesFragment extends Fragment {
      * @param errorMsg The message displayed on the screen, if the param value is null, the default
      *                 error message is used.
      */
-    private void displayErrorScreen(String errorMsg) {
+    protected void displayErrorScreen(String errorMsg) {
         if (errorMsg == null)
             mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
         else
@@ -265,11 +278,10 @@ public class ListRidesFragment extends Fragment {
     /**
      * Switches the viewFlipper to display the error screen using the default error screen message.
      */
-    private void displayErrorScreen() {
+    protected void displayErrorScreen() {
         mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
 
         mViewFlipper.setDisplayedChild(ERROR_VIEW);
     }
 
 }
-
