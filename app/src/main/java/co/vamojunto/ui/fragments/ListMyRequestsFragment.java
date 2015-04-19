@@ -153,7 +153,7 @@ public class ListMyRequestsFragment extends Fragment {
         mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
         mRidesRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
-        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>());
+        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>(), null);
         mRidesRecyclerView.setAdapter(mRequestsAdapter);
 
         Button requestButton = (Button) rootView.findViewById(R.id.ok_button);

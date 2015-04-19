@@ -19,27 +19,29 @@
 
 package co.vamojunto.ui.fragments;
 
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import co.vamojunto.R;
-import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 
 /**
- * Created by Andrew C. Pacifico <andrewcpacifico@gmail.com> on 18/04/15.
+ * A {@link android.support.v4.app.Fragment} where the user can view the details of a ride request
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.0
+ * @since 0.1.0
  */
-public abstract class DefaultListRequestsFragment extends AbstractListRequestsFragment {
+public class RequestDetailsFragment extends Fragment {
+
+    public RequestDetailsFragment() { /* required default constructor, do not delete or edit this */ }
 
     @Override
-    protected int getLayoutResource() {
-        return R.layout.fragment_list_requests;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_request_details, container, false);
+        return rootView;
     }
-
-    @Override
-    protected String getNoRequestMessage() {
-        return getString(R.string.no_request_to_display);
-    }
-
-    @Override
-    protected RequestsRecyclerViewAdapter.OnItemClickListener getClickListener() {
-        return null;
-    }
-
 }

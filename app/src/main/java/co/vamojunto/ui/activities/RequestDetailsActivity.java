@@ -19,45 +19,47 @@
 
 package co.vamojunto.ui.activities;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.os.Build;
 
 import co.vamojunto.R;
-import co.vamojunto.ui.fragments.RideDetailsFragment;
+import co.vamojunto.ui.fragments.RequestDetailsFragment;
 
 /**
- * Activity where the user can view the details of a specific ride.
+ * Activity where the user can view the details of a ride request.
  *
- * @author Andrew C. Pacifico <andrewpcpacifico@gmail.com>
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @version 1.0.0
  * @since 0.1.0
  */
-public class RideDetailsActivity extends ActionBarActivity {
-
-    public static final String TAG = "RideDetailsActivity";
-
-    // constants used to define the input extras names
-    public static final String EXTRA_RIDE = TAG + ".ride";
-
-    // constants used to define the input extras names
-    public static final String EXTRA_RIDE_ID = TAG + ".rideId";
+public class RequestDetailsActivity extends ActionBarActivity {
 
     /**
-     * The Activity toolbar
+     * Activity's action bar
+     *
+     * @since 0.1.0
      */
-    private Toolbar mToolbarActionBar;
+    private  Toolbar mToolbarActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_details);
 
-        RideDetailsFragment fragment = new RideDetailsFragment();
-        fragment.setArguments(getIntent().getExtras());
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.container, new RequestDetailsFragment())
+                    .commit();
         }
 
         setupAppBar();
@@ -65,6 +67,8 @@ public class RideDetailsActivity extends ActionBarActivity {
 
     /**
      * Initializes the activity's App Bar
+     *
+     * @since 0.1.0
      */
     private void setupAppBar() {
         mToolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
@@ -73,24 +77,4 @@ public class RideDetailsActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    /**
-     * Overriding the onBackPressed method, to make an "up" navigation when this activity is
-     * opened from a notification.
-     */
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        if (isTaskRoot()) {
-            // code to navigate up to MainActivity
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-            startActivity(intent);
-            finish();
-        } else {
-            finish();
-        }
-    }
 }

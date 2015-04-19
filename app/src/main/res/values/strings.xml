@@ -192,6 +192,7 @@
     <string name="choose_destination">Escolha o destino</string>
     <string name="no_request_to_display">Não há nenhum pedido de carona para exibir.</string>
     <string name="no_friends_requests">Seus amigos ainda não fizeram nenhum pedido de carona.</string>
+    <string name="title_activity_request_details">RequestDetailsActivity</string>
 
 
 </resources>
