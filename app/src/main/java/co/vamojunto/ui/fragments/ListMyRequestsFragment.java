@@ -48,7 +48,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.NewRideRequestActivity;
-import co.vamojunto.ui.adapters.ListRideRequestsRecyclerViewAdapter;
+import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 
 /**
@@ -81,7 +81,7 @@ public class ListMyRequestsFragment extends Fragment {
     /**
      * Adapter used to manage the data of mRidesRecyclerView
      */
-    private ListRideRequestsRecyclerViewAdapter mRequestsAdapter;
+    private RequestsRecyclerViewAdapter mRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -153,7 +153,7 @@ public class ListMyRequestsFragment extends Fragment {
         mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
         mRidesRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
-        mRequestsAdapter = new ListRideRequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>());
+        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>());
         mRidesRecyclerView.setAdapter(mRequestsAdapter);
 
         Button requestButton = (Button) rootView.findViewById(R.id.ok_button);

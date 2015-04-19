@@ -47,7 +47,7 @@ import bolts.Task;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.ui.activities.RideDetailsActivity;
-import co.vamojunto.ui.adapters.ListMyRidesRecyclerViewAdapter;
+import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.util.Globals;
@@ -83,7 +83,7 @@ public class ListMyRidesFragment extends Fragment {
     /**
      * Adapter used to manage the data of mRidesRecyclerView
      */
-    private ListMyRidesRecyclerViewAdapter mRidesAdapter;
+    private RidesRecyclerViewAdapter mRidesAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -163,8 +163,8 @@ public class ListMyRidesFragment extends Fragment {
         mRidesRecyclerView.setLayoutManager(mRidesLayoutManager);
 
         // inits the RecyclerView Adapter
-        mRidesAdapter = new ListMyRidesRecyclerViewAdapter(getActivity(),
-                new ArrayList<Ride>(), new ListMyRidesRecyclerViewAdapter.OnItemClickListener() {
+        mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
+                new ArrayList<Ride>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(int position) {
                 Ride choosenRide = mRidesAdapter.getItem(position);

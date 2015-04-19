@@ -259,7 +259,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITULO, getString(R.string.search_place));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
-        intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destiny));
+        intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destination));
 
         if (mDestino != null) {
             Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestino);

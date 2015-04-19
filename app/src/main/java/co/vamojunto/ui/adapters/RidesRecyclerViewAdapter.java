@@ -43,7 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  */
-public class ListMyRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListMyRidesRecyclerViewAdapter.ViewHolder> {
+public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = "ListRidesRecyclerViewAdapter";
     /**
@@ -90,7 +90,7 @@ public class ListMyRidesRecyclerViewAdapter extends RecyclerView.Adapter<ListMyR
         public void OnItemClick(int position);
     }
 
-    public ListMyRidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
+    public RidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());

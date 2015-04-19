@@ -43,7 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @version 1.0.0
  * @since 0.1.0
  */
-public class ListRideRequestsRecyclerViewAdapter extends RecyclerView.Adapter<ListRideRequestsRecyclerViewAdapter.ViewHolder> {
+public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRecyclerViewAdapter.ViewHolder> {
 
     /**
      * Stores the data that will be displayed on the screen
@@ -80,7 +80,7 @@ public class ListRideRequestsRecyclerViewAdapter extends RecyclerView.Adapter<Li
         }
     }
 
-    public ListRideRequestsRecyclerViewAdapter(Context context, List<RideRequest> dataset) {
+    public RequestsRecyclerViewAdapter(Context context, List<RideRequest> dataset) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());
@@ -151,6 +151,10 @@ public class ListRideRequestsRecyclerViewAdapter extends RecyclerView.Adapter<Li
 
     @Override
     public int getItemCount() {
-        return this.mDataset.size();
+        if (mDataset == null) {
+            return 0;
+        }
+
+        return mDataset.size();
     }
 }

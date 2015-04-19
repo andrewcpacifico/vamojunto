@@ -53,11 +53,9 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
 import co.vamojunto.model.Place;
-import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.GetLocationActivity;
-import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.ui.activities.NewRideRequestActivity;
 
 /**
@@ -279,9 +277,9 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         mDestinationEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.choose_starting_point));
-        intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
-        intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
+        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.choose_destination));
+        intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
+        intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destination));
 
         if (mDestination != null) {
             Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestination);

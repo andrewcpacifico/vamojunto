@@ -20,7 +20,6 @@
 package co.vamojunto.ui.fragments;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -35,7 +34,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -43,19 +41,18 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
-import co.vamojunto.ui.activities.RideDetailsActivity;
-import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
+import co.vamojunto.model.RideRequest;
+import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 
 /**
- * An abstract fragment to display a list of rides.
+ * An abstract fragment to display a list of ride requests.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public abstract class AbstractListRidesFragment extends Fragment {
+public abstract class AbstractListRequestsFragment extends Fragment {
 
     private static final String TAG = "co.vamojunto";
 
@@ -83,17 +80,17 @@ public abstract class AbstractListRidesFragment extends Fragment {
     /**
      * RecyclerView where the rides are displayed
      */
-    private RecyclerView mRidesRecyclerView;
+    private RecyclerView mRequestsRecyclerView;
 
     /**
-     * LayoutManager used by the mRidesRecyclerView
+     * LayoutManager used by the mRequestsRecyclerView
      */
-    private LinearLayoutManager mRidesLayoutManager;
+    private LinearLayoutManager mRequestsLayoutManager;
 
     /**
-     * Adapter used to manage the data of mRidesRecyclerView
+     * Adapter used to manage the data of mRequestsRecyclerView
      */
-    private RidesRecyclerViewAdapter mRidesAdapter;
+    private RequestsRecyclerViewAdapter mRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -126,7 +123,7 @@ public abstract class AbstractListRidesFragment extends Fragment {
      */
     protected Handler mHandler;
 
-    public AbstractListRidesFragment() {
+    public AbstractListRequestsFragment() {
         // Required empty public constructor
     }
 
@@ -139,39 +136,28 @@ public abstract class AbstractListRidesFragment extends Fragment {
 
         initComponents(rootView);
 
-        loadRides();
+        loadRequests();
 
         return rootView;
     }
 
     /**
-     * Initializates the screen components
+     * Initializes the screen components
      *
      * @param rootView The Fragment's inflated layout.
      */
     protected void initComponents(View rootView) {
         // inits the RecyclerView
-        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
-        mRidesRecyclerView.setHasFixedSize(true);
+        mRequestsRecyclerView = (RecyclerView) rootView.findViewById(R.id.requests_recycler_view);
+        mRequestsRecyclerView.setHasFixedSize(true);
 
         // inits the RecyclerView LayoutManager
-        mRidesLayoutManager = new LinearLayoutManager(rootView.getContext());
-        mRidesRecyclerView.setLayoutManager(mRidesLayoutManager);
+        mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
+        mRequestsRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
         // inits the RecyclerView Adapter
-        mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
-                new ArrayList<Ride>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void OnItemClick(int position) {
-                Ride choosenRide = mRidesAdapter.getItem(position);
-                Intent intent = new Intent(AbstractListRidesFragment.this.getActivity(),
-                        RideDetailsActivity.class);
-
-                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
-                startActivity(intent);
-            }
-        });
-        mRidesRecyclerView.setAdapter(mRidesAdapter);
+        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), null);
+        mRequestsRecyclerView.setAdapter(mRequestsAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
@@ -181,7 +167,7 @@ public abstract class AbstractListRidesFragment extends Fragment {
         mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadRides();
+                loadRequests();
             }
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
@@ -206,32 +192,40 @@ public abstract class AbstractListRidesFragment extends Fragment {
     protected abstract boolean isOfflineFeed();
 
     /**
-     * Get a list of rides that will be displayed on the feed.
+     * Get a list of ride requests that will be displayed on the feed.
      *
      * @return A {@link bolts.Task} containing the list as result.
      * @since 0.1.0
      */
-    protected abstract Task<List<Ride>> getRidesAsync();
+    protected abstract Task<List<RideRequest>> getRequestsAsync();
 
     /**
-     * TODO this method documentation
+     * Get the message to display on the screen, when there is no ride request to show.
+     *
+     * @return The message to display.
+     * @since 0.1.0
      */
-    protected void loadRides() {
+    protected abstract String getNoRequestMessage();
+
+    /**
+     * Loads the requests to display on the screen.
+     *
+     * @since 0.1.0
+     */
+    protected void loadRequests() {
         mViewFlipper.setDisplayedChild(PROGRESS_VIEW);
 
         // check for user's network connection if this fragment is not used on an offline feed
         if (! isOfflineFeed() && ! NetworkUtil.isConnected(getActivity())) {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         } else {
-            Task<List<Ride>> loadRidesTask = getRidesAsync();
+            Task<List<RideRequest>> loadRidesTask = getRequestsAsync();
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRidesTask != null) {
-                Log.i(TAG, "Loading rides...");
-
-                loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
+                loadRidesTask.continueWith(new Continuation<List<RideRequest>, Void>() {
                     @Override
-                    public Void then(final Task<List<Ride>> task) throws Exception {
+                    public Void then(final Task<List<RideRequest>> task) throws Exception {
                         // force the code to run on the main thread
                         mHandler.post(new Runnable() {
                             @Override
@@ -239,19 +233,19 @@ public abstract class AbstractListRidesFragment extends Fragment {
                                 mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
                                 if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<Ride> lstRides = task.getResult();
-                                    Collections.sort(lstRides, new Comparator<Ride>() {
+                                    List<RideRequest> lstRequests = task.getResult();
+                                    Collections.sort(lstRequests, new Comparator<RideRequest>() {
                                         @Override
-                                        public int compare(Ride lhs, Ride rhs) {
+                                        public int compare(RideRequest lhs, RideRequest rhs) {
                                             return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
                                         }
                                     });
 
-                                    mRidesAdapter.setDataset(lstRides);
+                                    mRequestsAdapter.setDataset(lstRequests);
 
                                     // if there is no ride, displays a specific message to the user
-                                    if (lstRides.size() == 0) {
-                                        displayNoRideMessage();
+                                    if (lstRequests.size() == 0) {
+                                        displayNoRequestMessage();
                                     }
                                 } else {
                                     Log.e(TAG, task.getError().getMessage());
@@ -269,12 +263,12 @@ public abstract class AbstractListRidesFragment extends Fragment {
     }
 
     /**
-     * Displays a message to user, when there is no ride to display on feed.
+     * Displays a message to user, when there is no ride request to display on feed.
      *
      * @since 0.1.0
      */
-    protected void displayNoRideMessage() {
-        displayErrorScreen(getString(R.string.no_ride_to_display));
+    protected void displayNoRequestMessage() {
+        displayErrorScreen(getNoRequestMessage());
         mErrorScreenRetryButton.setVisibility(View.GONE);
         mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
     }

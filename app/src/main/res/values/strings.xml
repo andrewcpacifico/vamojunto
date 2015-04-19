@@ -112,7 +112,7 @@
     <string name="get_location_activity_title">Selecione um local</string>
     <string name="type_addr_location">Digite um endereço ou local</string>
     <string name="set_start_point">Definir ponto de partida.</string>
-    <string name="set_destiny">Definir destino</string>
+    <string name="set_destination">Definir destino</string>
     <string name="title_activity_search_place">Busque por um local.</string>
 
     <!-- SearchPlaceActivity -->
@@ -189,6 +189,9 @@
     <string name="no_ride_to_display">Não há nenhuma carona para ser exibida.</string>
     <string name="save_changes">Salvar alterações</string>
     <string name="saving">Salvando...</string>
+    <string name="choose_destination">Escolha o destino</string>
+    <string name="no_request_to_display">Não há nenhum pedido de carona para exibir.</string>
+    <string name="no_friends_requests">Seus amigos ainda não fizeram nenhum pedido de carona.</string>
 
 
 </resources>

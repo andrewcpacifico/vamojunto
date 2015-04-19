@@ -22,25 +22,33 @@ package co.vamojunto.ui.fragments;
 import java.util.List;
 
 import bolts.Task;
-import co.vamojunto.model.Ride;
+import co.vamojunto.R;
+import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display a list of rides offered by the
- * current user's friends.
+ * A {@link android.support.v4.app.Fragment} where the user can view all requests made
+ * by his friends.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public class MyFriendsOffersFragment extends DefaultListRidesFragment {
+public class FriendsRequestsFragment extends DefaultListRequestsFragment {
+
     @Override
     protected boolean isOfflineFeed() {
         return false;
     }
 
     @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getFriendsOffersAsync(User.getCurrentUser());
+    protected Task<List<RideRequest>> getRequestsAsync() {
+        return RideRequest.getByRequesterAsync(User.getCurrentUser());
     }
+
+    @Override
+    protected String getNoRequestMessage() {
+        return getString(R.string.no_friends_requests);
+    }
+
 }

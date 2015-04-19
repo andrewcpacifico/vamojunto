@@ -41,7 +41,7 @@ import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
-import co.vamojunto.ui.fragments.MyFriendsFeedFragment;
+import co.vamojunto.ui.fragments.FriendsFeedFragment;
 
 /**
  * System's Main Activity
@@ -253,7 +253,7 @@ public class MainActivity extends ActionBarActivity {
             // the second item on navigation drawer displays the user's friends feed screen
             case VIEW_FRIENDS_FEED:
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MyFriendsFeedFragment()).commit();
+                        .add(R.id.container, new FriendsFeedFragment()).commit();
                 break;
 
 

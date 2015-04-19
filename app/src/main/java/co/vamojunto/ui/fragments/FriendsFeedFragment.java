@@ -47,7 +47,7 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
  * @since 0.1.0
  * @version 1.0.0
  */
-public class MyFriendsFeedFragment extends Fragment {
+public class FriendsFeedFragment extends Fragment {
 
     private static final String TAG = "MyFriendsFeedFragment";
 
@@ -56,7 +56,7 @@ public class MyFriendsFeedFragment extends Fragment {
      */
     private ProgressDialog mProDialog;
 
-    public MyFriendsFeedFragment() {
+    public FriendsFeedFragment() {
         // Required empty public constructor
     }
 
@@ -144,12 +144,12 @@ public class MyFriendsFeedFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                Fragment f = new MyFriendsOffersFragment();
+                Fragment f = new FriendsOffersFragment();
 
                 return f;
             }
             else if (position == 1)
-                return new ListMyRequestsFragment();
+                return new FriendsRequestsFragment();
 
             else return null;
         }
