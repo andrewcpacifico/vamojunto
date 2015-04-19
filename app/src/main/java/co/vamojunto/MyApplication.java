@@ -36,6 +36,7 @@ import com.parse.SaveCallback;
 
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.Ride;
+import co.vamojunto.model.RidePassenger;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
@@ -72,6 +73,8 @@ public class MyApplication extends Application {
         ParseObject.registerSubclass(RideRequest.class);
         ParseObject.registerSubclass(SeatRequest.class);
         ParseObject.registerSubclass(Friendship.class);
+        ParseObject.registerSubclass(RidePassenger.class);
+
         Parse.initialize(this, appId, clientId);
         ParseFacebookUtils.initialize();
 

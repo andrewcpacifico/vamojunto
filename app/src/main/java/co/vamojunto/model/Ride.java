@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -178,6 +179,12 @@ public class Ride extends ParseObject {
         return tcs.getTask();
     }
 
+    /**
+     * Get all passengers confirmed on this ride.
+     *
+     * @return A {@link bolts.Task} containing a {@link java.util.List} of all confirmed passengers.
+     * @since 0.1.0
+     */
     public Task<List<User>> getPassengers() {
         final Task<List<User>>.TaskCompletionSource tcs = Task.create();
 
@@ -232,6 +239,55 @@ public class Ride extends ParseObject {
                 } else {
                     tcs.setError(e);
                 }
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    /**
+     * Get a list of rides that a given user is confirmed as passenger.
+     *
+     * @param user The user to look for the rides.
+     * @return A {@link bolts.Task} containing a {@link java.util.List} of rides as result.
+     */
+    public static Task<List<Ride>> getRidesAsPassengerAsync(User user) {
+        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+
+        // creates a query to look for all rows on RidePassenger table where user is the passenger
+        // the query includes the ride field, thereby the query result will contain all rides
+        // that user is passenger
+        ParseQuery<RidePassenger> passengerQuery = ParseQuery.getQuery(RidePassenger.class);
+        passengerQuery.whereEqualTo(RidePassenger.FIELD_PASSENGER, user);
+        passengerQuery.include(RidePassenger.FIELD_RIDE);
+        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + Ride.FIELD_DRIVER);
+
+        // run the query in background, on the query completion processes the method return
+        passengerQuery.findInBackground().continueWith(new Continuation<List<RidePassenger>, Void>() {
+            @Override
+            public Void then(Task<List<RidePassenger>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    // list containing all records on the RidePassenger table where the user is
+                    // the passenger
+                    List<RidePassenger> passengerList = task.getResult();
+
+                    // the list to use as task result
+                    List<Ride> resultList = new ArrayList<Ride>();
+
+                    // iterate over the RidePassenger records to get only the rides, and adds them
+                    // to resultList
+                    for (RidePassenger passengerEntry: passengerList) {
+                        resultList.add(passengerEntry.getRide());
+                    }
+
+                    tcs.setResult(resultList);
+                }
+
+                return null;
             }
         });
 

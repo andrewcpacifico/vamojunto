@@ -28,6 +28,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -108,10 +109,38 @@ public class MinhasCaronasFragment extends Fragment {
      * São exibidas duas páginas, uma contendo as ofertas de caronas do usuário, e outra contendo
      * os pedidos.
      *
+     * An Adapter to fill the fragment tabs.
+     *
+     * Currently it displays the three following pages:
+     * <ul>
+     *     <li>
+     *         A page where the user can view all his ride offers.
+     *         The {@link co.vamojunto.ui.fragments.ListMyRidesFragment} is used to render this page.
+     *     </li>
+     *     <li>
+     *         A page where the user can view all rides that he is confirmed as a passenger.
+     *         The {@link co.vamojunto.ui.fragments.RidesAsPassengerFragment} is used to render
+     *         this page.
+     *     </li>
+     *     <li>
+     *         A page where the user can manage all his ride requests.
+     *         The {@link co.vamojunto.ui.fragments.ListMyRequestsFragment} is used to render
+     *         this page.
+     *     </li>
+     * </ul>
+     *
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
      * @since 0.1.0
+     * @version 1.0.0
      */
     public class MyPagerAdapter extends FragmentPagerAdapter {
+
+        /**
+         * A tag for log messages.
+         *
+         * @since 0.1.0
+         */
+        private static final String TAG = "MyPagerAdapter";
 
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -119,22 +148,30 @@ public class MinhasCaronasFragment extends Fragment {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (position == 0)
+            if (position == 0) {
                 return getString(R.string.minhas_caronas_fragment_tab1);
-            else if (position == 1)
+            } else if (position == 1) {
                 return getString(R.string.minhas_caronas_fragment_tab2);
+            } else if (position == 2) {
+                return getString(R.string.minhas_caronas_fragment_tab3);
+            }
 
-            return getString(R.string.minhas_caronas_fragment_tab3);
+            Log.e(TAG, "[getPageTitle] An invalid tab position was given.");
+            return "";
         }
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0)
+            if (position == 0) {
                 return new ListMyRidesFragment();
-            else if (position == 2)
+            } else if (position == 1) {
+                return new RidesAsPassengerFragment();
+            } else if (position == 2) {
                 return new ListMyRequestsFragment();
+            }
 
-            return new RegistrationFragment();
+            Log.e(TAG, "[getItem] An invalid tab position was given.");
+            return null;
         }
 
         @Override

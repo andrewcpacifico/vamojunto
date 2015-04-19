@@ -22,6 +22,7 @@ package co.vamojunto.ui.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -118,6 +119,13 @@ public abstract class AbstractListRidesFragment extends Fragment {
      */
     private ImageView mErrorScreenIcon;
 
+    /**
+     * A Handler to run code on the main thread.
+     *
+     * @since 0.1.0
+     */
+    protected Handler mHandler;
+
     public AbstractListRidesFragment() {
         // Required empty public constructor
     }
@@ -126,6 +134,8 @@ public abstract class AbstractListRidesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(getLayoutResource(), container, false);
+
+        mHandler = new Handler();
 
         initComponents(rootView);
 
@@ -215,32 +225,41 @@ public abstract class AbstractListRidesFragment extends Fragment {
         } else {
             Task<List<Ride>> loadRidesTask = getRidesAsync();
 
+            // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRidesTask != null) {
+                Log.i(TAG, "Loading rides...");
+
                 loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
                     @Override
-                    public Void then(Task<List<Ride>> task) throws Exception {
-                        mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                    public Void then(final Task<List<Ride>> task) throws Exception {
+                        // force the code to run on the main thread
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
-                        if (!task.isFaulted() && !task.isCancelled()) {
-                            List<Ride> lstRides = task.getResult();
-                            Collections.sort(lstRides, new Comparator<Ride>() {
-                                @Override
-                                public int compare(Ride lhs, Ride rhs) {
-                                    return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                if (!task.isFaulted() && !task.isCancelled()) {
+                                    List<Ride> lstRides = task.getResult();
+                                    Collections.sort(lstRides, new Comparator<Ride>() {
+                                        @Override
+                                        public int compare(Ride lhs, Ride rhs) {
+                                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                        }
+                                    });
+
+                                    mRidesAdapter.setDataset(lstRides);
+
+                                    // if there is no ride, displays a specific message to the user
+                                    if (lstRides.size() == 0) {
+                                        displayNoRideMessage();
+                                    }
+                                } else {
+                                    Log.e(TAG, task.getError().getMessage());
+
+                                    displayErrorScreen();
                                 }
-                            });
-
-                            mRidesAdapter.setDataset(lstRides);
-
-                            // if there is no ride, displays a specific message to the user
-                            if (lstRides.size() == 0) {
-                                displayNoRideMessage();
                             }
-                        } else {
-                            Log.e(TAG, task.getError().getMessage());
-
-                            displayErrorScreen();
-                        }
+                        });
 
                         return null;
                     }
