@@ -22,7 +22,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
-        android:id="@+id/header_text"
+        android:id="@+id/requester_header"
 
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
@@ -36,7 +36,7 @@
         android:textSize="@dimen/abc_text_size_subtitle_material_toolbar"/>
 
     <View
-        android:id="@+id/header_separator"
+        android:id="@+id/requester_header_separator"
 
         android:layout_height="2dp"
         android:layout_width="match_parent"

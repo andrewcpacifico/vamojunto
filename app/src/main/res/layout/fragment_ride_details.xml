@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <LinearLayout
-                        android:id="@+id/header"
+                        android:id="@+id/requester"
 
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                     <View
                         android:id="@+id/separator_1"
 
-                        android:layout_below="@id/header"
+                        android:layout_below="@id/requester"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
 

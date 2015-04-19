@@ -181,7 +181,7 @@ public class FriendsRecyclerViewAdapter
 
                 // if the holder is a view_header, i.e a recyclerview.manage_friends_header layout
             } else {
-                mHeaderTextView = (TextView) itemView.findViewById(R.id.header_text);
+                mHeaderTextView = (TextView) itemView.findViewById(R.id.requester_header);
             }
         }
     }

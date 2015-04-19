@@ -19,13 +19,243 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="co.vamojunto.ui.fragments.RequestDetailsFragment">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <ScrollView
+        android:id="@+id/main_content"
 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/offer_ride"
+
+        android:fillViewport="true"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/requester_header"
+
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/requester"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="@dimen/abc_text_size_subtitle_material_toolbar"/>
+
+            <View
+                android:id="@+id/requester_header_separator"
+
+                android:layout_below="@+id/requester_header"
+                android:layout_height="2dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+
+                android:background="@color/separator"
+                />
+
+            <LinearLayout
+                android:id="@+id/requester"
+
+                android:layout_below="@id/requester_header_separator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/no_profile_pic"
+                    android:id="@+id/driver_picture"
+                    />
+
+                <TextView
+                    android:id="@+id/driver_name_text_view"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginTop="10dp"
+                    android:text="Amado Batista"
+                    android:textSize="@dimen/abc_text_size_body_1_material"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/details_header"
+
+                android:layout_below="@+id/requester"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/details"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textSize="@dimen/abc_text_size_subtitle_material_toolbar"/>
+
+            <View
+                android:id="@+id/details_header_separator"
+
+                android:layout_below="@+id/details_header"
+                android:layout_height="2dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+
+                android:background="@color/separator"/>
+
+            <RelativeLayout
+                android:id="@+id/details"
+
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+
+                android:layout_below="@+id/details_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/starting_point"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/ic_pin_orig"/>
+
+                    <TextView
+                        android:id="@+id/starting_point_text_view"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:text="UFAM"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                    />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/destination"
+
+                    android:layout_below="@+id/starting_point"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/ic_pin_dest"/>
+
+                    <TextView
+                        android:id="@+id/destination_text_view"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:text="SIDIA Samsung Instituto de Desenvolvimento de Informática do Amazonas"
+                        android:textSize="@dimen/abc_text_size_small_material"
+                    />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/datetime_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/destination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:drawableLeft="@drawable/ic_calendar"
+                    android:drawableStart="@drawable/ic_calendar"
+                    android:drawablePadding="5dp"
+                    android:gravity="center_vertical"
+                    android:text="Segunda-feira, 09/03, as 12:30"
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+                <TextView
+                    android:id="@+id/detais_text_view"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/datetime_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="Detalhes: Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão."
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    />
+
+            </RelativeLayout>
+
+        </RelativeLayout> <!-- end of main panel -->
+    </ScrollView> <!-- end of main content-->
+
+    <LinearLayout
+        android:id="@+id/offer_ride"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/separator"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/message_edit_text"
+
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/abc_action_button_min_height_material"
+                android:layout_weight="1"
+
+                android:background="@color/white"
+                android:paddingLeft="5dp"
+                android:hint="@string/offer_ride"/>
+
+            <ImageButton
+                android:id="@+id/send_message"
+
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+
+                android:background="@drawable/white_button_background"
+                android:padding="0dp"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_send_message"/>
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

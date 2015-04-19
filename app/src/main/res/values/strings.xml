@@ -122,7 +122,7 @@
     <string name="no_results_found">Nenhum resultado foi encontrado.</string>
     <string name="de">De</string>
     <string name="para">Para</string>
-    <string name="oferecer_carona">Oferecer carona</string>
+    <string name="offer_ride">Oferecer carona</string>
     <string name="minhas_caronas_fragment_title">Minhas caronas</string>
     <string name="minhas_caronas_fragment_tab1">Motorista</string>
     <string name="minhas_caronas_fragment_tab2">Passageiro</string>
@@ -193,6 +193,7 @@
     <string name="no_request_to_display">Não há nenhum pedido de carona para exibir.</string>
     <string name="no_friends_requests">Seus amigos ainda não fizeram nenhum pedido de carona.</string>
     <string name="title_activity_request_details">RequestDetailsActivity</string>
+    <string name="requester">Solicitante</string>
 
 
 </resources>

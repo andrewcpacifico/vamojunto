@@ -40,7 +40,7 @@
 
             android:padding="10dp">
             <LinearLayout
-                android:id="@+id/header"
+                android:id="@+id/requester"
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -71,7 +71,7 @@
                 android:id="@+id/starting_point_text_view"
 
                 android:layout_marginTop="10dp"
-                android:layout_below="@+id/header"
+                android:layout_below="@+id/requester"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
