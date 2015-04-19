@@ -47,18 +47,45 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
 
     /**
      * Stores the data that will be displayed on the screen
+     *
+     * @since 0.1.0
      */
     private List<RideRequest> mDataset;
 
     /**
      * {@link android.content.Context} of the RecyclerView for this adapter
+     *
+     * @since 0.1.0
      */
     private Context mContext;
 
     /**
      * Used to execute something on the main thread
+     *
+     * @since 0.1.0
      */
     private Handler mHandler;
+
+    /**
+     * A listener for item clicks.
+     *
+     * @since 0.1.0
+     */
+    private OnItemClickListener mClickListener;
+
+    /**
+     * Returns the request on a given position of the list.
+     *
+     * @param position The wanted item index.
+     * @return A RideRequest located on position, or <code>null</code> if the position is invalid.
+     */
+    public RideRequest getItem(int position) {
+        if (mDataset != null && mDataset.size() > position) {
+            return mDataset.get(position);
+        }
+
+        return null;
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         public CircleImageView mRequestorImage;
@@ -68,7 +95,7 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
         public TextView mDateTextView;
         public TextView mTimeTextView;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, final OnItemClickListener clickListener) {
             super(itemView);
 
             mRequestorImage = (CircleImageView) itemView.findViewById(R.id.user_pic);
@@ -77,13 +104,46 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
             mDestinationTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
             mDateTextView = (TextView) itemView.findViewById(R.id.date_text_view);
             mTimeTextView = (TextView) itemView.findViewById(R.id.time_text_view);
+
+            if (clickListener != null) {
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        clickListener.OnItemClick(getPosition());
+                    }
+                });
+            }
         }
     }
 
-    public RequestsRecyclerViewAdapter(Context context, List<RideRequest> dataset) {
-        this.mDataset = dataset;
-        this.mContext = context;
-        this.mHandler = new Handler(Looper.getMainLooper());
+    /**
+     * Interface to handle the item clicks.
+     *
+     * @since 0.1.0
+     * @version 1.0.0
+     */
+    public static interface OnItemClickListener {
+        public void OnItemClick(int position);
+    }
+
+    /**
+     * Constructor to initializes the adapter fields.
+     *
+     * @param context Current context.
+     * @param dataset The recyclerview's dataset.
+     * @param clickListener A listener to item clicks events.
+     *
+     * @since 0.1.0
+     */
+    public RequestsRecyclerViewAdapter(
+            Context context,
+            List<RideRequest> dataset,
+            OnItemClickListener clickListener
+    ) {
+        mDataset = dataset;
+        mContext = context;
+        mHandler = new Handler(Looper.getMainLooper());
+        mClickListener = clickListener;
     }
 
     /**
@@ -131,7 +191,7 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.layout_ride_card, parent, false);
 
-        return new ViewHolder(v);
+        return new ViewHolder(v, mClickListener);
     }
 
     @Override

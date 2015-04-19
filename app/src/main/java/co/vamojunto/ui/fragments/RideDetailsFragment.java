@@ -20,7 +20,6 @@
 package co.vamojunto.ui.fragments;
 
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -29,12 +28,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -296,9 +291,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @param rootView The Fragment's inflated layout.
      */
     private void initComponents(View rootView) {
-        mDriverImageView = (CircleImageView) rootView.findViewById(R.id.driver_picture);
+        mDriverImageView = (CircleImageView) rootView.findViewById(R.id.requester_picture);
 
-        mDriverNameTextView = (TextView) rootView.findViewById(R.id.driver_name_text_view);
+        mDriverNameTextView = (TextView) rootView.findViewById(R.id.requester_name_text_view);
 
         mStartingPointTextView = (TextView) rootView.findViewById(R.id.starting_point_text_view);
 
@@ -306,7 +301,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         mDatetimeTextView = (TextView) rootView.findViewById(R.id.datetime_text_view);
 
-        mDetailsTextView = (TextView) rootView.findViewById(R.id.detais_text_view);
+        mDetailsTextView = (TextView) rootView.findViewById(R.id.details_text_view);
 
         mRequestSeatButton = (Button) rootView.findViewById(R.id.ask_button);
 

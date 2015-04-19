@@ -19,12 +19,17 @@
 
 package co.vamojunto.ui.fragments;
 
+import android.content.Intent;
+import android.widget.Toast;
+
 import java.util.List;
 
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.RequestDetailsActivity;
+import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 
 /**
  * A {@link android.support.v4.app.Fragment} where the user can view all requests made
@@ -51,4 +56,19 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
         return getString(R.string.no_friends_requests);
     }
 
+    @Override
+    protected RequestsRecyclerViewAdapter.OnItemClickListener getClickListener() {
+        return new RequestsRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(int position) {
+                RideRequest.storeInstance(
+                        RequestDetailsActivity.EXTRA_REQUEST,
+                        mRequestsAdapter.getItem(position)
+                );
+
+                Intent intent = new Intent(getActivity(), RequestDetailsActivity.class);
+                startActivity(intent);
+            }
+        };
+    }
 }

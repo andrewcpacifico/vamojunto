@@ -90,7 +90,7 @@ public abstract class AbstractListRequestsFragment extends Fragment {
     /**
      * Adapter used to manage the data of mRequestsRecyclerView
      */
-    private RequestsRecyclerViewAdapter mRequestsAdapter;
+    protected RequestsRecyclerViewAdapter mRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -156,7 +156,7 @@ public abstract class AbstractListRequestsFragment extends Fragment {
         mRequestsRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
         // inits the RecyclerView Adapter
-        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), null);
+        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), null, getClickListener());
         mRequestsRecyclerView.setAdapter(mRequestsAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
@@ -172,6 +172,14 @@ public abstract class AbstractListRequestsFragment extends Fragment {
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
     }
+
+    /**
+     * Get the listener to handle the item clicks on the recyclerview.
+     *
+     * @return A listener for item clicks.
+     * @since 0.1.0
+     */
+    protected abstract RequestsRecyclerViewAdapter.OnItemClickListener getClickListener();
 
     /**
      * Getter for the fragment layout

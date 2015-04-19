@@ -20,6 +20,7 @@
 package co.vamojunto.ui.fragments;
 
 import co.vamojunto.R;
+import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 
 /**
  * Created by Andrew C. Pacifico <andrewcpacifico@gmail.com> on 18/04/15.
@@ -35,4 +36,10 @@ public abstract class DefaultListRequestsFragment extends AbstractListRequestsFr
     protected String getNoRequestMessage() {
         return getString(R.string.no_request_to_display);
     }
+
+    @Override
+    protected RequestsRecyclerViewAdapter.OnItemClickListener getClickListener() {
+        return null;
+    }
+
 }

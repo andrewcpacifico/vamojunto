@@ -178,7 +178,7 @@ public class ListMyRidesFragment extends Fragment {
         mRidesRecyclerView.setAdapter(mRidesAdapter);
 
         Button okButton = (Button) rootView.findViewById(R.id.ok_button);
-        okButton.setText(getText(R.string.oferecer_carona));
+        okButton.setText(getText(R.string.offer_ride));
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
