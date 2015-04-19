@@ -90,7 +90,7 @@ public abstract class AbstractListRequestsFragment extends Fragment {
     /**
      * Adapter used to manage the data of mRequestsRecyclerView
      */
-    private RequestsRecyclerViewAdapter mRequestsAdapter;
+    protected RequestsRecyclerViewAdapter mRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides

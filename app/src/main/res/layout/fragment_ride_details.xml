@@ -76,11 +76,11 @@
                             android:layout_width="70dp"
                             android:layout_height="70dp"
                             android:src="@drawable/no_profile_pic"
-                            android:id="@+id/driver_picture"
+                            android:id="@+id/requester_picture"
                             />
 
                         <TextView
-                            android:id="@+id/driver_name_text_view"
+                            android:id="@+id/requester_name_text_view"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -147,7 +147,7 @@
                             />
 
                         <TextView
-                            android:id="@+id/detais_text_view"
+                            android:id="@+id/details_text_view"
 
                             android:layout_marginTop="10dp"
                             android:layout_below="@+id/datetime_text_view"
@@ -162,7 +162,7 @@
                             android:id="@+id/seats_available_text_view"
 
                             android:layout_marginTop="10dp"
-                            android:layout_below="@+id/detais_text_view"
+                            android:layout_below="@+id/details_text_view"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
 

@@ -73,6 +73,20 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
      */
     private OnItemClickListener mClickListener;
 
+    /**
+     * Returns the request on a given position of the list.
+     *
+     * @param position The wanted item index.
+     * @return A RideRequest located on position, or <code>null</code> if the position is invalid.
+     */
+    public RideRequest getItem(int position) {
+        if (mDataset != null && mDataset.size() > position) {
+            return mDataset.get(position);
+        }
+
+        return null;
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         public CircleImageView mRequestorImage;
         public TextView mNameTextView;

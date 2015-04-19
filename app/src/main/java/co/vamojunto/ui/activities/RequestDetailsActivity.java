@@ -44,6 +44,20 @@ import co.vamojunto.ui.fragments.RequestDetailsFragment;
 public class RequestDetailsActivity extends ActionBarActivity {
 
     /**
+     * The tag to use on log messages.
+     *
+     * @since 0.1.0
+     */
+    public static final String TAG = "RequestDetailsActivity";
+
+    /**
+     * Code for request sent as extra.
+     *
+     * @since 0.1.0
+     */
+    public static final String EXTRA_REQUEST = TAG + ".request";
+
+    /**
      * Activity's action bar
      *
      * @since 0.1.0
