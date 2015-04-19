@@ -43,7 +43,7 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
 
     @Override
     protected Task<List<RideRequest>> getRequestsAsync() {
-        return RideRequest.getByRequesterAsync(User.getCurrentUser());
+        return RideRequest.getFriendsRequestsAsync(User.getCurrentUser());
     }
 
     @Override

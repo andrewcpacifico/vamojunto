@@ -168,4 +168,25 @@ public class RideRequest extends ParseObject {
         return tcs.getTask();
     }
 
+    /**
+     * Get a list of ride requests made by the friends of a given user.
+     *
+     * @param currentUser The user to find the friend's requests.
+     * @return A {@link bolts.Task} containing the list of requests as result.
+     * @since 0.1.0
+     */
+    public static Task<List<RideRequest>> getFriendsRequestsAsync(User currentUser) {
+        // selects all friendships where the currentUser is the follower
+        ParseQuery<Friendship> qFriendship = ParseQuery.getQuery(Friendship.class);
+        qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, currentUser);
+
+        // gets all rides requested by the users followed by the currentUser
+        ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+        query.whereMatchesKeyInQuery(FIELD_REQUESTER, Friendship.FIELD_FOLLOWING, qFriendship);
+
+        // includes the requester data, to display on list screen
+        query.include(FIELD_REQUESTER);
+
+        return query.findInBackground();
+    }
 }
