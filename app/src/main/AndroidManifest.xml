@@ -168,7 +168,8 @@
         </activity>
         <activity
             android:name=".ui.activities.RequestDetailsActivity"
-            android:label="@string/title_activity_request_details" >
+            android:label="@string/title_activity_request_details"
+            android:windowSoftInputMode="adjustResize">
         </activity>
     </application>
 
