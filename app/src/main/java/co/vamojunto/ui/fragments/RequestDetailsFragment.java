@@ -34,6 +34,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import bolts.Continuation;
@@ -375,8 +377,46 @@ public class RequestDetailsFragment extends Fragment {
                 viewHolder.senderImageView.setImageBitmap(message.getSender().getProfileImage());
                 viewHolder.senderNameTextView.setText(message.getSender().getName());
                 viewHolder.messageTextView.setText(message.getMessage());
-                // TODO method to generate text to display on the message time field
-                viewHolder.messageTimeTextView.setText("");
+                viewHolder.messageTimeTextView.setText(getFormattedDate(message.getCreatedAt()));
+            }
+        }
+
+        public String getFormattedDate(Date date) {
+            long diff = new Date().getTime() - date.getTime();
+            long diffSeconds = (diff / 1000) % 60;
+            long diffMinutes = (diff / (1000 * 60)) % 60;
+            long diffHours = (diff / (1000 * 60 * 60)) % 60;
+
+            // if the message was sent a week ago, just return the formatted date
+            if (diffHours > 168) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+
+                return DateUtil.getFormattedDateTime(mContext, cal);
+
+            // if the message was sent this week, but not today or yesterday return a message
+            // with the days past since the message sending
+            } else if (diffHours >= 48) {
+                return diffHours + " " + mContext.getString(R.string.days_ago);
+
+            // if the message was sent yesterday
+            } else if (diffHours >= 24) {
+                return mContext.getString(R.string.yesterday);
+
+            // if the message was sent more than a hour ago, return a message with the hours
+            // past since the message sending
+            } else if (diffHours > 1) {
+                return diffHours + " " + mContext.getString(R.string.hours_ago);
+
+            } else if (diffHours == 1) {
+                return mContext.getString(R.string.an_hour_ago);
+
+            // if the message was sent more than a minute ago, return a message with the minutes
+            // past since the message sending
+            } else if (diffMinutes > 1) {
+                return diffMinutes + " " + mContext.getString(R.string.minutes_ago);
+            } else {
+                return diffSeconds + " " + mContext.getString(R.string.seconds_ago);
             }
         }
 

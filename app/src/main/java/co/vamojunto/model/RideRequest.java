@@ -200,7 +200,7 @@ public class RideRequest extends ParseObject {
     public Task<List<RequestMessage>> getMessagesAsync() {
         ParseQuery<RequestMessage> query = ParseQuery.getQuery(RequestMessage.class);
         query.whereEqualTo(RequestMessage.FIELD_REQUEST, this);
-        query.orderByAscending("createdAt");    
+        query.orderByAscending("createdAt");
 
         return query.findInBackground();
     }

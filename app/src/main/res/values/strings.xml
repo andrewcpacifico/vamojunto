@@ -194,6 +194,12 @@
     <string name="no_friends_requests">Seus amigos ainda não fizeram nenhum pedido de carona.</string>
     <string name="title_activity_request_details">Solicitação de carona</string>
     <string name="requester">Solicitante</string>
+    <string name="days_ago">dias atrás.</string>
+    <string name="yesterday">Ontem</string>
+    <string name="hours_ago">horas atrás.</string>
+    <string name="minutes_ago">minutos atrás.</string>
+    <string name="seconds_ago">segundos atrás.</string>
+    <string name="an_hour_ago">1 hora atrás.</string>
 
 
 </resources>
