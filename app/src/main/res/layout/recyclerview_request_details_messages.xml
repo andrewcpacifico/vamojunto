@@ -68,7 +68,7 @@
             android:text="Ei cara eu vou sair aqui da UFAM esse mesmo horário, tem como eu ir contigo?"/>
 
         <TextView
-            android:id="@+id/message_time"
+            android:id="@+id/message_time_text_view"
 
             android:layout_alignLeft="@+id/message_text_view"
             android:layout_alignStart="@+id/message_text_view"

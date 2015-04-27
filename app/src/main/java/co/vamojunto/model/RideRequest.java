@@ -189,4 +189,19 @@ public class RideRequest extends ParseObject {
 
         return query.findInBackground();
     }
+
+    /**
+     * Get a list of messages sent to this request.
+     *
+     * @since 0.1.0
+     * @return A {@link Task} containing a {@link java.util.List} with all messages sent to
+     *         this request as result.
+     */
+    public Task<List<RequestMessage>> getMessagesAsync() {
+        ParseQuery<RequestMessage> query = ParseQuery.getQuery(RequestMessage.class);
+        query.whereEqualTo(RequestMessage.FIELD_REQUEST, this);
+        query.orderByAscending("createdAt");    
+
+        return query.findInBackground();
+    }
 }

@@ -21,6 +21,7 @@ package co.vamojunto.ui.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +34,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.RequestMessage;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.util.DateUtil;
@@ -108,7 +114,25 @@ public class RequestDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
+        loadMessages();
+
         return rootView;
+    }
+
+    /**
+     * Load the messages sent to context ride request.
+     *
+     * @since 0.1.0
+     */
+    private void loadMessages() {
+        mRequest.getMessagesAsync().continueWith(new Continuation<List<RequestMessage>, Void>() {
+            @Override
+            public Void then(Task<List<RequestMessage>> task) throws Exception {
+                mMessagesAdapter.setDataset(task.getResult());
+
+                return null;
+            }
+        });
     }
 
     @Override
@@ -141,88 +165,183 @@ public class RequestDetailsFragment extends Fragment {
 
     }
 
+    /**
+     * Adapter for the RecyclerView on this screen.
+     *
+     * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+     * @since 0.1.0
+     * @version 1.0.0
+     */
     public static class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
 
+        /**
+         * Code for the viewType used on the first view, where the request details are displayed.
+         *
+         * @since 0.1.0
+         */
         public static int VIEW_DETAILS = 0;
+
+        /**
+         * Code for the viewType of the all other views, where the messages are displayed.
+         */
         public static int VIEW_MESSAGE = 1;
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
             /*
-             * Widgets for details view.
-             * */
+             ---------------------------------------------------------------------------------------
+             - Widgets for details view.
+             ---------------------------------------------------------------------------------------
+             */
             /**
              * Inflated ImageView with the requester profile image
              *
              * @since 0.1.0
              */
-            private CircleImageView mRequesterImage;
+            private CircleImageView requesterImage;
 
             /**
              * Inflated TextView with the requester name.
              *
              * @since 0.1.0
              */
-            private TextView mRequesterNameTextView;
+            private TextView requesterNameTextView;
 
             /**
              * Inflated TextView with the request starting point.
              *
              * @since 0.1.0
              */
-            private TextView mStartingPointTextView;
+            private TextView startingPointTextView;
 
             /**
              * Inflated TextView with the request destination point.
              *
              * @since 0.1.0
              */
-            private TextView mDestinationTextView;
+            private TextView destinationTextView;
 
             /**
              * Inflated TextView with the request date and time.
              *
              * @since 0.1.0
              */
-            private TextView mDatetimeTextView;
+            private TextView datetimeTextView;
 
             /**
              * Inflated TextView with the request details.
              *
              * @since 0.1.0
              */
-            private TextView mDetailsTextView;
+            private TextView detailsTextView;
+
+            /*
+             ---------------------------------------------------------------------------------------
+             - Widgets for message items.
+             ---------------------------------------------------------------------------------------
+             */
+            /**
+             * Inflated image with the profile picture of the message sender.
+             *
+             * @since 0.1.0
+             */
+            private CircleImageView senderImageView;
+
+            /**
+             * Inflated TextView with the name of the message sender.
+             *
+             * @since 0.1.0
+             */
+            private TextView senderNameTextView;
+
+            /**
+             * Inflated TextView with the sent message.
+             *
+             * @since 0.1.0
+             */
+            private TextView messageTextView;
+
+            /**
+             * Inflated TextView with the message date.
+             *
+             * @since 0.1.0
+             */
+            private TextView messageTimeTextView;
 
             public ViewHolder(View itemView, int viewType) {
                 super(itemView);
 
                 if (viewType == VIEW_DETAILS) {
-                    initDetailsComponents(itemView);
+                    requesterImage = (CircleImageView) itemView.findViewById(R.id.requester_picture);
+                    requesterNameTextView = (TextView) itemView.findViewById(R.id.requester_name_text_view);
+                    startingPointTextView = (TextView) itemView.findViewById(R.id.starting_point_text_view);
+                    destinationTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
+                    datetimeTextView = (TextView) itemView.findViewById(R.id.datetime_text_view);
+                    detailsTextView = (TextView) itemView.findViewById(R.id.details_text_view);
+                } else {
+                    senderImageView = (CircleImageView) itemView.findViewById(R.id.user_image);
+                    senderNameTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
+                    messageTextView = (TextView) itemView.findViewById(R.id.message_text_view);
+                    messageTimeTextView = (TextView) itemView.findViewById(R.id.message_time_text_view);
                 }
-            }
-
-            private void initDetailsComponents(View itemView) {
-                mRequesterImage = (CircleImageView) itemView.findViewById(R.id.requester_picture);
-
-                mRequesterNameTextView = (TextView) itemView.findViewById(R.id.requester_name_text_view);
-
-                mStartingPointTextView = (TextView) itemView.findViewById(R.id.starting_point_text_view);
-
-                mDestinationTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
-
-                mDatetimeTextView = (TextView) itemView.findViewById(R.id.datetime_text_view);
-
-                mDetailsTextView = (TextView) itemView.findViewById(R.id.details_text_view);
             }
 
         }
 
+        /**
+         * The current context.
+         *
+         * @since 0.1.0
+         */
         private Context mContext;
 
+        /**
+         * The request to display the details on the first item of the recyclerview.
+         *
+         * @since 0.1.0
+         */
         private RideRequest mRequest;
 
+        /**
+         * A handler to run code on the main thread.
+         *
+         * @since 0.1.0
+         */
+        private Handler mHandler;
+
+        /**
+         * The dataset containing the messages sent to this request. These messages will be
+         * displayed on the recyclerview.
+         *
+         * @since 0.1.0
+         */
+        private List<RequestMessage> mMessageDataset;
+
+        /**
+         * A class constructor to initialize some adapter fields.
+         *
+         * @param context The current context.
+         * @param request The request to display the details.
+         */
         public MessagesAdapter(Context context, RideRequest request) {
             mContext = context;
             mRequest = request;
+            mHandler = new Handler();
+        }
+
+        /**
+         * Set the message dataset for the recyclerview.
+         *
+         * @param dataset The new dataset.
+         * @since 0.1.0
+         */
+        public void setDataset(List<RequestMessage> dataset) {
+            mMessageDataset = dataset;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
         }
 
         @Override
@@ -243,18 +362,35 @@ public class RequestDetailsFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
             if (getItemViewType(position) == VIEW_DETAILS) {
-                viewHolder.mRequesterImage.setImageBitmap(mRequest.getRequester().getProfileImage());
-                viewHolder.mRequesterNameTextView.setText(mRequest.getRequester().getName());
-                viewHolder.mStartingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
-                viewHolder.mDestinationTextView.setText(mRequest.getDestination().getTitulo());
-                viewHolder.mDatetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
-                viewHolder.mDetailsTextView.setText(mRequest.getDetails());
+                viewHolder.requesterImage.setImageBitmap(mRequest.getRequester().getProfileImage());
+                viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
+                viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
+                viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
+                viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
+                viewHolder.detailsTextView.setText(mRequest.getDetails());
+            } else {
+                // the message to display on this item
+                RequestMessage message = mMessageDataset.get(position - 1);
+
+                viewHolder.senderImageView.setImageBitmap(message.getSender().getProfileImage());
+                viewHolder.senderNameTextView.setText(message.getSender().getName());
+                viewHolder.messageTextView.setText(message.getMessage());
+                // TODO method to generate text to display on the message time field
+                viewHolder.messageTimeTextView.setText("");
             }
         }
 
         @Override
         public int getItemCount() {
-            return 300;
+            int messageCount;
+
+            if (mMessageDataset == null) {
+                messageCount = 0;
+            } else {
+                messageCount = mMessageDataset.size();
+            }
+
+            return messageCount + 1;
         }
 
         @Override
