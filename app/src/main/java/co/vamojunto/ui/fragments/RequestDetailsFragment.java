@@ -43,6 +43,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.RequestMessage;
 import co.vamojunto.model.RideRequest;
+import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.util.DateUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -56,6 +57,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class RequestDetailsFragment extends Fragment {
 
+    private static final String TAG = "RequestDetailsFragment";
     /**
      * The request to display the details.
      *
@@ -75,7 +77,7 @@ public class RequestDetailsFragment extends Fragment {
      *
      * @since 0.1.0
      */
-    private ImageButton mSendButton;
+    private ImageButton mSendMessageButton;
 
     /**
      * RecyclerView to list the messages sent on this request wall.
@@ -98,6 +100,8 @@ public class RequestDetailsFragment extends Fragment {
      */
     private MessagesAdapter mMessagesAdapter;
 
+    private Handler mHandler;
+
     public RequestDetailsFragment() { /* required default constructor, do not delete or edit this */ }
 
     @Override
@@ -111,6 +115,7 @@ public class RequestDetailsFragment extends Fragment {
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         mRequest = RideRequest.getStoredInstance(RequestDetailsActivity.EXTRA_REQUEST);
+        mHandler = new Handler();
 
         initComponents(rootView);
 
@@ -165,6 +170,38 @@ public class RequestDetailsFragment extends Fragment {
         mMessagesRecyclerView.setAdapter(mMessagesAdapter);
         mMessagesRecyclerView.setLayoutManager(mMessagesLayoutManager);
 
+        mMessageEditText = (EditText) rootView.findViewById(R.id.message_edit_text);
+        // on edittext click, scroll the recyclerview to last position
+        mMessageEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMessagesRecyclerView.scrollToPosition(mMessagesAdapter.getItemCount() - 1);
+                    }
+                }, 1600);
+            }
+        });
+
+        mSendMessageButton = (ImageButton) rootView.findViewById(R.id.send_message_button);
+        // on sendMessageButton click, adds a new message to the recyclerview, and sends this
+        // message to server, then it will be displayed on the ride request details screen.
+        mSendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // the message to add on the recyclerview
+                RequestMessage message = new RequestMessage(
+                    mMessageEditText.getText().toString(),
+                    User.getCurrentUser(),
+                    mRequest
+                );
+
+                mMessagesAdapter.addItem(message);
+                mMessageEditText.setText("");
+                mMessagesRecyclerView.scrollToPosition(mMessagesAdapter.getItemCount() - 1);
+            }
+        });
     }
 
     /**
@@ -346,6 +383,23 @@ public class RequestDetailsFragment extends Fragment {
             });
         }
 
+        /**
+         * Add an item to the recyclerview.
+         *
+         * @param message The message to add.
+         * @since 0.1.0
+         */
+        public void addItem(RequestMessage message) {
+            mMessageDataset.add(message);
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemInserted(mMessageDataset.size() + 1);
+                }
+            });
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
             View v;
@@ -381,7 +435,18 @@ public class RequestDetailsFragment extends Fragment {
             }
         }
 
+        /**
+         * Return the request date on a specific format for this feed.
+         *
+         * @param date The request date.
+         * @return The formatted date.
+         * @since 0.1.0
+         */
         public String getFormattedDate(Date date) {
+            if (date == null) {
+                return mContext.getString(R.string.sending);
+            }
+
             long diff = new Date().getTime() - date.getTime();
             long diffSeconds = (diff / 1000) % 60;
             long diffMinutes = (diff / (1000 * 60)) % 60;

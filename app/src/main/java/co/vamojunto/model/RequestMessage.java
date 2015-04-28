@@ -56,6 +56,20 @@ public class RequestMessage extends ParseObject {
     public RequestMessage() { /* required empty constructor. DO NOT CHANGE THIS */ }
 
     /**
+     * A constructor to initialize fields.
+     *
+     * @param message The message to set.
+     * @param sender The sender of the message.
+     * @param request The request to set.
+     * @since 0.1.0
+     */
+    public RequestMessage(String message, User sender, RideRequest request) {
+        setMessage(message);
+        setSender(sender);
+        setRequest(request);
+    }
+
+    /**
      * Get the message itself.
      *
      * @return The message sent.
@@ -105,7 +119,7 @@ public class RequestMessage extends ParseObject {
      *
      * @param request The request to set.
      */
-    public void setMessage(RideRequest request) {
+    public void setRequest(RideRequest request) {
         put(FIELD_REQUEST, request);
     }
 

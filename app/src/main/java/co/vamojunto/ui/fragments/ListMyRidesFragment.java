@@ -142,11 +142,6 @@ public class ListMyRidesFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("teste", 1);
-    }
 
     /**
      * Initializates the screen components

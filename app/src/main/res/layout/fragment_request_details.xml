@@ -61,7 +61,7 @@
                 android:hint="@string/offer_ride"/>
 
             <ImageButton
-                android:id="@+id/send_message"
+                android:id="@+id/send_message_button"
 
                 android:layout_width="45dp"
                 android:layout_height="45dp"

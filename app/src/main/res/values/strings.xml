@@ -200,6 +200,8 @@
     <string name="minutes_ago">minutos atrás.</string>
     <string name="seconds_ago">segundos atrás.</string>
     <string name="an_hour_ago">1 hora atrás.</string>
+    <string name="now">Agora</string>
+    <string name="sending">Enviando...</string>
 
 
 </resources>
