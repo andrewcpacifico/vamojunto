@@ -20,7 +20,12 @@
 package co.vamojunto.model;
 
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
 import com.parse.ParseObject;
+
+import java.util.HashMap;
+
+import bolts.Task;
 
 /**
  * A model class for a message sent to a RideRequest.

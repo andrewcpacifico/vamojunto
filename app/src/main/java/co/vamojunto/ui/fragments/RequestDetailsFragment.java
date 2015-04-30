@@ -197,9 +197,20 @@ public class RequestDetailsFragment extends Fragment {
                     mRequest
                 );
 
-                mMessagesAdapter.addItem(message);
+                // adds message to recyclerview
+                final int position = mMessagesAdapter.addItem(message);
                 mMessageEditText.setText("");
                 mMessagesRecyclerView.scrollToPosition(mMessagesAdapter.getItemCount() - 1);
+
+                // save message on cloud database
+                message.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                    @Override
+                    public Void then(Task<Void> task) throws Exception {
+                        mMessagesAdapter.itemChanged(position);
+
+                        return null;
+                    }
+                });
             }
         });
     }
@@ -388,14 +399,26 @@ public class RequestDetailsFragment extends Fragment {
          *
          * @param message The message to add.
          * @since 0.1.0
+         * @return The position where the item was inserted.
          */
-        public void addItem(RequestMessage message) {
+        public int addItem(RequestMessage message) {
             mMessageDataset.add(message);
 
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     notifyItemInserted(mMessageDataset.size() + 1);
+                }
+            });
+
+            return mMessageDataset.size();
+        }
+
+        public void itemChanged(final int position) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemChanged(position);
                 }
             });
         }
@@ -481,7 +504,7 @@ public class RequestDetailsFragment extends Fragment {
             } else if (diffMinutes > 1) {
                 return diffMinutes + " " + mContext.getString(R.string.minutes_ago);
             } else {
-                return diffSeconds + " " + mContext.getString(R.string.seconds_ago);
+                return diffSeconds + " " + mContext.getString(R.string.now);
             }
         }
 
