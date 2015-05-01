@@ -19,6 +19,7 @@
 
 package co.vamojunto.ui.activities;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -58,11 +59,19 @@ public class RequestDetailsActivity extends ActionBarActivity {
     public static final String EXTRA_REQUEST = TAG + ".request";
 
     /**
+     * Code for request id sent as extra. Usually, when this extra is sent to activity, the request
+     * needs to be loaded on activity creation.
+     *
+     * @since 0.1.0
+     */
+    public static final String EXTRA_REQUEST_ID = TAG + ".requestId";
+
+    /**
      * Activity's action bar
      *
      * @since 0.1.0
      */
-    private  Toolbar mToolbarActionBar;
+    private Toolbar mToolbarActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +98,29 @@ public class RequestDetailsActivity extends ActionBarActivity {
 
         setSupportActionBar(mToolbarActionBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    /**
+     * Overriding the onBackPressed method, to make an "up" navigation when this activity is
+     * opened from a notification.
+     *
+     * @since 0.1.0
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if (isTaskRoot()) {
+            // code to navigate up to MainActivity
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            startActivity(intent);
+            finish();
+        } else {
+            finish();
+        }
     }
 
 }

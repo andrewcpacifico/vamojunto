@@ -271,13 +271,15 @@ public class SeatRequest extends ParseObject {
      * Calls the cloud code that saves the SeatRequest on database, and pushes the notification
      * to driver.
      *
-     * @return
+     * @return A {Task} containing the result.
+     * @since 0.1.0
      */
     public Task<Void> send() {
         // define the options to send to cloud function
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("userId", getUser().getId());
         params.put("rideId", getRide().getId());
+        params.put("message", getMessage());
 
         // call cloud function to confirm the seat
         return ParseCloud.callFunctionInBackground("requestSeat", params);

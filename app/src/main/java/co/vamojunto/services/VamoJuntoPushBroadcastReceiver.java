@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import co.vamojunto.R;
 import co.vamojunto.ui.activities.MainActivity;
+import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 
 /**
@@ -50,21 +51,36 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
     /**
      * Code for notifications pushed when seat requests are received.
+     *
+     * @since 0.1.0
      */
     private static final int SEAT_REQ_RECEIVED = 1;
 
     /**
      * Code for notifications pushed when seat requests are confirmed.
+     *
+     * @since 0.1.0
      */
     private static final int SEAT_REQ_CONFIRMED = 2;
 
     /**
+     * Code for notifications pushed when a ride request receive a message from another user.
+     *
+     * @since 0.1.0
+     */
+    private static final int REQUEST_MSG_RECEIVED = 3;
+
+    /**
      * Data sent by ParsePush
+     *
+     * @since 0.1.0
      */
     private JSONObject mData;
 
     /**
      * The code for notification received
+     *
+     * @since 0.1.0
      */
     private int mCode;
 
@@ -144,6 +160,10 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             case SEAT_REQ_CONFIRMED:
                 String driverName = mData.getString("driver_name");
                 return context.getString(R.string.notifymsg_seatrequest_confirmed, driverName);
+
+            case REQUEST_MSG_RECEIVED:
+                String senderName = mData.getString("user_from");
+                return context.getString(R.string.notifymsg_requestmsg_received, senderName);
         }
 
         return "";
@@ -155,6 +175,7 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      * @param context The context of notification.
      * @return The intent containing the information about the activity to be displayed when the
      *         user clicks on notification.
+     * @since 0.1.0
      */
     protected Intent getIntent(Context context) {
         Intent intent = null;
@@ -167,6 +188,32 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             case SEAT_REQ_CONFIRMED:
                 intent = getSeatReqConfirmedIntent(context);
                 break;
+
+            case REQUEST_MSG_RECEIVED:
+                intent = getRequestDetailsIntent(context);
+                break;
+        }
+
+        return intent;
+    }
+
+    /**
+     * Returns an Intent to display a RideRequestDetails Activity.
+     *
+     * @param context The context of notification.
+     * @return The resultIntent for notification.
+     * @since 0.1.0
+     */
+    private Intent getRequestDetailsIntent(Context context) {
+        Intent intent = null;
+
+        try {
+            String requestId = mData.getString("request_id");
+
+            intent = new Intent(context, RequestDetailsActivity.class);
+            intent.putExtra(RequestDetailsActivity.EXTRA_REQUEST_ID, requestId);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error on parse input json", e);
         }
 
         return intent;
@@ -177,6 +224,7 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      *
      * @param context The context of notification.
      * @return The resultIntent for notification.
+     * @since 0.1.0
      */
     private Intent getSeatReqConfirmedIntent(Context context) {
         Intent intent = null;
@@ -199,6 +247,7 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      *
      * @param context The context of notification.
      * @return The intent for this type of notification.
+     * @since 0.1.0
      */
     private Intent getSeatReqReceivedIntent(Context context) {
         Intent intent = null;

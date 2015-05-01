@@ -20,6 +20,7 @@
 package co.vamojunto.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
+
+import com.parse.ParseQuery;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -44,6 +48,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.RequestMessage;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
+import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.util.DateUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -58,6 +63,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class RequestDetailsFragment extends Fragment {
 
     private static final String TAG = "RequestDetailsFragment";
+
+    private static final int VIEW_LOADING = 0;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_DEFAULT = 2;
+
     /**
      * The request to display the details.
      *
@@ -102,6 +112,13 @@ public class RequestDetailsFragment extends Fragment {
 
     private Handler mHandler;
 
+    /**
+     * Flipper to switch between a loading view, an error screen view, and the fragment default view
+     *
+     * @since 0.1.0
+     */
+    private ViewFlipper mFlipper;
+
     public RequestDetailsFragment() { /* required default constructor, do not delete or edit this */ }
 
     @Override
@@ -119,11 +136,51 @@ public class RequestDetailsFragment extends Fragment {
 
         initComponents(rootView);
 
+        // if no request instance was passed to activity, fetches the ride request data before
+        // init the screen
+        if (mRequest == null) {
+            fetchRequestData();
+        } else {
+            loadMessages();
+        }
+
         setHasOptionsMenu(true);
 
-        loadMessages();
-
         return rootView;
+    }
+
+    /**
+     * Fetch ride request data if no request instance was passed to activity.
+     *
+     * @since 0.1.0
+     */
+    private void fetchRequestData() {
+        mFlipper.setDisplayedChild(VIEW_LOADING);
+
+        String requestId = getActivity().getIntent()
+                .getStringExtra(RequestDetailsActivity.EXTRA_REQUEST_ID);
+
+        ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+        query.include(RideRequest.FIELD_REQUESTER);
+        query.getInBackground(requestId).continueWith(new Continuation<RideRequest, Void>() {
+            @Override
+            public Void then(Task<RideRequest> task) throws Exception {
+                if (!task.isCancelled() && !task.isFaulted()) {
+                    mRequest = task.getResult();
+                    mMessagesAdapter.setRequest(mRequest);
+
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFlipper.setDisplayedChild(VIEW_DEFAULT);
+                            loadMessages();
+                        }
+                    });
+                }
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -150,7 +207,17 @@ public class RequestDetailsFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            getActivity().finish();
+            if (getActivity().isTaskRoot()) {
+                // code to navigate up to MainActivity
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                startActivity(intent);
+                getActivity().finish();
+            } else {
+                getActivity().finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -163,6 +230,8 @@ public class RequestDetailsFragment extends Fragment {
      * @since 0.1.0
      */
     private void initComponents(View rootView) {
+        mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
+
         mMessagesLayoutManager = new LinearLayoutManager(getActivity());
         mMessagesAdapter = new MessagesAdapter(getActivity(), mRequest);
 
@@ -379,6 +448,22 @@ public class RequestDetailsFragment extends Fragment {
         }
 
         /**
+         * Set the data of the request to display the details.
+         *
+         * @param request The request instance.
+         * @since 0.1.0
+         */
+        public void setRequest(RideRequest request) {
+            mRequest = request;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    notifyItemChanged(0);
+                }
+            });
+        }
+
+        /**
          * Set the message dataset for the recyclerview.
          *
          * @param dataset The new dataset.
@@ -441,12 +526,14 @@ public class RequestDetailsFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
             if (getItemViewType(position) == VIEW_DETAILS) {
-                viewHolder.requesterImage.setImageBitmap(mRequest.getRequester().getProfileImage());
-                viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
-                viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
-                viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
-                viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
-                viewHolder.detailsTextView.setText(mRequest.getDetails());
+                if (mRequest != null) {
+                    viewHolder.requesterImage.setImageBitmap(mRequest.getRequester().getProfileImage());
+                    viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
+                    viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
+                    viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
+                    viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
+                    viewHolder.detailsTextView.setText(mRequest.getDetails());
+                }
             } else {
                 // the message to display on this item
                 RequestMessage message = mMessageDataset.get(position - 1);
@@ -485,7 +572,7 @@ public class RequestDetailsFragment extends Fragment {
             // if the message was sent this week, but not today or yesterday return a message
             // with the days past since the message sending
             } else if (diffHours >= 48) {
-                return diffHours + " " + mContext.getString(R.string.days_ago);
+                return diffHours/24 + " " + mContext.getString(R.string.days_ago);
 
             // if the message was sent yesterday
             } else if (diffHours >= 24) {
@@ -504,7 +591,7 @@ public class RequestDetailsFragment extends Fragment {
             } else if (diffMinutes > 1) {
                 return diffMinutes + " " + mContext.getString(R.string.minutes_ago);
             } else {
-                return diffSeconds + " " + mContext.getString(R.string.now);
+                return mContext.getString(R.string.now);
             }
         }
 

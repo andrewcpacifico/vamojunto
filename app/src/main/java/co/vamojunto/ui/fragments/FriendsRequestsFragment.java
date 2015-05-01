@@ -61,12 +61,13 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
         return new RequestsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(int position) {
-                RideRequest.storeInstance(
+                /*RideRequest.storeInstance(
                         RequestDetailsActivity.EXTRA_REQUEST,
                         mRequestsAdapter.getItem(position)
-                );
+                );*/
 
                 Intent intent = new Intent(getActivity(), RequestDetailsActivity.class);
+                intent.putExtra(RequestDetailsActivity.EXTRA_REQUEST_ID, mRequestsAdapter.getItem(position).getId());
                 startActivity(intent);
             }
         };

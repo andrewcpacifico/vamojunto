@@ -202,6 +202,7 @@
     <string name="an_hour_ago">1 hora atrás.</string>
     <string name="now">Agora</string>
     <string name="sending">Enviando...</string>
+    <string name="notifymsg_requestmsg_received">%1s respondeu seu pedido de carona.</string>
 
 
 </resources>

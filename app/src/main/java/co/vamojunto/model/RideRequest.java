@@ -47,15 +47,15 @@ public class RideRequest extends ParseObject {
 
     private static final String TAG ="model.RideRequest";
 
-    private static final String FIELD_REQUESTER = "requester";
-    private static final String FIELD_DATETIME = "datetime";
-    private static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
-    private static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
-    private static final String FIELD_STARTING_POINT_TITLE = "starting_point_title";
-    private static final String FIELD_DESTINATION_LAT = "destination_lat";
-    private static final String FIELD_DESTINATION_LNG = "destination_lng";
-    private static final String FIELD_DESTINATION_TITLE = "destination_title";
-    private static final String FIELD_DETAILS = "details";
+    public static final String FIELD_REQUESTER = "requester";
+    public static final String FIELD_DATETIME = "datetime";
+    public static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
+    public static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
+    public static final String FIELD_STARTING_POINT_TITLE = "starting_point_title";
+    public static final String FIELD_DESTINATION_LAT = "destination_lat";
+    public static final String FIELD_DESTINATION_LNG = "destination_lng";
+    public static final String FIELD_DESTINATION_TITLE = "destination_title";
+    public static final String FIELD_DETAILS = "details";
 
     private static Map<String, RideRequest> instances = new HashMap<String, RideRequest>();
 
@@ -201,6 +201,7 @@ public class RideRequest extends ParseObject {
         ParseQuery<RequestMessage> query = ParseQuery.getQuery(RequestMessage.class);
         query.whereEqualTo(RequestMessage.FIELD_REQUEST, this);
         query.orderByAscending("createdAt");
+        query.include(RequestMessage.FIELD_SENDER);
 
         return query.findInBackground();
     }
