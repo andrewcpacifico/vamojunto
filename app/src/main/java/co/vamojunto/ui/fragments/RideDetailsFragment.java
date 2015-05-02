@@ -97,8 +97,8 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     private static class PassengersGridAdapter extends BaseAdapter {
 
         private List<User> mDataset;
-        private Context mContext;
-        private Handler mHandler;
+        private final Context mContext;
+        private final Handler mHandler;
 
         public PassengersGridAdapter(Context context, List<User> dataset) {
             mContext = context;
@@ -158,16 +158,14 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         }
 
         /**
-         * Checks if the adapater dataset has any entry for a given user.
+         * Checks if the adapter dataset has any entry for a given user.
          *
          * @param user The user to find in dataset.
          * @return <code>true</code> if the user is on dataset, and <code>false</code> if not.
          */
         public boolean hasPassenger(User user) {
-            if (mDataset == null)
-                return false;
+            return mDataset != null && mDataset.indexOf(user) != -1;
 
-            return mDataset.indexOf(user) != -1;
         }
     }
 
@@ -186,11 +184,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * The edit ride menu item
      */
     private MenuItem mEditMenu;
-
-    /**
-     * The Grid where the ride passengers is displayed
-     */
-    private ExpandableHeightGridView mPassengersGrid;
 
     /**
      * Adapter for the passengers GridView
@@ -219,6 +212,20 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     private TextView mPassengersRetryButton;
 
     /**
+     * Inflated TextView with a message on error screen.
+     *
+     * @since 0.1.0
+     */
+    private TextView mErrorMsgTextView;
+
+    /**
+     * Inflated Button on the error screen, used to try to load the ride details again.
+     *
+     * @since 0.1.0
+     */
+    private Button mTryAgainButton;
+
+    /**
      * Progress dialog displayed when some network task is being executed.
      */
     private ProgressDialog mProgressDialog;
@@ -228,10 +235,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      */
     private Handler mHandler;
 
-    public RideDetailsFragment() {
-        mHandler = new Handler(Looper.myLooper());
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -239,6 +242,8 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         // gets the data sent to activity
         mRide = Ride.getStoredInstance(RideDetailsActivity.EXTRA_RIDE);
+
+        mHandler = new Handler(Looper.myLooper());
 
         initComponents(rootView);
 
@@ -291,6 +296,16 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @param rootView The Fragment's inflated layout.
      */
     private void initComponents(View rootView) {
+        // inflates the error screen widgets
+        mErrorMsgTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+        mTryAgainButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        mTryAgainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchRideData();
+            }
+        });
+
         mDriverImageView = (CircleImageView) rootView.findViewById(R.id.requester_picture);
 
         mDriverNameTextView = (TextView) rootView.findViewById(R.id.requester_name_text_view);
@@ -312,7 +327,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
-        mPassengersGrid = (ExpandableHeightGridView) rootView.findViewById(R.id.grid_passengers);
+
+        // the grid where the ride passengers is displayed
+        ExpandableHeightGridView mPassengersGrid = (ExpandableHeightGridView) rootView.findViewById(R.id.grid_passengers);
         mAdapter = new PassengersGridAdapter(getActivity(), null);
         mPassengersGrid.setAdapter(mAdapter);
         mPassengersGrid.setExpanded(true);
@@ -539,6 +556,8 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
     /**
      * Displays the list of confirmed passengers in this ride
+     *
+     * @since 0.1.0
      */
     private void showPassengers() {
         mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_PROGRESS);
@@ -580,6 +599,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
     /**
      * Displays a ProgressDialog on the screen
+     *
+     * @param msg The message to display on ProgressDialog
+     * @since 0.1.0
      */
     private void startLoading(String msg) {
         mProgressDialog = new ProgressDialog(getActivity());
@@ -591,6 +613,8 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
     /**
      * Dismisses the ProgressDialog
+     *
+     * @since 0.1.0
      */
     private void stopLoading() {
         mProgressDialog.dismiss();
@@ -599,35 +623,45 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
     /**
      * Fetches the ride data from cloud, and updates the screen to show the data.
+     *
+     * @since 0.1.0
      */
     private void fetchRideData() {
-        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
-        Log.i(TAG, "Fetching ride data to display...");
+        if (NetworkUtil.isConnected(getActivity())) {
+            mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+            Log.i(TAG, "Fetching ride data to display...");
 
-        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
-        query.include(Ride.FIELD_DRIVER);
-        query.getInBackground(mRideId).continueWith(new Continuation<Ride, Void>() {
-            @Override
-            public Void then(Task<Ride> task) throws Exception {
-                if (! task.isCancelled() && ! task.isFaulted()) {
-                    Log.i(TAG, "Ride data fetched.");
+            ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+            query.include(Ride.FIELD_DRIVER);
+            query.getInBackground(mRideId).continueWith(new Continuation<Ride, Void>() {
+                @Override
+                public Void then(Task<Ride> task) throws Exception {
+                    if (!task.isCancelled() && !task.isFaulted()) {
+                        Log.i(TAG, "Ride data fetched.");
 
-                    // task result contains the ride instance with complete data for mRide
-                    mRide = task.getResult();
+                        // task result contains the ride instance with complete data for mRide
+                        mRide = task.getResult();
 
-                    // visual components have to be executed on the main thread
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // binds mRide data to screen components
-                            bindRideData();
-                        }
-                    });
+                        // visual components have to be executed on the main thread
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // binds mRide data to screen components
+                                bindRideData();
+                            }
+                        });
+                    } else {
+                        mViewFlipper.setDisplayedChild(VIEW_ERROR);
+                        mErrorMsgTextView.setText(getString(R.string.errormsg_default));
+                    }
+
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        } else {
+            mViewFlipper.setDisplayedChild(VIEW_ERROR);
+            mErrorMsgTextView.setText(getString(R.string.errormsg_no_internet_connection));
+        }
     }
 }
 

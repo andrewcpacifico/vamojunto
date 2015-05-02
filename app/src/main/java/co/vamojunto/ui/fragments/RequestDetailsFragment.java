@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -51,6 +52,7 @@ import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.util.DateUtil;
+import co.vamojunto.util.NetworkUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -110,6 +112,11 @@ public class RequestDetailsFragment extends Fragment {
      */
     private MessagesAdapter mMessagesAdapter;
 
+    /**
+     * A default handler to run code on main thread.
+     *
+     * @since 0.1.0
+     */
     private Handler mHandler;
 
     /**
@@ -118,6 +125,20 @@ public class RequestDetailsFragment extends Fragment {
      * @since 0.1.0
      */
     private ViewFlipper mFlipper;
+
+    /**
+     * Inflated TextView to display the message on the error screen.
+     *
+     * @since 0.1.0
+     */
+    private TextView mErrorScreenMsgTextView;
+
+    /**
+     * Inflated Button to retry fetch the ride request data from the cloud.
+     *
+     * @since 0.1.0
+     */
+    private Button mRetryButton;
 
     public RequestDetailsFragment() { /* required default constructor, do not delete or edit this */ }
 
@@ -141,6 +162,7 @@ public class RequestDetailsFragment extends Fragment {
         if (mRequest == null) {
             fetchRequestData();
         } else {
+            mFlipper.setDisplayedChild(VIEW_DEFAULT);
             loadMessages();
         }
 
@@ -155,32 +177,40 @@ public class RequestDetailsFragment extends Fragment {
      * @since 0.1.0
      */
     private void fetchRequestData() {
-        mFlipper.setDisplayedChild(VIEW_LOADING);
+        if (NetworkUtil.isConnected(getActivity())) {
+            mFlipper.setDisplayedChild(VIEW_LOADING);
 
-        String requestId = getActivity().getIntent()
-                .getStringExtra(RequestDetailsActivity.EXTRA_REQUEST_ID);
+            String requestId = getActivity().getIntent()
+                    .getStringExtra(RequestDetailsActivity.EXTRA_REQUEST_ID);
 
-        ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
-        query.include(RideRequest.FIELD_REQUESTER);
-        query.getInBackground(requestId).continueWith(new Continuation<RideRequest, Void>() {
-            @Override
-            public Void then(Task<RideRequest> task) throws Exception {
-                if (!task.isCancelled() && !task.isFaulted()) {
-                    mRequest = task.getResult();
-                    mMessagesAdapter.setRequest(mRequest);
+            ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+            query.include(RideRequest.FIELD_REQUESTER);
+            query.getInBackground(requestId).continueWith(new Continuation<RideRequest, Void>() {
+                @Override
+                public Void then(Task<RideRequest> task) throws Exception {
+                    if (!task.isCancelled() && !task.isFaulted()) {
+                        mRequest = task.getResult();
+                        mMessagesAdapter.setRequest(mRequest);
 
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mFlipper.setDisplayedChild(VIEW_DEFAULT);
-                            loadMessages();
-                        }
-                    });
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                loadMessages();
+                            }
+                        });
+                    } else {
+                        mFlipper.setDisplayedChild(VIEW_ERROR);
+                        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
+                    }
+
+                    return null;
                 }
-
-                return null;
-            }
-        });
+            });
+        } else {
+            mFlipper.setDisplayedChild(VIEW_ERROR);
+            mErrorScreenMsgTextView.setText(getString(R.string.errormsg_no_internet_connection));
+        }
     }
 
     /**
@@ -230,6 +260,16 @@ public class RequestDetailsFragment extends Fragment {
      * @since 0.1.0
      */
     private void initComponents(View rootView) {
+        // inflates the error screen widgets
+        mErrorScreenMsgTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+        mRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        mRetryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchRequestData();
+            }
+        });
+
         mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
         mMessagesLayoutManager = new LinearLayoutManager(getActivity());
@@ -558,9 +598,9 @@ public class RequestDetailsFragment extends Fragment {
             }
 
             long diff = new Date().getTime() - date.getTime();
-            long diffSeconds = (diff / 1000) % 60;
+//            long diffSeconds = (diff / 1000) % 60;
             long diffMinutes = (diff / (1000 * 60)) % 60;
-            long diffHours = (diff / (1000 * 60 * 60)) % 60;
+            long diffHours = (diff / (1000 * 60 * 60));
 
             // if the message was sent a week ago, just return the formatted date
             if (diffHours > 168) {

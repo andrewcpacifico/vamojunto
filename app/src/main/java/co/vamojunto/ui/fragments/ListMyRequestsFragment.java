@@ -48,6 +48,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.NewRideRequestActivity;
+import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 
@@ -144,6 +145,7 @@ public class ListMyRequestsFragment extends Fragment {
      * Initializates the screen components
      *
      * @param rootView The Fragment's inflated layout.
+     * @since 0.1.0
      */
     public void initComponents(View rootView) {
         mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_requests_recycler_view);
@@ -153,7 +155,22 @@ public class ListMyRequestsFragment extends Fragment {
         mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
         mRidesRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
-        mRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(), new ArrayList<RideRequest>(), null);
+        mRequestsAdapter = new RequestsRecyclerViewAdapter(
+            getActivity(),
+            new ArrayList<RideRequest>(),
+            new RequestsRecyclerViewAdapter.OnItemClickListener() {
+                @Override
+                public void OnItemClick(int position) {
+                    RideRequest.storeInstance(
+                            RequestDetailsActivity.EXTRA_REQUEST,
+                            mRequestsAdapter.getItem(position)
+                    );
+
+                    Intent intent = new Intent(getActivity(), RequestDetailsActivity.class);
+                    startActivity(intent);
+                }
+            }
+        );
         mRidesRecyclerView.setAdapter(mRequestsAdapter);
 
         Button requestButton = (Button) rootView.findViewById(R.id.ok_button);
