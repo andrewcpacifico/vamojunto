@@ -229,13 +229,31 @@ public class FriendsRecyclerViewAdapter
      * @since 0.1.0
      */
     public void toggleFollow(ViewHolder holder) {
+        // get clicked user, the position on dataset is the position of the clicked holder
+        // minus one, because of the header
+        User clickedUser = mDataset.get(holder.getPosition() - 1);
+
         // if the user is removing a friend
         if (holder.mFollowCheckBox.isChecked()) {
-            // adds the clicked user to unfollowed list, the position on dataset is the position
-            // of the clicked holder minus one, because of the header
-            mRemovedFriends.add(mDataset.get(holder.getPosition() - 1));
+            // checks if the user is being unfollowed, or if the user was previously followed, and
+            // the action is being cancelled
+            if (mAddedFriends.contains(clickedUser)) {
+                // removes the user of the list to be added
+                mAddedFriends.remove(clickedUser);
+            } else {
+                // adds the clicked user to unfollowed list
+                mRemovedFriends.add(clickedUser);
+            }
         } else {
-            mAddedFriends.add(mDataset.get(holder.getPosition() - 1));
+            // checks if the user is being followed, or if the user was previously unfollowed, and
+            // the action is being cancelled
+            if (mRemovedFriends.contains(clickedUser)) {
+                // removes the user of the list to be unfollowed
+                mRemovedFriends.remove(clickedUser);
+            } else {
+                // adds the clicked user to followed list
+                mAddedFriends.add(clickedUser);
+            }
         }
 
         holder.mFollowCheckBox.setChecked(!holder.mFollowCheckBox.isChecked());
