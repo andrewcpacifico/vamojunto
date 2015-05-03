@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -109,6 +110,20 @@ public class ManageFbFriendsFragment extends Fragment {
     private TextView mErrorScreenMsgTextView;
 
     /**
+     * Inflated button on the error screen.
+     *
+     * @since 0.1.0
+     */
+    private Button mErrorScreenButton;
+
+    /**
+     * Inflated icon on the error screen.
+     *
+     * @since 0.1.0
+     */
+    private ImageView mErrorScreenIcon;
+
+    /**
      * Button to save the changes made by user.
      *
      * @since 0.1.0
@@ -172,8 +187,17 @@ public class ManageFbFriendsFragment extends Fragment {
         mFriendsRecyclerView.setAdapter(mFriendsAdapter);
         mFriendsRecyclerView.setHasFixedSize(true);
 
+        // inflate the error screen widgets
         mErrorScreenMsgTextView =
                 (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+        mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
+        mErrorScreenButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        mErrorScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadFriends();
+            }
+        });
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
@@ -230,15 +254,31 @@ public class ManageFbFriendsFragment extends Fragment {
                                 displayErrorScreen();
                             } else {
                                 List<User> lst = task.getResult();
-                                mFriendsAdapter.setDataset(lst);
 
-                                // after the loading, switches the viewflipper to display the list to user
-                                mHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
-                                    }
-                                });
+                                // checks if there is at least one user to display
+                                if (lst.size() >= 1) {
+                                    mFriendsAdapter.setDataset(lst);
+
+                                    // after the loading, switches the viewflipper to display the list to user
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                        }
+                                    });
+                                } else {
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mErrorScreenMsgTextView
+                                                    .setText(getString(R.string.no_fb_friends));
+                                            mErrorScreenButton.setVisibility(View.GONE);
+                                            mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
+
+                                            mViewFlipper.setDisplayedChild(VIEW_ERROR);
+                                        }
+                                    });
+                                }
                             }
 
                             return null;
