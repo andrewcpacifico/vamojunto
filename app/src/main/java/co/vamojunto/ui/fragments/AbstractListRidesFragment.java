@@ -211,18 +211,17 @@ public abstract class AbstractListRidesFragment extends Fragment {
                 int id = menuItem.getItemId();
 
                 if (id == R.id.search_menu) {
-                    getActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .add(R.id.master_container, new FilterFeedFragment())
-                            .addToBackStack(null)
-                            .commit();
+                    FilterFeedFragment filterFragment = new FilterFeedFragment();
+                    filterFragment.show(AbstractListRidesFragment.this);
                 }
 
                 return false;
             }
         });
+    }
+
+    public void onFilterFeed() {
+        Log.d(TAG, "Filter results");
     }
 
     /**
