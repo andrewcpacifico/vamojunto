@@ -24,10 +24,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -82,16 +85,22 @@ public abstract class AbstractListRidesFragment extends Fragment {
 
     /**
      * RecyclerView where the rides are displayed
+     *
+     * @since 0.1.0
      */
     private RecyclerView mRidesRecyclerView;
 
     /**
      * LayoutManager used by the mRidesRecyclerView
+     *
+     * @since 0.1.0
      */
     private LinearLayoutManager mRidesLayoutManager;
 
     /**
      * Adapter used to manage the data of mRidesRecyclerView
+     *
+     * @since 0.1.0
      */
     private RidesRecyclerViewAdapter mRidesAdapter;
 
@@ -99,16 +108,22 @@ public abstract class AbstractListRidesFragment extends Fragment {
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
      * are loaded, the error screen displayed when any error occurs, and the main screen with
      * the rides list.
+     *
+     * @since 0.1.0
      */
     private ViewFlipper mViewFlipper;
 
     /**
      * The {@link android.widget.TextView} that displays a error message, on the error screen View
+     *
+     * @since 0.1.0
      */
     private TextView mErrorScreenMsgTextView;
 
     /**
      * The {@link android.widget.Button} used to retry an action that failed on error screen.
+     *
+     * @since 0.1.0
      */
     private Button mErrorScreenRetryButton;
 
@@ -118,6 +133,8 @@ public abstract class AbstractListRidesFragment extends Fragment {
      * @since 0.1.0
      */
     private ImageView mErrorScreenIcon;
+
+    private Toolbar mBottomBar;
 
     /**
      * A Handler to run code on the main thread.
@@ -185,6 +202,27 @@ public abstract class AbstractListRidesFragment extends Fragment {
             }
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
+
+        mBottomBar = (Toolbar) rootView.findViewById(R.id.bottom_bar);
+        mBottomBar.inflateMenu(R.menu.menu_list_rides);
+        mBottomBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                if (id == R.id.search_menu) {
+                    getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .add(R.id.master_container, new FilterFeedFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+
+                return false;
+            }
+        });
     }
 
     /**
@@ -284,6 +322,7 @@ public abstract class AbstractListRidesFragment extends Fragment {
      *
      * @param errorMsg The message displayed on the screen, if the param value is null, the default
      *                 error message is used.
+     * @since 0.1.0
      */
     protected void displayErrorScreen(String errorMsg) {
         if (errorMsg == null)
@@ -296,6 +335,8 @@ public abstract class AbstractListRidesFragment extends Fragment {
 
     /**
      * Switches the viewFlipper to display the error screen using the default error screen message.
+     *
+     * @since 0.1.0
      */
     protected void displayErrorScreen() {
         mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));

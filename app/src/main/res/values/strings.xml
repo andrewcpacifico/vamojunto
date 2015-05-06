@@ -204,6 +204,10 @@
     <string name="sending">Enviando...</string>
     <string name="notifymsg_requestmsg_received">%1s respondeu seu pedido de carona.</string>
     <string name="no_fb_friends">Não há nenhum amigo para seguir. \n\nConvide seus amigos do Facebook, quanto mais amigos cadastrados, mais fácil conseguir uma carona.</string>
+    <string name="manage_friends">Administre os amigos que você segue no aplicativo.</string>
+    <string name="search">Procure uma carona no feed.</string>
+    <string name="title_activity_filter_feed">FilterFeedActivity</string>
+    <string name="filter_feed">Filtre por um ou mais campos abaixo.</string>
 
 
 </resources>

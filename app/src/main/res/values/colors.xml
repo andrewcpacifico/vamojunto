@@ -23,6 +23,9 @@
     <!-- Color names -->
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+    <color name="transparent">#00000000</color>
+    <color name="black_22_opacity">#22000000</color>
+    <color name="white_22_opacity">#22ffffff</color>
 
     <color name="login_button">#40CCCCCC</color>
     <color name="login_button_push">#30CCCCCC</color>

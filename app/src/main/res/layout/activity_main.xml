@@ -26,20 +26,25 @@
     android:layout_height="match_parent"
     >
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/master_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <include layout="@layout/tool_bar"
-            android:id="@+id/tool_bar" />
-
-        <FrameLayout
-            android:id="@+id/container"
-            android:layout_below="@+id/tool_bar"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        />
-    </RelativeLayout>
+            android:layout_height="match_parent">
+
+            <include layout="@layout/tool_bar"
+                android:id="@+id/tool_bar" />
+
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_below="@+id/tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+        </RelativeLayout>
+    </FrameLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/nav_drawer_recycler_view"

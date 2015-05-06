@@ -17,33 +17,34 @@
  * See LICENSE.txt
  */
 
-package co.vamojunto.ui.activities;
+package co.vamojunto.ui.fragments;
+
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import co.vamojunto.R;
-import co.vamojunto.ui.fragments.RegistrationFragment;
 
 /**
- * Activity de cadastro de um novo usuário. Nela é possível que um usuário se cadastre direto em nossa
- * base de dados, para que possa acessar o aplicativo posteriormente.
- *
- * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
- * @since 0.1.0
+ * A simple {@link Fragment} subclass.
  */
-public class CadastroActivity extends ActionBarActivity {
+public class FilterFeedFragment extends Fragment {
+
+
+    public FilterFeedFragment() {
+        // Required empty public constructor
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cadastro);
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new RegistrationFragment())
-                    .commit();
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_filter_feed, container, false);
     }
+
 
 }

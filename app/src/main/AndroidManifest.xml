@@ -169,7 +169,11 @@
         <activity
             android:name=".ui.activities.RequestDetailsActivity"
             android:label="@string/title_activity_request_details"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".ui.activities.FilterFeedActivity"
+            android:label="@string/title_activity_filter_feed" >
         </activity>
     </application>
 
