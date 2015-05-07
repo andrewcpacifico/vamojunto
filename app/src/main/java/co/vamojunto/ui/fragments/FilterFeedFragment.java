@@ -20,12 +20,16 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import co.vamojunto.R;
@@ -54,11 +58,25 @@ public class FilterFeedFragment extends Fragment {
     private ImageButton mOkButton;
 
     /**
+     * Inflated EditText with the destination filter value.
+     *
+     * @since 0.1.0
+     */
+    private EditText mDestinationEditText;
+
+    /**
+     * Inflated EditText with the starting point filter value.
+     *
+     * @since 0.1.0
+     */
+    private EditText mStartingPointEditText;
+
+    /**
      * The feed fragment to filter the results.
      *
      * @since 0.1.0
      */
-    private AbstractListRidesFragment mFeedFragment;
+    private FilterableFeedFragment mFeedFragment;
 
     public FilterFeedFragment() {
         // Required empty public constructor
@@ -76,6 +94,9 @@ public class FilterFeedFragment extends Fragment {
     }
 
     private void initComponents(View rootView) {
+        mDestinationEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
+
         mCloseButton = (ImageButton) rootView.findViewById(R.id.close_button);
         mCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,12 +111,32 @@ public class FilterFeedFragment extends Fragment {
             public void onClick(View v) {
                 close();
 
-                mFeedFragment.onFilterFeed();
+                Bundle filterValues = new Bundle();
+                filterValues.putString(
+                        FilterableFeedFragment.STARTING_POINT,
+                        mStartingPointEditText.getText().toString()
+                );
+
+                filterValues.putString(
+                        FilterableFeedFragment.DESTINATION,
+                        mDestinationEditText.getText().toString()
+                );
+
+                mFeedFragment.onFeedFilter(filterValues);
             }
         });
     }
 
+    /**
+     * Dismisses the fragment.
+     *
+     * @since 0.1.0
+     */
     private void close() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mDestinationEditText.getWindowToken(), 0);
+
         getFragmentManager()
                 .beginTransaction()
                 .remove(FilterFeedFragment.this)
@@ -103,8 +144,14 @@ public class FilterFeedFragment extends Fragment {
                 .commit();
     }
 
-    public void show(AbstractListRidesFragment listFragment) {
-        listFragment.getActivity()
+    /**
+     * Commit a fragment transaction, to inflate this fragment on activity top.
+     *
+     * @param feedFragment The feed fragment to be filtered.
+     * @since 0.1.0
+     */
+    public void show(FilterableFeedFragment feedFragment) {
+        feedFragment.getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -112,6 +159,6 @@ public class FilterFeedFragment extends Fragment {
                 .addToBackStack(null)
                 .commit();
 
-        mFeedFragment = listFragment;
+        mFeedFragment = feedFragment;
     }
 }

@@ -83,6 +83,8 @@
 
                 android:orientation="vertical">
                 <EditText
+                    android:id="@+id/starting_point_edit_text"
+
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
 
@@ -99,6 +101,8 @@
                     android:background="@color/white"/>
 
                 <EditText
+                    android:id="@+id/destination_edit_text"
+
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
 

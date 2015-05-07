@@ -25,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.util.TextUtil;
 
 /**
  * System's Ride Model
@@ -49,9 +51,11 @@ public class Ride extends ParseObject {
     public static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
     public static final String FIELD_STARTING_POINT_LNG = "starting_point_lng";
     public static final String FIELD_STARTING_POINT_TITLE = "starting_point_title";
+    public static final String FIELD_LC_STARTING_POINT_TITLE = "lc_starting_point_title";
     public static final String FIELD_DESTINATION_LAT = "destination_lat";
     public static final String FIELD_DESTINATION_LNG = "destination_lng";
     public static final String FIELD_DESTINATION_TITLE = "destination_title";
+    public static final String FIELD_LC_DESTINATION_TITLE = "lc_destination_title";
     public static final String FIELD_SEATS = "seats";
     public static final String FIELD_DETAILS = "details";
 
@@ -133,6 +137,7 @@ public class Ride extends ParseObject {
         put(FIELD_STARTING_POINT_LAT, startingPoint.getLatitude());
         put(FIELD_STARTING_POINT_LNG, startingPoint.getLongitude());
         put(FIELD_STARTING_POINT_TITLE, startingPoint.getTitulo());
+        put(FIELD_LC_STARTING_POINT_TITLE, TextUtil.normalize(startingPoint.getTitulo()));
     }
 
     public Place getDestination() {
@@ -146,6 +151,7 @@ public class Ride extends ParseObject {
         put(FIELD_DESTINATION_LAT, destino.getLatitude());
         put(FIELD_DESTINATION_LNG, destino.getLongitude());
         put(FIELD_DESTINATION_TITLE, destino.getTitulo());
+        put(FIELD_LC_DESTINATION_TITLE, TextUtil.normalize(destino.getTitulo()));
     }
 
     /**
@@ -261,6 +267,111 @@ public class Ride extends ParseObject {
         passengerQuery.whereEqualTo(RidePassenger.FIELD_PASSENGER, user);
         passengerQuery.include(RidePassenger.FIELD_RIDE);
         passengerQuery.include(RidePassenger.FIELD_RIDE + "." + Ride.FIELD_DRIVER);
+
+        // run the query in background, on the query completion processes the method return
+        passengerQuery.findInBackground().continueWith(new Continuation<List<RidePassenger>, Void>() {
+            @Override
+            public Void then(Task<List<RidePassenger>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    // list containing all records on the RidePassenger table where the user is
+                    // the passenger
+                    List<RidePassenger> passengerList = task.getResult();
+
+                    // the list to use as task result
+                    List<Ride> resultList = new ArrayList<Ride>();
+
+                    // iterate over the RidePassenger records to get only the rides, and adds them
+                    // to resultList
+                    for (RidePassenger passengerEntry: passengerList) {
+                        resultList.add(passengerEntry.getRide());
+                    }
+
+                    tcs.setResult(resultList);
+                }
+
+                return null;
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    /**
+     * Get a filtered list of rides, offered by friends of a given user.
+     *
+     * @param user The user to get the friends offers.
+     * @param filterValues Filters to apply on search.
+     * @return A {@link bolts.Task} with the resulting list.
+     * @see co.vamojunto.model.Ride#getFriendsOffersAsync
+     * @since 0.1.0
+     */
+    public static Task<List<Ride>> getFilteredFriendsOffersAsync(
+            User user,
+            Map<String, String> filterValues
+    ) {
+        // selects all friendships where the user is the follower
+        ParseQuery<Friendship> qFriendship = ParseQuery.getQuery(Friendship.class);
+        qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, user);
+
+        // gets all rides offered by the users followed by the user
+        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
+
+        // includes the driver data, to display on list screen
+        query.include(FIELD_DRIVER);
+
+        // filter by starting point
+        String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPoint != null) {
+            query.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, TextUtil.normalize(startingPoint));
+        }
+
+        return query.findInBackground();
+    }
+
+    /**
+     * Get a filtered list of rides, that a given user is confirmed as passenger.
+     *
+     * @param user The user to get the list of rides as a passenger.
+     * @param filterValues The filters to apply on search.
+     * @return A {@link Task} containing the filtered list of rides.
+     * @see Ride#getRidesAsPassengerAsync(User)
+     * @since 0.1.0
+     */
+    public static Task<List<Ride>> getFilteredRidesAsPassengerAsync(
+            User user,
+            Map<String, String> filterValues
+    ) {
+        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+
+        // a query to filter the results by ride fields
+        ParseQuery<Ride> rideQuery = ParseQuery.getQuery(Ride.class);
+
+        // filter by starting point
+        String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPoint != null) {
+            rideQuery.whereStartsWith(
+                    Ride.FIELD_LC_STARTING_POINT_TITLE,
+                    TextUtil.normalize(startingPoint)
+            );
+        }
+
+        // creates a query to look for all rows on RidePassenger table where user is the passenger
+        // the query includes the ride field, thereby the query result will contain all rides
+        // that user is passenger
+        ParseQuery<RidePassenger> passengerQuery = ParseQuery.getQuery(RidePassenger.class);
+        passengerQuery.include(RidePassenger.FIELD_RIDE);
+        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + Ride.FIELD_DRIVER);
+
+        // filter by passenger
+        passengerQuery.whereEqualTo(RidePassenger.FIELD_PASSENGER, user);
+
+        // adds ride filters
+        passengerQuery.whereMatchesQuery(RidePassenger.FIELD_RIDE, rideQuery);
 
         // run the query in background, on the query completion processes the method return
         passengerQuery.findInBackground().continueWith(new Continuation<List<RidePassenger>, Void>() {

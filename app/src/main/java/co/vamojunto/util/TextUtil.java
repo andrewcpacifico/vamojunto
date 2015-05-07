@@ -17,44 +17,41 @@
  * See LICENSE.txt
  */
 
-package co.vamojunto.ui.fragments;
+package co.vamojunto.util;
 
-import android.os.Bundle;
-
-import com.parse.ParseQuery;
-
-import java.util.List;
-import java.util.Map;
-
-import bolts.Continuation;
-import bolts.Task;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
-import co.vamojunto.util.TextUtil;
+import java.text.Normalizer;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display a list of rides offered by the
- * current user's friends.
+ * An utility class to work with text.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public class FriendsOffersFragment extends DefaultListRidesFragment {
+public class TextUtil {
 
-    @Override
-    protected boolean isOfflineFeed() {
-        return false;
+    /**
+     * Private Constructor to avoid class instancing.
+     *
+     * @since 0.1.0
+     */
+    private TextUtil() { /* empty constructor. DO NOT EDIT THIS CODE */ }
+
+    /**
+     * Normalizes an input string. The output string have no special characters, and spaces are
+     * change by "-" character.
+     *
+     * @param input The input string.
+     * @return The normalized output.
+     * @since 0.1.0
+     */
+    public static String normalize(String input) {
+        return Normalizer
+                .normalize(input, Normalizer.Form.NFD)
+                .trim()
+                .replaceAll("[^\\p{ASCII}]", "")
+                .replaceAll("[^ a-zA-Z0-9]+","")
+                .replaceAll("[\\s]+","-")
+                .toLowerCase();
     }
-
-    @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getFriendsOffersAsync(User.getCurrentUser());
-    }
-
-    @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredFriendsOffersAsync(User.getCurrentUser(), filterValues);
-    }
-
 }

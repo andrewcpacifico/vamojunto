@@ -19,43 +19,26 @@
 
 package co.vamojunto.ui.fragments;
 
-import java.util.List;
-import java.util.Map;
-
-import bolts.Task;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display all rides that the current user is confirmed
- * as a passenger.
+ * Interface for feed fragments that can be filtered.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public class RidesAsPassengerFragment extends DefaultListRidesFragment {
+public abstract class FilterableFeedFragment extends Fragment {
 
-    @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredRidesAsPassengerAsync(User.getCurrentUser(), filterValues);
-    }
-
-    @Override
-    protected boolean isOfflineFeed() {
-        return false;
-    }
+    public static String DESTINATION = "destination";
+    public static String STARTING_POINT = "starting_point";
 
     /**
-     * Returns a {@link bolts.Task} for the query to get all rides that the current user is
-     * confirmed as a passenger.
+     * Called to filter feed items.
      *
-     * @return A {@link bolts.Task} containing the {@link java.util.List} of rides as result.
      * @since 0.1.0
      */
-    @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getRidesAsPassengerAsync(User.getCurrentUser());
-    }
+    public abstract void onFeedFilter(Bundle filterValues);
 
 }

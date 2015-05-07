@@ -115,6 +115,10 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
         });
     }
 
+    public List<Ride> getDataset() {
+        return this.mDataset;
+    }
+
     /**
      * Adds a new item to the dataset, then notifies all the listeners, so that the RecyclerView
      * is updated.
@@ -191,6 +195,9 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
 
     @Override
     public int getItemCount() {
+        if (mDataset == null)
+            return 0;
+
         return this.mDataset.size();
     }
 }

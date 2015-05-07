@@ -38,10 +38,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.parse.ParseQuery;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -50,6 +54,7 @@ import co.vamojunto.model.Ride;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.TextUtil;
 
 /**
  * An abstract fragment to display a list of rides.
@@ -58,7 +63,7 @@ import co.vamojunto.util.NetworkUtil;
  * @since 0.1.0
  * @version 1.0.0
  */
-public abstract class AbstractListRidesFragment extends Fragment {
+public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
     private static final String TAG = "co.vamojunto";
 
@@ -102,7 +107,7 @@ public abstract class AbstractListRidesFragment extends Fragment {
      *
      * @since 0.1.0
      */
-    private RidesRecyclerViewAdapter mRidesAdapter;
+    protected RidesRecyclerViewAdapter mRidesAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -220,9 +225,33 @@ public abstract class AbstractListRidesFragment extends Fragment {
         });
     }
 
-    public void onFilterFeed() {
-        Log.d(TAG, "Filter results");
+    @Override
+    public void onFeedFilter(Bundle filterValues) {
+        Map<String, String> filterMap = new HashMap<>();
+
+        String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
+        if (startingPoint != "") {
+            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
+            @Override
+            public Void then(Task<List<Ride>> task) throws Exception {
+                List<Ride> lst = task.getResult();
+                mRidesAdapter.setDataset(lst);
+
+                return null;
+            }
+        });
     }
+
+    /**
+     * Filter the feed items.
+     *
+     * @return A {@link java.util.List} with the filtered items to display on feed.
+     * @since 0.1.0
+     */
+    protected abstract Task<List<Ride>> filter(Map<String, String> filterValues);
 
     /**
      * Getter for the fragment layout
