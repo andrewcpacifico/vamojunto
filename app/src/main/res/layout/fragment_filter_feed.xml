@@ -89,14 +89,16 @@
                     android:layout_width="match_parent"
 
                     android:background="#00000000"
-                    android:hint="Origem"
+                    android:hint="@string/starting_point"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:textColor="@color/white"
                     android:textColorHint="@color/white" />
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="1px"
 
                     android:background="@color/white"/>
 
@@ -107,7 +109,9 @@
                     android:layout_width="match_parent"
 
                     android:background="#00000000"
-                    android:hint="Destino"
+                    android:hint="@string/destination"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:textColor="@color/white"
@@ -115,6 +119,8 @@
             </LinearLayout>
 
             <ImageButton
+                android:id="@+id/change_button"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 

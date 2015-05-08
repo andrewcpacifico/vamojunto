@@ -66,25 +66,11 @@ public class ManageFbFriendsFragment extends Fragment {
     private static final int VIEW_DEFAULT = 2;
 
     /**
-     * RecyclerView to list the users followed by current user.
-     *
-     * @since 0.1.0
-     */
-    private RecyclerView mFriendsRecyclerView;
-
-    /**
      * Adapter for the friends RecyclerView
      *
      * @since 0.1.0
      */
     private FriendsRecyclerViewAdapter mFriendsAdapter;
-
-    /**
-     * LayoutManager for the friends RecyclerView
-     *
-     * @since 0.1.0
-     */
-    private LinearLayoutManager mFriendsLayoutManager;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the friends
@@ -122,13 +108,6 @@ public class ManageFbFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     private ImageView mErrorScreenIcon;
-
-    /**
-     * Button to save the changes made by user.
-     *
-     * @since 0.1.0
-     */
-    private Button mSaveButton;
 
     /**
      * A progress dialog, displayed when any data is being loaded.
@@ -179,13 +158,13 @@ public class ManageFbFriendsFragment extends Fragment {
             }
         );
 
-        mFriendsLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager friendsLayoutManager = new LinearLayoutManager(getActivity());
 
         // inflates the friendsRecyclerView and defines its layoutManager and adapter
-        mFriendsRecyclerView = (RecyclerView) rootView.findViewById(R.id.friends_recycler_view);
-        mFriendsRecyclerView.setLayoutManager(mFriendsLayoutManager);
-        mFriendsRecyclerView.setAdapter(mFriendsAdapter);
-        mFriendsRecyclerView.setHasFixedSize(true);
+        RecyclerView friendsRecyclerView = (RecyclerView) rootView.findViewById(R.id.friends_recycler_view);
+        friendsRecyclerView.setLayoutManager(friendsLayoutManager);
+        friendsRecyclerView.setAdapter(mFriendsAdapter);
+        friendsRecyclerView.setHasFixedSize(true);
 
         // inflate the error screen widgets
         mErrorScreenMsgTextView =
@@ -201,8 +180,8 @@ public class ManageFbFriendsFragment extends Fragment {
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
-        mSaveButton = (Button) rootView.findViewById(R.id.save_button);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        Button saveButton = (Button) rootView.findViewById(R.id.save_button);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             // on button click, persists the changes made by the current user to the cloud database.
             @Override
             public void onClick(View v) {
@@ -213,22 +192,22 @@ public class ManageFbFriendsFragment extends Fragment {
                     startLoading();
 
                     Friendship.follow(User.getCurrentUser(), added)
-                        .continueWith(new Continuation<Void, Void>() {
-                            @Override
-                            public Void then(Task<Void> task) throws Exception {
-                                stopLoading();
+                            .continueWith(new Continuation<Void, Void>() {
+                                @Override
+                                public Void then(Task<Void> task) throws Exception {
+                                    stopLoading();
 
-                                // code to navigate up to MainActivity
-                                Intent intent = new Intent(getActivity(), MainActivity.class);
-                                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    // code to navigate up to MainActivity
+                                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                                    intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                                startActivity(intent);
-                                getActivity().finish();
+                                    startActivity(intent);
+                                    getActivity().finish();
 
-                                return null;
-                            }
-                        });
+                                    return null;
+                                }
+                            });
                 } else {
                     getActivity().finish();
                 }
@@ -250,34 +229,38 @@ public class ManageFbFriendsFragment extends Fragment {
                     .continueWith(new Continuation<List<User>, Void>() {
                         @Override
                         public Void then(Task<List<User>> task) throws Exception {
-                            if (task.isFaulted() || task.isCancelled()) {
-                                displayErrorScreen();
-                            } else {
-                                List<User> lst = task.getResult();
-
-                                // checks if there is at least one user to display
-                                if (lst.size() >= 1) {
-                                    mFriendsAdapter.setDataset(lst);
-
-                                    // after the loading, switches the viewflipper to display the list to user
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
-                                        }
-                                    });
+                            // prevents error, on case that the user closes the fragment before the
+                            // task finished
+                            if (getActivity() != null && isAdded()) {
+                                if (task.isFaulted() || task.isCancelled()) {
+                                    displayErrorScreen();
                                 } else {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mErrorScreenMsgTextView
-                                                    .setText(getString(R.string.no_fb_friends));
-                                            mErrorScreenButton.setVisibility(View.GONE);
-                                            mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
+                                    List<User> lst = task.getResult();
 
-                                            mViewFlipper.setDisplayedChild(VIEW_ERROR);
-                                        }
-                                    });
+                                    // checks if there is at least one user to display
+                                    if (lst.size() >= 1) {
+                                        mFriendsAdapter.setDataset(lst);
+
+                                        // after the loading, switches the viewflipper to display the list to user
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                            }
+                                        });
+                                    } else {
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mErrorScreenMsgTextView
+                                                        .setText(getString(R.string.no_fb_friends));
+                                                mErrorScreenButton.setVisibility(View.GONE);
+                                                mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
+
+                                                mViewFlipper.setDisplayedChild(VIEW_ERROR);
+                                            }
+                                        });
+                                    }
                                 }
                             }
 

@@ -247,13 +247,13 @@ public class MainActivity extends ActionBarActivity {
             case VIEW_MY_RIDES:
                 // loads the MinhaCaronasFragment to the main screen
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MinhasCaronasFragment()).commit();
+                        .replace(R.id.container, new MinhasCaronasFragment()).commit();
                 break;
 
             // the second item on navigation drawer displays the user's friends feed screen
             case VIEW_FRIENDS_FEED:
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new FriendsFeedFragment()).commit();
+                        .replace(R.id.container, new FriendsFeedFragment()).commit();
                 break;
 
 

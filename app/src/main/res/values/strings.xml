@@ -208,6 +208,8 @@
     <string name="search">Procure uma carona no feed.</string>
     <string name="title_activity_filter_feed">FilterFeedActivity</string>
     <string name="filter_feed">Filtre por um ou mais campos abaixo.</string>
+    <string name="filtering">Filtrando...</string>
+    <string name="filter_results">Filtre os resultados</string>
 
 
 </resources>

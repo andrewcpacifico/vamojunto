@@ -23,13 +23,13 @@ package co.vamojunto.ui.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,8 +37,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-
-import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +53,7 @@ import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 import co.vamojunto.util.TextUtil;
+import co.vamojunto.util.UIUtil;
 
 /**
  * An abstract fragment to display a list of rides.
@@ -139,8 +138,6 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      */
     private ImageView mErrorScreenIcon;
 
-    private Toolbar mBottomBar;
-
     /**
      * A Handler to run code on the main thread.
      *
@@ -158,6 +155,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
         View rootView = inflater.inflate(getLayoutResource(), container, false);
 
         mHandler = new Handler();
+        setHasOptionsMenu(true);
 
         initComponents(rootView);
 
@@ -207,38 +205,57 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
             }
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
+    }
 
-        mBottomBar = (Toolbar) rootView.findViewById(R.id.bottom_bar);
-        mBottomBar.inflateMenu(R.menu.menu_list_rides);
-        mBottomBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                int id = menuItem.getItemId();
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
 
-                if (id == R.id.search_menu) {
-                    FilterFeedFragment filterFragment = new FilterFeedFragment();
-                    filterFragment.show(AbstractListRidesFragment.this);
-                }
+        inflater.inflate(R.menu.menu_list_rides, menu);
+    }
 
-                return false;
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.search_menu) {
+            FilterFeedFragment filterFragment = new FilterFeedFragment();
+            filterFragment.show(AbstractListRidesFragment.this);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onFeedFilter(Bundle filterValues) {
         Map<String, String> filterMap = new HashMap<>();
 
+        UIUtil.startLoading(getActivity(), getString(R.string.filtering));
         String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
-        if (startingPoint != "") {
+        if (! startingPoint.equals("")) {
             filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
         }
 
         this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
             @Override
-            public Void then(Task<List<Ride>> task) throws Exception {
-                List<Ride> lst = task.getResult();
-                mRidesAdapter.setDataset(lst);
+            public Void then(final Task<List<Ride>> task) throws Exception {
+                if (! task.isCancelled() && !task.isFaulted()) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            UIUtil.stopLoading();
+
+                            List<Ride> lst = task.getResult();
+                            mRidesAdapter.setDataset(lst);
+
+                            if (lst.size() == 0) {
+                                displayNoRideMessage();
+                            } else {
+                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                            }
+                        }
+                    });
+                }
 
                 return null;
             }
@@ -367,9 +384,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      * @since 0.1.0
      */
     protected void displayErrorScreen() {
-        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
-
-        mViewFlipper.setDisplayedChild(ERROR_VIEW);
+        displayErrorScreen(getString(R.string.errormsg_default));
     }
 
 }

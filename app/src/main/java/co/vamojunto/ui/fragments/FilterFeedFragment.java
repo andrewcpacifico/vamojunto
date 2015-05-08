@@ -23,14 +23,18 @@ package co.vamojunto.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import co.vamojunto.R;
 
@@ -42,20 +46,6 @@ import co.vamojunto.R;
  * @version 1.0.0
  */
 public class FilterFeedFragment extends Fragment {
-
-    /**
-     * Inflated button to close this fragment.
-     *
-     * @since 0.1.0
-     */
-    private ImageButton mCloseButton;
-
-    /**
-     * Inflated button to confirm the feed filtering.
-     *
-     * @since 0.1.0
-     */
-    private ImageButton mOkButton;
 
     /**
      * Inflated EditText with the destination filter value.
@@ -93,38 +83,81 @@ public class FilterFeedFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // force to show the keyboard
+        getActivity().getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
     private void initComponents(View rootView) {
+        TextView.OnEditorActionListener actionListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    performFilter();
+                    return true;
+                }
+                return false;
+            }
+        } ;
+
         mDestinationEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mDestinationEditText.setOnEditorActionListener(actionListener);
+
         mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
+        mStartingPointEditText.setOnEditorActionListener(actionListener);
 
-        mCloseButton = (ImageButton) rootView.findViewById(R.id.close_button);
-        mCloseButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton closeButton = (ImageButton) rootView.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 close();
             }
         });
 
-        mOkButton = (ImageButton) rootView.findViewById(R.id.ok_button);
-        mOkButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton okButton = (ImageButton) rootView.findViewById(R.id.ok_button);
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                close();
-
-                Bundle filterValues = new Bundle();
-                filterValues.putString(
-                        FilterableFeedFragment.STARTING_POINT,
-                        mStartingPointEditText.getText().toString()
-                );
-
-                filterValues.putString(
-                        FilterableFeedFragment.DESTINATION,
-                        mDestinationEditText.getText().toString()
-                );
-
-                mFeedFragment.onFeedFilter(filterValues);
+                performFilter();
             }
         });
+
+        ImageButton changeButton = (ImageButton) rootView.findViewById(R.id.change_button);
+        changeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String buffer = String.valueOf(mDestinationEditText.getText());
+
+                mDestinationEditText.setText(mStartingPointEditText.getText());
+                mStartingPointEditText.setText(buffer);
+            }
+        });
+    }
+
+    /**
+     * Perform the search
+     *
+     * @since 0.1.0
+     */
+    private void performFilter() {
+        close();
+
+        Bundle filterValues = new Bundle();
+        filterValues.putString(
+                FilterableFeedFragment.STARTING_POINT,
+                mStartingPointEditText.getText().toString()
+        );
+
+        filterValues.putString(
+                FilterableFeedFragment.DESTINATION,
+                mDestinationEditText.getText().toString()
+        );
+
+        mFeedFragment.onFeedFilter(filterValues);
     }
 
     /**
@@ -137,11 +170,13 @@ public class FilterFeedFragment extends Fragment {
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mDestinationEditText.getWindowToken(), 0);
 
-        getFragmentManager()
-                .beginTransaction()
-                .remove(FilterFeedFragment.this)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit();
+        FragmentManager manager = getFragmentManager();
+        manager
+            .beginTransaction()
+            .remove(FilterFeedFragment.this)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            .commit();
+        manager.popBackStack();
     }
 
     /**

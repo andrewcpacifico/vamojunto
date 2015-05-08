@@ -17,38 +17,43 @@
  * See LICENSE.txt
  */
 
-package co.vamojunto.ui.fragments;
+package co.vamojunto.util;
 
-import java.util.List;
-import java.util.Map;
-
-import bolts.Task;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
+import android.app.ProgressDialog;
+import android.content.Context;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display a list of rides offered by the
- * current user's friends.
+ * Util class with User Interface functions.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
  * @version 1.0.0
  */
-public class FriendsOffersFragment extends DefaultListRidesFragment {
+public class UIUtil {
 
-    @Override
-    protected boolean isOfflineFeed() {
-        return false;
+    private static ProgressDialog mProDialog;
+
+    /**
+     * Display a progress dialog on the screen.
+     *
+     * @since 0.1.0
+     */
+    public static void startLoading(Context context, String msg) {
+        mProDialog = new ProgressDialog(context);
+        mProDialog.setMessage(msg);
+        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProDialog.setCancelable(false);
+        mProDialog.show();
     }
 
-    @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getFriendsOffersAsync(User.getCurrentUser());
-    }
-
-    @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredFriendsOffersAsync(User.getCurrentUser(), filterValues);
+    /**
+     * Dismisses the previously displayed progressDialog
+     *
+     * @since 0.1.0
+     */
+    public static void stopLoading() {
+        mProDialog.dismiss();
+        mProDialog = null;
     }
 
 }
