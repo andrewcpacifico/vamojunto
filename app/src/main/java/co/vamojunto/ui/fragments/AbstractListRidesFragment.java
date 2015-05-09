@@ -230,10 +230,19 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
     public void onFeedFilter(Bundle filterValues) {
         Map<String, String> filterMap = new HashMap<>();
 
+        // display a progress bar
         UIUtil.startLoading(getActivity(), getString(R.string.filtering));
+
+        // if the user entered a value for starting point filtering, add it to the filter map
         String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
         if (! startingPoint.equals("")) {
             filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        // if the user entered a value for destination filtering, add it to the filter map
+        String destination = TextUtil.normalize(filterValues.getString(DESTINATION));
+        if (! destination.equals("")) {
+            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
         }
 
         this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {

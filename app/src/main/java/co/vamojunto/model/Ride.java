@@ -332,7 +332,13 @@ public class Ride extends ParseObject {
         // filter by starting point
         String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
         if (startingPoint != null) {
-            query.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, TextUtil.normalize(startingPoint));
+            query.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        // filter by destination
+        String destination = filterValues.get(FIELD_LC_DESTINATION_TITLE);
+        if (destination != null) {
+            query.whereStartsWith(FIELD_LC_DESTINATION_TITLE, destination);
         }
 
         return query.findInBackground();
