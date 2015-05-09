@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -134,6 +135,17 @@ public class FilterFeedFragment extends Fragment {
 
                 mDestinationEditText.setText(mStartingPointEditText.getText());
                 mStartingPointEditText.setText(buffer);
+            }
+        });
+
+        Button viewAllButton = (Button) rootView.findViewById(R.id.view_all_button);
+        viewAllButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mStartingPointEditText.setText("");
+                mDestinationEditText.setText("");
+
+                performFilter();
             }
         });
     }

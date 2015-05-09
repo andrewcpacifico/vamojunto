@@ -323,12 +323,6 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
                                 if (!task.isFaulted() && !task.isCancelled()) {
                                     List<Ride> lstRides = task.getResult();
-                                    Collections.sort(lstRides, new Comparator<Ride>() {
-                                        @Override
-                                        public int compare(Ride lhs, Ride rhs) {
-                                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                                        }
-                                    });
 
                                     mRidesAdapter.setDataset(lstRides);
 

@@ -46,6 +46,7 @@ import co.vamojunto.util.TextUtil;
 @ParseClassName("Ride")
 public class Ride extends ParseObject {
 
+    public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_DATETIME = "datetime";
     public static final String FIELD_DRIVER = "driver";
     public static final String FIELD_STARTING_POINT_LAT = "starting_point_lat";
@@ -237,6 +238,8 @@ public class Ride extends ParseObject {
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
 
+        query.orderByDescending(FIELD_CREATED_AT);
+
         query.findInBackground(new FindCallback<Ride>() {
             @Override
             public void done(List<Ride> rides, ParseException e) {
@@ -323,6 +326,8 @@ public class Ride extends ParseObject {
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
+
+        query.orderByDescending(FIELD_CREATED_AT);
 
         // filter by starting point
         String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
