@@ -43,10 +43,25 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     /** Utilizado para indicar que o View que está sendo construído pelo RecyclerView é um item da lista */
     private static final int TYPE_ITEM = 1;
 
+    /**
+     * The number of items on navigation drawer menu.
+     *
+     * @since 0.1.0
+     */
+    private static final int MENU_ITEM_COUNT = 2;
+
     /** Array de Strings contendo os títulos de cada um dos itens exibidos no menu */
     private String mNavTitles[];
-    /** Array de inteiros, contendos os ids dos ícones que serão exibidos em cada um dos itens do menu */
-    private int mIcons[];
+
+    /**
+     * Array containing the icons to display on each item of the navigation drawer
+     *
+     * @since 0.1.0
+     */
+    private static int mIcons[] = {
+            R.drawable.ic_ride_hand,
+            R.drawable.ic_menu_friends
+    };
 
     /** Nome do usuário autenticado no sistema para ser exibido no cabeçalho */
     private String mNomeUsuario;
@@ -127,26 +142,14 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         mEmailUsuario = emailUsuario;
         mImgUsuario = imgUsuario;
 
-        /* Inicializa os dados dos itens do menu */
+        /* initialize the menu data */
         mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
 
         mItemClickListener = clickListener;
     }
 
-    /**
-     * Sobrescrita do método onCreateViewHolder que é chamado quando o ViewHolder é criado.
-     *
-     * Neste médodo o layout drawer_list_row.xml é inflado se o viewType for igual a Type_ITEM, ou então
-     * o layout drawer_header.xml é inflado caso o viewType seja igual a TYPE_HEADER. Então o View
-     * carregado é passado para o ViewHolder.
-     *
-     * @param parent
-     * @param viewType Define o tipo de View que está sendo criado.
-     *
-     * @return O ViewHolder criado no método, ou null em caso de erro.
-     */
     @Override
-    public NavigationDrawerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         if (viewType == TYPE_ITEM) {
             View v = LayoutInflater.from(parent.getContext()).
@@ -168,18 +171,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     }
 
-    /**
-     * Sobrescrita do método onBindViewHolder, que é chamado quando um item em uma linha vai ser exibido,
-     *
-     * @param holder ViewHolder a ser vinculado à informação que será exibida.
-     * @param position Posição do item que será exibido.
-     */
     @Override
     public void onBindViewHolder(NavigationDrawerAdapter.ViewHolder holder, int position) {
         // Verifica se o tipo do holder que vai ser vinculado é um item, ou cabeçalho.
         if (holder.mHolderType == TYPE_ITEM) {
             holder.mTituloView.setText(mNavTitles[position - 1]);
-            holder.mImagemView.setImageResource(R.drawable.ic_launcher);
+            holder.mImagemView.setImageResource(mIcons[position - 1]);
         } else {
             // Caso o usuário tenha se inscrito direto pelo aplicativo, e não tenha feito upload
             // de uma imagem de perfil.
@@ -191,25 +188,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         }
     }
 
-    /**
-     * Utilizado para saber a quantidade de itens existentes na lista. O tamanho do array de títulos
-     * representa o total de itens de menu, então o total de itens é igual ao tamanho + 1, por conta
-     * do cabeçalho.
-     *
-     * @return A quantidade de itens da lista.
-     */
     @Override
     public int getItemCount() {
-        return mNavTitles.length + 1;
+        return MENU_ITEM_COUNT + 1;
     }
 
-    /**
-     * Indica o tipo de View, do item que será exibido na lista. Neste caso o único diferente é o
-     * primeiro item da lista (posição 0) que contém o cabeçalho.
-     *
-     * @param position Posição do item na lista.
-     * @return O ViewType correspondente.
-     */
     @Override
     public int getItemViewType(int position) {
         if (position == 0)

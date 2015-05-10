@@ -46,15 +46,27 @@
         </RelativeLayout>
     </FrameLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/nav_drawer_recycler_view"
+    <LinearLayout
+        android:layout_gravity="left"
         android:layout_width="320dp"
-        android:background="#ffffff"
         android:layout_height="match_parent"
 
-        android:layout_gravity="left"
-        android:scrollbars="vertical"
-        >
-    </android.support.v7.widget.RecyclerView>
+        android:orientation="vertical">
+        <android.support.v7.widget.RecyclerView android:id="@+id/nav_drawer_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+
+            android:background="#ffffff"
+            android:scrollbars="vertical" >
+        </android.support.v7.widget.RecyclerView>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:background="@drawable/white_list_item_selector"
+            android:text="@string/logout"/>
+    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

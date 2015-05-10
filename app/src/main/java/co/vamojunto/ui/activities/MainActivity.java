@@ -122,7 +122,7 @@ public class MainActivity extends ActionBarActivity {
             Log.i(TAG, "User not authenticated. Displaying the login screen...");
 
             // starts the login screen to the user
-            Intent intent = new Intent(this, SplashActivity.class);
+            Intent intent = new Intent(this, LoginActivity.class);
             this.startActivity(intent);
             this.finish();
 
@@ -162,6 +162,8 @@ public class MainActivity extends ActionBarActivity {
 
     /**
      * Setups the NavigationDrawer
+     *
+     * @since 0.1.0
      */
     private void initDrawer() {
         mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
