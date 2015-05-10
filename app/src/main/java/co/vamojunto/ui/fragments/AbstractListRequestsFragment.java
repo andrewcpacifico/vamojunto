@@ -27,6 +27,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,14 +39,19 @@ import android.widget.ViewFlipper;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.TextUtil;
+import co.vamojunto.util.UIUtil;
 
 /**
  * An abstract fragment to display a list of ride requests.
@@ -52,7 +60,7 @@ import co.vamojunto.util.NetworkUtil;
  * @since 0.1.0
  * @version 1.0.0
  */
-public abstract class AbstractListRequestsFragment extends Fragment {
+public abstract class AbstractListRequestsFragment extends FilterableFeedFragment {
 
     private static final String TAG = "co.vamojunto";
 
@@ -136,9 +144,75 @@ public abstract class AbstractListRequestsFragment extends Fragment {
 
         initComponents(rootView);
 
+        setHasOptionsMenu(true);
+
         loadRequests();
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.menu_list_rides, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.search_menu) {
+            FilterFeedFragment filterFragment = new FilterFeedFragment();
+            filterFragment.show(AbstractListRequestsFragment.this);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFeedFilter(Bundle filterValues) {
+        Map<String, String> filterMap = new HashMap<>();
+
+        // display a progress bar
+        UIUtil.startLoading(getActivity(), getString(R.string.filtering));
+
+        // if the user entered a value for starting point filtering, add it to the filter map
+        String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
+        if (! startingPoint.equals("")) {
+            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        // if the user entered a value for destination filtering, add it to the filter map
+        String destination = TextUtil.normalize(filterValues.getString(DESTINATION));
+        if (! destination.equals("")) {
+            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
+        }
+
+        this.filter(filterMap).continueWith(new Continuation<List<RideRequest>, Void>() {
+            @Override
+            public Void then(final Task<List<RideRequest>> task) throws Exception {
+                if (! task.isCancelled() && !task.isFaulted()) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            UIUtil.stopLoading();
+
+                            List<RideRequest> lst = task.getResult();
+                            mRequestsAdapter.setDataset(lst);
+
+                            if (lst.size() == 0) {
+                                //displayNoRideMessage();
+                            } else {
+                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                            }
+                        }
+                    });
+                }
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -172,6 +246,14 @@ public abstract class AbstractListRequestsFragment extends Fragment {
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
     }
+
+    /**
+     * Filter the feed items.
+     *
+     * @return A {@link java.util.List} with the filtered items to display on feed.
+     * @since 0.1.0
+     */
+    protected abstract Task<List<RideRequest>> filter(Map<String, String> filterValues);
 
     /**
      * Get the listener to handle the item clicks on the recyclerview.

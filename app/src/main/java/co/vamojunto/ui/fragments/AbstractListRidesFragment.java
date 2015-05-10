@@ -88,20 +88,6 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
     private static final int DEFAULT_VIEW = 2;
 
     /**
-     * RecyclerView where the rides are displayed
-     *
-     * @since 0.1.0
-     */
-    private RecyclerView mRidesRecyclerView;
-
-    /**
-     * LayoutManager used by the mRidesRecyclerView
-     *
-     * @since 0.1.0
-     */
-    private LinearLayoutManager mRidesLayoutManager;
-
-    /**
      * Adapter used to manage the data of mRidesRecyclerView
      *
      * @since 0.1.0
@@ -168,15 +154,15 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      * Initializates the screen components
      *
      * @param rootView The Fragment's inflated layout.
+     * @since 0.1.0
      */
     protected void initComponents(View rootView) {
-        // inits the RecyclerView
-        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
-        mRidesRecyclerView.setHasFixedSize(true);
+        RecyclerView ridesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
+        ridesRecyclerView.setHasFixedSize(true);
 
         // inits the RecyclerView LayoutManager
-        mRidesLayoutManager = new LinearLayoutManager(rootView.getContext());
-        mRidesRecyclerView.setLayoutManager(mRidesLayoutManager);
+        LinearLayoutManager ridesLayoutManager = new LinearLayoutManager(rootView.getContext());
+        ridesRecyclerView.setLayoutManager(ridesLayoutManager);
 
         // inits the RecyclerView Adapter
         mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
@@ -191,7 +177,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
                 startActivity(intent);
             }
         });
-        mRidesRecyclerView.setAdapter(mRidesAdapter);
+        ridesRecyclerView.setAdapter(mRidesAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 

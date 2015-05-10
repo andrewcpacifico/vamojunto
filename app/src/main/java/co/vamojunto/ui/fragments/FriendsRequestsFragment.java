@@ -20,9 +20,12 @@
 package co.vamojunto.ui.fragments;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bolts.Task;
 import co.vamojunto.R;
@@ -57,6 +60,17 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
     }
 
     @Override
+    protected Task<List<RideRequest>> filter(Map<String, String> filterValues) {
+        List<RideRequest> lst = new ArrayList<>();
+
+        Task<List<RideRequest>>.TaskCompletionSource tcs = Task.create();
+
+        tcs.setResult(lst);
+
+        return tcs.getTask();
+    }
+
+    @Override
     protected RequestsRecyclerViewAdapter.OnItemClickListener getClickListener() {
         return new RequestsRecyclerViewAdapter.OnItemClickListener() {
             @Override
@@ -71,4 +85,5 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
             }
         };
     }
+
 }
