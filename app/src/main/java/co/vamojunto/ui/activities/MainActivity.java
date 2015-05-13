@@ -32,16 +32,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
-import com.facebook.Session;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import co.vamojunto.R;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
+import co.vamojunto.ui.fragments.FriendsFeedFragment;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
-import co.vamojunto.ui.fragments.FriendsFeedFragment;
 
 /**
  * System's Main Activity
@@ -92,11 +91,6 @@ public class MainActivity extends ActionBarActivity {
     private DrawerLayout mDrawerLayout;
 
     /**
-     *
-     */
-    private ActionBarDrawerToggle mDrawerToggle;
-
-    /**
      * Authenticated user
      */
     private User mCurrentUser;
@@ -109,6 +103,13 @@ public class MainActivity extends ActionBarActivity {
  * Activity's events
  *
  *************************************************************************************************/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +185,8 @@ public class MainActivity extends ActionBarActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.openDrawer, R.string.closeDrawer) {
+
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.openDrawer, R.string.closeDrawer) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
@@ -216,7 +218,7 @@ public class MainActivity extends ActionBarActivity {
      */
     private void navigationDrawerItemClicked(int position) {
         if (position == 3) {
-            new Session(this).closeAndClearTokenInformation();
+//            new Session(this).closeAndClearTokenInformation();
             ParseUser.logOut();
 
             Intent intent = new Intent(this, LoginActivity.class);

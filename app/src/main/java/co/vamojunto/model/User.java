@@ -19,6 +19,7 @@
 
 package co.vamojunto.model;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -138,6 +139,24 @@ public class User extends ParseUser {
         return fbId;
     }
 
+    /**
+     * Return the facebook access token, associated to this User instance.
+     *
+     * @return The current facebook access token for this.
+     * @since 0.1.1
+     */
+    public String getFacebookAccessToken() {
+        JSONObject fbAuthData = getJSONObject(FIELD_FB_AUTH_DATA);
+        String fbAccessToken = null;
+        try {
+            fbAccessToken = fbAuthData.getJSONObject("facebook").getString("access_token");
+        } catch (JSONException e) {
+            Log.e(TAG, "[getFacebookAccessToken] Error on parsing JSON: ", e);
+        }
+
+        return fbAccessToken;
+    }
+
     public String getFacebookId() {
         return getString(FIELD_FB_ID);
     }
@@ -147,15 +166,16 @@ public class User extends ParseUser {
     }
 
     /**
+     * Get the list of user's Facebook friends.
      *
-     * @return
+     * @return A {@link bolts.Task} containing the result list.
      * @since 0.1.0
      */
     public Task<List<User>> getFacebookFriends() {
         final Task<List<User>>.TaskCompletionSource tcs = Task.create();
         final Capture<Map<String, User>> friendsMap = new Capture<>(null);
 
-        FacebookHelper.getUserFriendsAsync(this).continueWithTask(
+        FacebookHelper.getMyFriendsAsync().continueWithTask(
                 new Continuation<List<String>, Task<List<User>>>() {
                     @Override
                     public Task<List<User>> then(Task<List<String>> task) throws Exception {

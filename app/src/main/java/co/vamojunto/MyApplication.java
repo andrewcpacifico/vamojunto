@@ -78,7 +78,7 @@ public class MyApplication extends Application {
         ParseObject.registerSubclass(RequestMessage.class);
 
         Parse.initialize(this, appId, clientId);
-        ParseFacebookUtils.initialize();
+        ParseFacebookUtils.initialize(this);
 
         // gets the preference that defines if the current user have already saved his installation
         // on parse database

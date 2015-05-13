@@ -27,8 +27,8 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,11 +36,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
+
+import java.util.Arrays;
 import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
@@ -53,7 +65,7 @@ import co.vamojunto.util.NetworkUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class ManageFbFriendsFragment extends Fragment {
 
@@ -117,6 +129,20 @@ public class ManageFbFriendsFragment extends Fragment {
     private ProgressDialog mProDialog;
 
     /**
+     * Define if fragment has loaded items to display once.
+     *
+     * @since 0.1.1
+     */
+    private boolean mHasLoaded;
+
+    /**
+     * Callback for Facebook login.
+     *
+     * @since 0.1.1
+     */
+    private CallbackManager mCallbackManager;
+
+    /**
      * Required default constructor
      *
      * @since 0.1.0
@@ -129,14 +155,43 @@ public class ManageFbFriendsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_manage_fb_friends, container, false);
 
         mHandler = new Handler();
+        mHasLoaded = false;
+
+        FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
+        mCallbackManager = CallbackManager.Factory.create();
 
         // setups the screen
         initComponents(rootView);
 
-        // loads the currentUser's friends
-        loadFriends();
-
         return rootView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult");
+
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Method overridden to load friends just when the fragment is being displayed for the first
+     * time.
+     *
+     * @param isVisibleToUser <code>true</code> if this fragment's UI is currently visible
+     *                        to the user (default), <code>false</code> if it is not.
+     * @since 0.1.1
+     */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (this.isVisible() && isVisibleToUser && ! mHasLoaded) {
+            // loads the currentUser's friends
+            loadFriends();
+            mHasLoaded = true;
+        }
     }
 
     /**
@@ -221,8 +276,39 @@ public class ManageFbFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     public void loadFriends() {
+        mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
+
         if (! NetworkUtil.isConnected(getActivity())) {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
+        } else if (
+            ! AccessToken
+                .getCurrentAccessToken()
+                .getPermissions()
+                .contains(FacebookHelper.Permissions.USER_FRIENDS)
+        ) {
+            LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    loadFriends();
+                }
+
+                @Override
+                public void onCancel() {
+                    displayErrorScreen(getString(R.string.errormsg_cant_load_fb_friends));
+                }
+
+                @Override
+                public void onError(FacebookException e) {
+                    displayErrorScreen();
+                }
+            });
+
+            // if user had not give permissions to read his friends o Facebook, asks for this permission
+            LoginManager.getInstance()
+                .logInWithReadPermissions(
+                        getActivity(),
+                        Arrays.asList(FacebookHelper.Permissions.USER_FRIENDS)
+                );
         } else {
             // after search for the user friends, sets the list of friends as the recyclerview dataset
             User.getCurrentUser().getFacebookFriends()

@@ -25,18 +25,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import java.util.List;
 
 import co.vamojunto.R;
-import co.vamojunto.ui.activities.ManageFriendsActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
@@ -50,15 +48,21 @@ public class ManageFriendsFragment extends Fragment {
 
     private static final String TAG = "ManageFriendsFragment";
 
-    /**
-     * ProgressDialog displayed when the data is being loaded
-     *
-     * @since 0.1.0
-     */
-    private ProgressDialog mProDialog;
-
     public ManageFriendsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult");
+        List<Fragment> fragmentList = getChildFragmentManager().getFragments();
+        if (fragmentList != null) {
+            for (Fragment fragment: fragmentList) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            }
+        }
     }
 
     @Override
@@ -87,7 +91,6 @@ public class ManageFriendsFragment extends Fragment {
 
         return rootView;
     }
-
 
     /**
      * Adapter to fill the pages on this Fragment tabs.  Two tabs are displayed, one inflates the

@@ -20,23 +20,41 @@
 package co.vamojunto.ui.activities;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
+
+import java.util.Arrays;
+import java.util.List;
+
 import co.vamojunto.R;
+import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.ui.fragments.ManageFollowedFragment;
 import co.vamojunto.ui.fragments.ManageFriendsFragment;
 
+/**
+ *
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @since 0.1.0
+ * @version 1.0.1
+ */
 public class ManageFriendsActivity extends ActionBarActivity {
 
     public static final String TAG = "ManageFriendsActivity";
 
-    /**
-     * The Activity toolbar
-     */
-    private Toolbar mToolbarActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +69,36 @@ public class ManageFriendsActivity extends ActionBarActivity {
         setupAppBar();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult");
+        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        if (fragmentList != null) {
+            for (Fragment fragment: fragmentList) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            }
+        }
+    }
+
     /**
      * Initializes the activity's App Bar
+     *
+     * @since 0.1.0
      */
     private void setupAppBar() {
-        mToolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        Toolbar toolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
 
-        setSupportActionBar(mToolbarActionBar);
+        setSupportActionBar(toolbarActionBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
      * Overriding the onBackPressed method, to make an "up" navigation when this activity is
      * opened from a notification.
+     *
+     * @since 0.1.0
      */
     @Override
     public void onBackPressed() {

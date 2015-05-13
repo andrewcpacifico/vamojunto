@@ -67,25 +67,11 @@ public class ManageFollowedFragment extends Fragment {
     private static final int VIEW_DEFAULT = 2;
 
     /**
-     * RecyclerView to list the users followed by current user.
-     *
-     * @since 0.1.0
-     */
-    private RecyclerView mFriendsRecyclerView;
-
-    /**
      * Adapter for the friends RecyclerView
      *
      * @since 0.1.0
      */
     private FriendsRecyclerViewAdapter mFriendsAdapter;
-
-    /**
-     * LayoutManager for the friends RecyclerView
-     *
-     * @since 0.1.0
-     */
-    private LinearLayoutManager mFriendsLayoutManager;
 
     /**
      * A {@link android.os.Handler} to run code on the main thread.
@@ -123,13 +109,6 @@ public class ManageFollowedFragment extends Fragment {
      * @since 0.1.0
      */
     private ImageView mErrorScreenIcon;
-
-    /**
-     * Button to save the changes made by user.
-     *
-     * @since 0.1.0
-     */
-    private Button mSaveButton;
 
     /**
      * A progress dialog, displayed when any data is being loaded.
@@ -180,13 +159,14 @@ public class ManageFollowedFragment extends Fragment {
             }
         );
 
-        mFriendsLayoutManager = new LinearLayoutManager(getActivity());
+
+        LinearLayoutManager friendsLayoutManager = new LinearLayoutManager(getActivity());
 
         // inflates the friendsRecyclerView and defines its layoutManager and adapter
-        mFriendsRecyclerView = (RecyclerView) rootView.findViewById(R.id.friends_recycler_view);
-        mFriendsRecyclerView.setLayoutManager(mFriendsLayoutManager);
-        mFriendsRecyclerView.setAdapter(mFriendsAdapter);
-        mFriendsRecyclerView.setHasFixedSize(true);
+        RecyclerView friendsRecyclerView = (RecyclerView) rootView.findViewById(R.id.friends_recycler_view);
+        friendsRecyclerView.setLayoutManager(friendsLayoutManager);
+        friendsRecyclerView.setAdapter(mFriendsAdapter);
+        friendsRecyclerView.setHasFixedSize(true);
 
         mErrorScreenMsgTextView =
                 (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
@@ -203,8 +183,8 @@ public class ManageFollowedFragment extends Fragment {
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
-        mSaveButton = (Button) rootView.findViewById(R.id.save_button);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        Button saveButton = (Button) rootView.findViewById(R.id.save_button);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             // on button click, persists the changes made by the current user to the cloud database.
             @Override
             public void onClick(View v) {
@@ -294,7 +274,7 @@ public class ManageFollowedFragment extends Fragment {
                             if (!fetchedFromCloud) {
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
-                                editor.commit();
+                                editor.apply();
                             }
 
                             mHandler.post(new Runnable() {

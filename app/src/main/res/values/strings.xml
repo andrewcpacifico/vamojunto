@@ -216,6 +216,7 @@
     <string name="view_all">Ver todos</string>
     <string name="slogan">Encontre sua carona agora mesmo</string>
     <string name="logout">Sair</string>
+    <string name="errormsg_cant_load_fb_friends">Não foi possível carregar os seus amigos do Facebook.</string>
 
 
 </resources>

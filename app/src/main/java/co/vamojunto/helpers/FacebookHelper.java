@@ -19,14 +19,20 @@
 
 package co.vamojunto.helpers;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.model.GraphUser;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.parse.ParseFacebookUtils;
 
 import org.json.JSONArray;
@@ -40,6 +46,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -48,15 +55,41 @@ import bolts.Task;
 import co.vamojunto.model.User;
 
 /**
- * Helper to deal with Facebook actions.
+ * Helper to handle with Facebook actions.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.1.0
  */
 public class FacebookHelper {
 
     private static final String TAG = "FacebookHelper";
+
+    /**
+     * Field for user email, on user json returned from GraphAPI.
+     *
+     * @since 0.1.1
+     */
+    public static final String USER_EMAIL = "email";
+
+    /**
+     * Field for user name, on user json returned from GraphAPI.
+     *
+     * @since 0.1.1
+     */
+    public static final String USER_NAME = "name";
+
+    /**
+     * Field for user id, on user json returned from GraphAPI.
+     *
+     * @since 0.1.1
+     */
+    public static final String USER_ID = "id";
+
+    public static class  Permissions {
+        public static String USER_EMAIL = "email";
+        public static String USER_FRIENDS = "user_friends";
+    }
 
     /**
      * Returns the profile picture of a given user.
@@ -93,133 +126,72 @@ public class FacebookHelper {
     }
 
     /**
-     * Faz uma requisição do tipo /me à API Graph do Facebook, e retorna um objeto do tipo GraphUser
-     * com os dados do usuário que está autenticado.
+     * Get the current user data from his Facebook account.
      *
-     * @return A instância da {@link bolts.Task} que contendo como resultado o GraphUser obtido na
-     * requisição.
+     * @since 0.1.1
      */
-    public static Task<GraphUser> getGraphUserAsync() {
-        final Task<GraphUser>.TaskCompletionSource tcs = Task.create();
+    public static Task<JSONObject> getFBUserAsync() {
+        final Task<JSONObject>.TaskCompletionSource tcs = Task.create();
 
-        Log.i(TAG, "Iniciando requisição para obtenção do email do usuário");
-        Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
-            @Override
-            public void onCompleted(GraphUser graphUser, Response response) {
-                Log.i(TAG, "Requisição para email do usuário finalizada");
+        Log.i(TAG, "starting a ME request for Facebook...");
+        GraphRequest.newMeRequest(
+            AccessToken.getCurrentAccessToken(),
+            new GraphRequest.GraphJSONObjectCallback() {
+                @Override
+                public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
+                    Log.i(TAG, "ME request finished...");
 
-                if (graphUser != null) {
-                    tcs.setResult(graphUser);
+                    if (jsonObject != null) {
+                        tcs.setResult(jsonObject);
+                    } else {
+                        tcs.setError(new Exception(graphResponse.getError().getErrorMessage()));
+                    }
                 }
             }
-        }).executeAsync();
+        ).executeAsync();
 
         return tcs.getTask();
     }
 
 
     /**
-     * Gets the list of facebook ids, for the friends of a given user.
+     * Gets the list with facebook ids of the friends of current user.
      *
-     * @param user The user to get the friends.
-     * @return A {@link java.util.List} containing the ids of the user's friends.
-     * @since 0.1.0
+     * @return A {@link bolts.Task} containing the list of ids of the user's friends.
+     * @since 0.1.1
      */
-    public static Task<List<String>> getUserFriendsAsync(User user) {
-        final String fbId = user.parseFacebookIdFromAuthData();
+    public static Task<List<String>> getMyFriendsAsync() {
         final Task<List<String>>.TaskCompletionSource tcs = Task.create();
 
-        Task.callInBackground(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                HttpURLConnection conn = null;
-                StringBuilder jsonResults = new StringBuilder();
+        Log.i(TAG, "Looking for user friends...");
 
-                try {
-                    Request fbRequest = new Request(
-                        ParseFacebookUtils.getSession(),
-                        fbId + "/friends",
-                        null,
-                        HttpMethod.GET
-                    );
+        GraphRequest.newMyFriendsRequest(
+            AccessToken.getCurrentAccessToken(),
+            new GraphRequest.GraphJSONArrayCallback() {
+                @Override
+                public void onCompleted(JSONArray jsonArray, GraphResponse graphResponse) {
+                    Log.i(TAG, "My friends request finished...");
 
-                    conn = Request.toHttpConnection(fbRequest);
-
-                    InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-                    // Load the results into a StringBuilder
-                    int read;
-                    char[] buff = new char[1024];
-                    while ((read = in.read(buff)) != -1) {
-                        jsonResults.append(buff, 0, read);
-                    }
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, "[getUserFriendsAsync] Error processing URL", e);
-                } catch (IOException e) {
-                    Log.e(TAG, "[getUserFriendsAsync] Error connecting to Graph API", e);
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
-                }
-
-                return jsonResults.toString();
-            }
-        }).continueWith(new Continuation<String, Void>() {
-            @Override
-            public Void then(Task<String> task) {
-                if (task.isCancelled()) {
-                    tcs.setCancelled();
-                } else if (task.isFaulted()) {
-                    tcs.setError(task.getError());
-                } else {
-
-                    String jsonString = task.getResult();
+                    List<String> resultList;
 
                     try {
-                        // Create a JSON object hierarchy from the results
-                        JSONObject jsonObj = new JSONObject(jsonString);
-                        List<String> resultList = parseUserFriendsJSON(jsonObj);
+                        int nResults = jsonArray.length();
+                        resultList = new ArrayList<>(nResults);
+
+                        for (int i = 0; i < nResults; i++) {
+                            JSONObject jsonUser = jsonArray.getJSONObject(i);
+                            resultList.add(jsonUser.getString("id"));
+                        }
 
                         tcs.setResult(resultList);
                     } catch (JSONException e) {
-                        Log.e(TAG, "Cannot process JSON results", e);
-
-                        tcs.setError(e);
+                        Log.e(TAG, "Error on parsing json.", e);
                     }
                 }
-
-                return null;
             }
-        });
+        ).executeAsync();
 
         return tcs.getTask();
-    }
-
-    /**
-     * Parse the answer json, sent on a request to Facebook Graph API.
-     *
-     * @param jsonObj JSONObject containing the result from request.
-     * @return A list containing the ids of the users.
-     */
-   private static List<String> parseUserFriendsJSON(JSONObject jsonObj) {
-        List<String> resultList = null;
-
-        try {
-            JSONArray data = jsonObj.getJSONArray("data");
-
-            int nResults = data.length();
-            resultList = new ArrayList<>(nResults);
-
-            for (int i = 0; i < nResults; i++) {
-                JSONObject jsonUser = data.getJSONObject(i);
-                resultList.add(jsonUser.getString("id"));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "[parseUserFriendsJSON] Error on parsing json.");
-        }
-
-        return resultList;
     }
 
 }

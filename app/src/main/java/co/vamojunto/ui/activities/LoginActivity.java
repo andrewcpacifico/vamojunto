@@ -32,7 +32,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.model.GraphUser;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Email;
@@ -41,6 +47,8 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+
+import org.json.JSONObject;
 
 import java.util.Arrays;
 
@@ -58,7 +66,8 @@ import co.vamojunto.model.User;
  * Atualmente utiliza a clase ParseUser para gerenciar os dados dos usuários, assim como gerenciar
  * a sessão de usuário.
  *
- * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.0.1
  * @since 0.1.0
  */
 public class LoginActivity extends Activity implements Validator.ValidationListener {
@@ -73,6 +82,13 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     private Validator validator;
 
     private Handler mHandler;
+
+    /**
+     * Facebook login callback manager.
+     *
+     * @since 0.1.1
+     */
+    private CallbackManager mCallbackManager;
 
     // Campos do formulário de login
     @Required(order = 1, messageResId = R.string.error_required_field)
@@ -92,6 +108,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
         validator.setValidationListener(this);
 
         mHandler = new Handler();
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        mCallbackManager = CallbackManager.Factory.create();
 
         initComponents();
     }
@@ -153,48 +171,84 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
      * Called when the Facebook authentication button is pressed. The user is logged in with
      * your Facebook account. If the user was not registered on our database, a new user is created
      * on Parse.com, using the information given by Facebook API.
+     *
+     * @since 0.1.0
      */
     private void fbAuthButtonClick(View v) {
         startLoading();
 
-        ParseFacebookUtils.logIn(Arrays.asList(ParseFacebookUtils.Permissions.User.EMAIL, "user_friends"),
-                this, new LogInCallback() {
-                    @Override
-                    public void done(final ParseUser user, ParseException err) {
-                        // if any error happen on facebook login
-                        if (err != null) {
-                            stopLoading();
+        LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(final LoginResult loginResult) {
+                Log.i(TAG, "User successfully authenticated, logging in on parse.com ...");
 
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(LoginActivity.this,
-                                            getString(R.string.errormsg_default),
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        } else {
-                            if (user == null) {
+                ParseFacebookUtils.logInInBackground(loginResult.getAccessToken())
+                        .continueWith(new Continuation<ParseUser, Void>() {
+                            @Override
+                            public Void then(Task<ParseUser> task) throws Exception {
                                 stopLoading();
-                                Log.i(TAG, "Login com Facebook cancelado pelo usuário.");
-                            } else {
-                                if (user.isNew()) {
-                                    Log.i(TAG, "Um usuário novo se autenticou com o Facebook.");
+                                AccessToken.setCurrentAccessToken(loginResult.getAccessToken());
 
-                                    cadastroFacebook(user);
+                                // if no error happened on parse login
+                                if (!task.isFaulted() && !task.isCancelled()) {
+                                    final User user = (User) task.getResult();
+
+                                    if (user == null) {
+                                        Log.i(TAG, "User null after parse login, this error should not have happened...");
+                                    } else {
+                                        // if is the first time user logs in, fetch some data from
+                                        // facebook account to finish the signup
+                                        if (user.isNew()) {
+                                            Log.i(TAG, "New user Registered with facebook login...");
+
+                                            mHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    cadastroFacebook(user);
+                                                }
+                                            });
+                                        } else {
+                                            Log.i(TAG, "Existent user logged in with facebook account...");
+
+                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    }
                                 } else {
-                                    Log.i(TAG, "Um usuário já existente se autenticou com o Facebook.");
-
-                                    stopLoading();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                    finish();
+                                    displayErrorMessage();
+                                    Log.e(TAG, "Some error happened on Facebook login", task.getError());
                                 }
+
+                                return null;
                             }
-                        }
-                    }
-                });
+                        });
+            }
+
+            @Override
+            public void onCancel() {
+                Log.i(TAG, "Facebook authentication cancelled by the user");
+                stopLoading();
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Log.e(TAG, "Error on Facebook authentication", e);
+                stopLoading();
+                displayErrorMessage();
+            }
+        });
+
+        Log.i(TAG, "Authenticating user with Facebook...");
+        LoginManager.getInstance()
+                .logInWithReadPermissions(
+                        this,
+                        Arrays.asList(
+                            FacebookHelper.Permissions.USER_EMAIL,
+                            FacebookHelper.Permissions.USER_FRIENDS
+                        )
+                );
     }
 
     /**
@@ -214,26 +268,31 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     protected void cadastroFacebook(ParseUser parseUser) {
         final User u = (User) parseUser;
 
-        // As tarefas abaixo são executadas de forma asíncrona por exigência do SDK, porém,
-        // como é necessário finalizar estas tarefas para que o aplicativo possa executar normalmente,
-        // as tarefas são executadas em cadeia, o final de cada tarefa dispara o início da segunda,
-        // e só ao final de todas as tarefas a tela inicial do aplicativo é exibida.
-        FacebookHelper.getGraphUserAsync().continueWithTask(new Continuation<GraphUser, Task<Bitmap>>() {
+        startLoading();
 
-            // Obtém um objeto GraphUser com os dados da conta do Facebook do usuário. O objeto é
-            // necessário para que possamos obter o nome e email do usuário, que são dados em nossa
-            // base na nuvem, além do id do usuário no Facebook, que é utilizado para realizar a
-            // requsição para obter a imagem de perfil do usuário.
+        // stores the current accessToken to fix the bug with ParseUser clearing the current accessToken
+        // after saving, so the current access token is stored and redefined after user saving
+        final AccessToken accessToken = AccessToken.getCurrentAccessToken();
+
+        // this request for facebook data, is necessary to get user email
+        FacebookHelper.getFBUserAsync().continueWithTask(new Continuation<JSONObject, Task<Bitmap>>() {
             @Override
-            public Task<Bitmap> then(Task<GraphUser> task) throws Exception {
-                GraphUser user = task.getResult();
+            public Task<Bitmap> then(Task<JSONObject> task) throws Exception {
+                JSONObject userJson = task.getResult();
 
-                u.setName(user.getName());
-                u.setEmail((String) user.getProperty("email"));
-                u.setUsername((String) user.getProperty("email"));
-                u.setFacebookId(user.getId());
+                u.setName(userJson.getString(FacebookHelper.USER_NAME));
+                u.setFacebookId(userJson.getString(FacebookHelper.USER_ID));
 
-                return FacebookHelper.getProfilePictureAsync(user.getId());
+                // check if user gave permission to read his email address
+                if (AccessToken.getCurrentAccessToken()
+                        .getPermissions()
+                        .contains(FacebookHelper.Permissions.USER_EMAIL)
+                ) {
+                    u.setEmail(userJson.getString(FacebookHelper.USER_EMAIL));
+                    u.setUsername(userJson.getString(FacebookHelper.USER_EMAIL));
+                }
+
+                return FacebookHelper.getProfilePictureAsync(userJson.getString(FacebookHelper.USER_ID));
             }
         }).continueWithTask(new Continuation<Bitmap, Task<Void>>() {
 
@@ -254,6 +313,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             // TODO Encontrar uma forma de exibir a tela principal enquanto estes dados ainda são carregados, para um login mais rápido.
             @Override
             public Void then(Task<Void> task) throws Exception {
+                // redefine the current access token to fix ParseUser bug
+                AccessToken.setCurrentAccessToken(accessToken);
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -278,6 +340,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
     /**
      * Finaliza o diálogo do carregamento da tela principal.
+     *
+     * @since 0.1.0
      */
     private void stopLoading() {
         mProDialog.dismiss();
@@ -287,7 +351,8 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
+
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -348,5 +413,31 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             ((TextView) failedView).setError(failedRule.getFailureMessage());
             failedView.requestFocus();
         }
+    }
+
+    /**
+     * Method to encapsulate a default error message displaying.
+     *
+     * @since 0.1.1
+     */
+    public void displayErrorMessage() {
+        displayErrorMessage(getString(R.string.errormsg_default));
+    }
+
+    /**
+     * Method to encapsulate error message displaying.
+     *
+     * @param errorMsg The messag eto display.
+     * @since 0.1.1
+     */
+    public void displayErrorMessage(final String errorMsg) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(LoginActivity.this,
+                        errorMsg,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
