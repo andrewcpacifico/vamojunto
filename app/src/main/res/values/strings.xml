@@ -19,9 +19,6 @@
   -->
 <resources>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyAwRJmjdbve02rtqagRYKrcX2F-Ts-m_UA</string>
-    <string name="google_maps_key_web" templateMergeStrategy="preserve">AIzaSyDtdSc_atzKFIUUj1DSwiMAS-2U_TxWIaA</string>
-
     <!-- Organizar -->
     <string name="action_settings" translatable="false">Settings</string>
     <string name="app_name">Vamo Junto</string>
