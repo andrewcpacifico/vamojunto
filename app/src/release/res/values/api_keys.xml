@@ -17,6 +17,10 @@
   ~ See LICENSE.txt
   -->
 
+<!-- PRODUCTION KEYS -->
 <resources>
     <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyAMO5w2cQCOp1v1I9x1SY1lMSwfYILEtvk</string>
+
+    <string name="parse_app_id">iAPgetkW4hEdVG5hRgidbL9I77GdKgyjYweI8aRa</string>
+    <string name="parse_client_id">ALschsKZhYrrfGeIYJIqDsNskXDSpfcJye2rBBlg</string>
 </resources>

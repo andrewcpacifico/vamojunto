@@ -129,11 +129,6 @@ public class MainActivity extends ActionBarActivity {
 
         // if user is authenticated, setups the main screen
         } else {
-            // Associate the device with a user
-            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-            installation.put("user",ParseUser.getCurrentUser());
-            installation.saveInBackground();
-
             setContentView(R.layout.activity_main);
 
             // checks if an initial view was sent to activity

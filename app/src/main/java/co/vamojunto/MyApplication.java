@@ -93,7 +93,7 @@ public class MyApplication extends Application {
                         Log.i(TAG, "Installation successfully saved on background");
 
                         editor.putBoolean(Globals.PARSE_SAVED_INSTALLATION, true);
-                        editor.commit();
+                        editor.apply();
                     } else {
                         Log.e(TAG, "Error on save installation", e);
                     }
@@ -116,7 +116,7 @@ public class MyApplication extends Application {
                         Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
 
                         editor.putBoolean(Globals.PARSE_PUSH_SUBSCRIBED, true);
-                        editor.commit();
+                        editor.apply();
                     } else {
                         Log.e("com.parse.push", "failed to subscribe for push", e);
                     }

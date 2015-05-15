@@ -32,8 +32,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="invalid_password_error">Sua senha deve conter de 6 a 20 dígitos, e apenas letras ou números.</string>
     <string name="loading">Carregando...</string>
-    <string name="parse_app_id">pry1CBPCYtfTqonbY3sarxqQ4xWO5OQTfMw1GRDS</string>
-    <string name="parse_client_id">5QcfmQFUPRU3gOttwoANgiDqYzULfnouneliLryP</string>
     <string name="password">Senha</string>
     <string name="password_confirmation">Confirmação da senha</string>
     <string name="password_not_match">As senhas fornecidas não conferem.</string>

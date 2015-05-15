@@ -46,6 +46,7 @@ import com.mobsandgeeks.saripaar.annotation.Required;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import org.json.JSONObject;
@@ -200,6 +201,11 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                                         // facebook account to finish the signup
                                         if (user.isNew()) {
                                             Log.i(TAG, "New user Registered with facebook login...");
+
+                                            // associate the device with a user
+                                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                                            installation.put("user", user);
+                                            installation.saveInBackground();
 
                                             mHandler.post(new Runnable() {
                                                 @Override
