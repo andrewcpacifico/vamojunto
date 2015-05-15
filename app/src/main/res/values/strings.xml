@@ -212,6 +212,7 @@
     <string name="slogan">Encontre sua carona agora mesmo</string>
     <string name="logout">Sair</string>
     <string name="errormsg_cant_load_fb_friends">Não foi possível carregar os seus amigos do Facebook.</string>
+    <string name="errormsg_no_results_found">Nenhum resultado encontrado</string>
 
 
 </resources>

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
@@ -61,13 +62,7 @@ public class FriendsRequestsFragment extends DefaultListRequestsFragment {
 
     @Override
     protected Task<List<RideRequest>> filter(Map<String, String> filterValues) {
-        List<RideRequest> lst = new ArrayList<>();
-
-        Task<List<RideRequest>>.TaskCompletionSource tcs = Task.create();
-
-        tcs.setResult(lst);
-
-        return tcs.getTask();
+        return RideRequest.getFilteredFriendsOffersAsync(User.getCurrentUser(), filterValues);
     }
 
     @Override

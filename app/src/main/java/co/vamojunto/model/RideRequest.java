@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
+import co.vamojunto.util.TextUtil;
 
 /**
  * The System's RideRequest Model
@@ -56,6 +57,9 @@ public class RideRequest extends ParseObject {
     public static final String FIELD_DESTINATION_LNG = "destination_lng";
     public static final String FIELD_DESTINATION_TITLE = "destination_title";
     public static final String FIELD_DETAILS = "details";
+    private static final String FIELD_CREATED_AT = "createdAt";
+    private static final String FIELD_LC_STARTING_POINT_TITLE = "lc_starting_point_title";
+    private static final String FIELD_LC_DESTINATION_TITLE = "lc_destination_title";
 
     private static Map<String, RideRequest> instances = new HashMap<String, RideRequest>();
 
@@ -125,6 +129,7 @@ public class RideRequest extends ParseObject {
         put(FIELD_STARTING_POINT_LAT, startingPoint.getLatitude());
         put(FIELD_STARTING_POINT_LNG, startingPoint.getLongitude());
         put(FIELD_STARTING_POINT_TITLE, startingPoint.getTitulo());
+        put(FIELD_LC_STARTING_POINT_TITLE, TextUtil.normalize(startingPoint.getTitulo()));
     }
 
     public Place getDestination() {
@@ -138,6 +143,7 @@ public class RideRequest extends ParseObject {
         put(FIELD_DESTINATION_LAT, destino.getLatitude());
         put(FIELD_DESTINATION_LNG, destino.getLongitude());
         put(FIELD_DESTINATION_TITLE, destino.getTitulo());
+        put(FIELD_LC_DESTINATION_TITLE, TextUtil.normalize(destino.getTitulo()));
     }
 
     /**
@@ -202,6 +208,37 @@ public class RideRequest extends ParseObject {
         query.whereEqualTo(RequestMessage.FIELD_REQUEST, this);
         query.orderByAscending("createdAt");
         query.include(RequestMessage.FIELD_SENDER);
+
+        return query.findInBackground();
+    }
+
+    public static Task<List<RideRequest>> getFilteredFriendsOffersAsync(
+            User user,
+            Map<String, String> filterValues
+    ) {
+        ParseQuery<Friendship> qFriendship = ParseQuery.getQuery(Friendship.class);
+        qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, user);
+
+        // gets all rides requested by the users followed by the user
+        ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
+        query.whereMatchesKeyInQuery(FIELD_REQUESTER, Friendship.FIELD_FOLLOWING, qFriendship);
+
+        // includes the requester data, to display on list screen
+        query.include(FIELD_REQUESTER);
+
+        query.orderByDescending(FIELD_CREATED_AT);
+
+        // filter by starting point
+        String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPoint != null) {
+            query.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        // filter by destination
+        String destination = filterValues.get(FIELD_LC_DESTINATION_TITLE);
+        if (destination != null) {
+            query.whereStartsWith(FIELD_LC_DESTINATION_TITLE, destination);
+        }
 
         return query.findInBackground();
     }

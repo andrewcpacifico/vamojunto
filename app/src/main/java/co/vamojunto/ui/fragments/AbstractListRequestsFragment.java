@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.Collections;
@@ -172,6 +173,17 @@ public abstract class AbstractListRequestsFragment extends FilterableFeedFragmen
 
     @Override
     public void onFeedFilter(Bundle filterValues) {
+        // check user's network connection before filter feed
+        if (! NetworkUtil.isConnected(getActivity())) {
+            Toast.makeText(
+                    getActivity(),
+                    getString(R.string.errormsg_no_internet_connection),
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
         Map<String, String> filterMap = new HashMap<>();
 
         // display a progress bar
@@ -179,20 +191,20 @@ public abstract class AbstractListRequestsFragment extends FilterableFeedFragmen
 
         // if the user entered a value for starting point filtering, add it to the filter map
         String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
-        if (! startingPoint.equals("")) {
+        if (!startingPoint.equals("")) {
             filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
         }
 
         // if the user entered a value for destination filtering, add it to the filter map
         String destination = TextUtil.normalize(filterValues.getString(DESTINATION));
-        if (! destination.equals("")) {
+        if (!destination.equals("")) {
             filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
         }
 
         this.filter(filterMap).continueWith(new Continuation<List<RideRequest>, Void>() {
             @Override
             public Void then(final Task<List<RideRequest>> task) throws Exception {
-                if (! task.isCancelled() && !task.isFaulted()) {
+                if (!task.isCancelled() && !task.isFaulted()) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -202,12 +214,28 @@ public abstract class AbstractListRequestsFragment extends FilterableFeedFragmen
                             mRequestsAdapter.setDataset(lst);
 
                             if (lst.size() == 0) {
-                                //displayNoRideMessage();
+                                displayErrorScreen(
+                                        getString(R.string.errormsg_no_results_found),
+                                        false,
+                                        R.drawable.ic_sad
+                                );
                             } else {
                                 mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
                             }
                         }
                     });
+                } else {
+                    Toast.makeText(
+                            getActivity(),
+                            getString(R.string.errormsg_default),
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    if (task.isFaulted()) {
+                        Log.e(TAG, "Error on filter feed results", task.getError());
+                    } else {
+                        Log.e(TAG, "Task cancelled. This shouldn't be happening");
+                    }
                 }
 
                 return null;
@@ -364,6 +392,15 @@ public abstract class AbstractListRequestsFragment extends FilterableFeedFragmen
     }
 
     /**
+     * Switches the viewFlipper to display the error screen using the default error screen message.
+     */
+    protected void displayErrorScreen() {
+        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
+
+        mViewFlipper.setDisplayedChild(ERROR_VIEW);
+    }
+
+    /**
      * Switches the viewFlipper to display the error screen. and customizes the error message.
      *
      * @param errorMsg The message displayed on the screen, if the param value is null, the default
@@ -379,12 +416,22 @@ public abstract class AbstractListRequestsFragment extends FilterableFeedFragmen
     }
 
     /**
-     * Switches the viewFlipper to display the error screen using the default error screen message.
+     * Display the error screen, with a full personalization.
+     *
+     * @param errorMsg The message to display.
+     * @param hasButton Defines if the reload button has to be visible.
+     * @param iconResource The resource of the error icon.
+     *
+     * @since 0.2.0
      */
-    protected void displayErrorScreen() {
-        mErrorScreenMsgTextView.setText(getString(R.string.errormsg_default));
-
-        mViewFlipper.setDisplayedChild(ERROR_VIEW);
+    protected void displayErrorScreen(String errorMsg, boolean hasButton, int iconResource) {
+        displayErrorScreen(errorMsg);
+        if (hasButton) {
+            mErrorScreenRetryButton.setVisibility(View.VISIBLE);
+        } else {
+            mErrorScreenRetryButton.setVisibility(View.GONE);
+        }
+        mErrorScreenIcon.setImageResource(iconResource);
     }
 
 }

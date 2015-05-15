@@ -35,7 +35,7 @@
         <LinearLayout
             android:id="@+id/error_screen_message"
 
-            android:layout_gravity="center_horizontal"
+            android:gravity="center"
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ import co.vamojunto.util.UIUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
@@ -214,6 +215,17 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
     @Override
     public void onFeedFilter(Bundle filterValues) {
+        // check user's network connection before filter feed
+        if (! NetworkUtil.isConnected(getActivity())) {
+            Toast.makeText(
+                    getActivity(),
+                    getString(R.string.errormsg_no_internet_connection),
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
         Map<String, String> filterMap = new HashMap<>();
 
         // display a progress bar
@@ -244,12 +256,28 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
                             mRidesAdapter.setDataset(lst);
 
                             if (lst.size() == 0) {
-                                displayNoRideMessage();
+                                displayErrorScreen(
+                                        getString(R.string.errormsg_no_results_found),
+                                        false,
+                                        R.drawable.ic_sad
+                                );
                             } else {
                                 mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
                             }
                         }
                     });
+                } else {
+                    Toast.makeText(
+                            getActivity(),
+                            getString(R.string.errormsg_default),
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    if (task.isFaulted()) {
+                        Log.e(TAG, "Error on filter feed results", task.getError());
+                    } else {
+                        Log.e(TAG, "Task cancelled. This shouldn't be happening");
+                    }
                 }
 
                 return null;
@@ -349,6 +377,25 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
         displayErrorScreen(getString(R.string.no_ride_to_display));
         mErrorScreenRetryButton.setVisibility(View.GONE);
         mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
+    }
+
+    /**
+     * Display the error screen, with a full personalization.
+     *
+     * @param errorMsg The message to display.
+     * @param hasButton Defines if the reload button has to be visible.
+     * @param iconResource The resource of the error icon.
+     *
+     * @since 0.2.0
+     */
+    protected void displayErrorScreen(String errorMsg, boolean hasButton, int iconResource) {
+        displayErrorScreen(errorMsg);
+        if (hasButton) {
+            mErrorScreenRetryButton.setVisibility(View.VISIBLE);
+        } else {
+            mErrorScreenRetryButton.setVisibility(View.GONE);
+        }
+        mErrorScreenIcon.setImageResource(iconResource);
     }
 
     /**
