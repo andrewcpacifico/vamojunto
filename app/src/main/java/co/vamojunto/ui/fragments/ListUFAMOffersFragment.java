@@ -19,22 +19,48 @@
 
 package co.vamojunto.ui.fragments;
 
+import android.os.Bundle;
+import android.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
+import co.vamojunto.R;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display a list of rides offered by the
- * current user's friends.
+ * A simple {@link Fragment} subclass.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @since 0.1.0
+ * @since 0.3.0
  * @version 1.0.0
  */
-public class FriendsOffersFragment extends DefaultListRideOffersFragment {
+public class ListUFAMOffersFragment extends AbstractListRidesFragment<Ride> {
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment ListUFAMOffersFragment.
+     * @since 0.3.0
+     */
+    public static ListUFAMOffersFragment newInstance() {
+        return new ListUFAMOffersFragment();
+    }
+
+    public ListUFAMOffersFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.fragment_list_rides;
+    }
 
     @Override
     protected boolean isOfflineFeed() {
@@ -47,8 +73,8 @@ public class FriendsOffersFragment extends DefaultListRideOffersFragment {
     }
 
     @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredFriendsOffersAsync(User.getCurrentUser(), filterValues);
+    protected Task<List<Ride>> filter(Map filterValues) {
+        return null;
     }
 
 }

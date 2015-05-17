@@ -46,6 +46,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecyclerViewAdapter.ViewHolder> {
 
     private static final String TAG = "ListRidesRecyclerViewAdapter";
+
     /**
      * The data to be displayed on the RecyclerView
      */

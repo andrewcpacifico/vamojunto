@@ -213,6 +213,9 @@
     <string name="logout">Sair</string>
     <string name="errormsg_cant_load_fb_friends">Não foi possível carregar os seus amigos do Facebook.</string>
     <string name="errormsg_no_results_found">Nenhum resultado encontrado</string>
+    <string name="ufam_registration_message_1">Para que você possa compartilhar dados com o público da UFAM, é necessário que você forneça algumas informações abaixo. Após isso a solicitação será analisada, e esta tela será liberada para acesso.</string>
+    <string name="ufam_registration_message_2">Você pode emitir um comprovante de matrícula e enviar o código de autenticação abaixo. Essa informação é opcional mas pode agilizar o processo de validação.</string>
+    <string name="send">Enviar</string>
 
 
 </resources>

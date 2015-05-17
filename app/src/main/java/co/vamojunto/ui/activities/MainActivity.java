@@ -41,13 +41,14 @@ import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
 import co.vamojunto.ui.fragments.FriendsFeedFragment;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
+import co.vamojunto.ui.fragments.UFAMFeedFragment;
 
 /**
  * System's Main Activity
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.1.0
  */
 public class MainActivity extends ActionBarActivity {
 
@@ -55,13 +56,24 @@ public class MainActivity extends ActionBarActivity {
 
     /**
      * Code for user rides screen
+     *
+     * @since 0.1.0
      */
     public static final int VIEW_MY_RIDES = 0;
 
     /**
      * Code for user friends feed screen
+     *
+     * @since 0.1.0
      */
     public static final int VIEW_FRIENDS_FEED = 1;
+
+    /**
+     * Code for user friends feed screen
+     *
+     * @since 0.3.0
+     */
+    public static final int VIEW_UFAM_FEED = 2;
 
     public static final String EXTRA_INITIAL_VIEW = TAG + ".InitialView";
 
@@ -69,21 +81,6 @@ public class MainActivity extends ActionBarActivity {
      * Application bar
      */
     private Toolbar mToolbar;
-
-    /**
-     * RecyclerView containing the items on application's navigation drawer
-     */
-    private RecyclerView mRecyclerView;
-
-    /**
-     * Adapter used by mRecyclerView
-     */
-    private RecyclerView.Adapter mAdapter;
-
-    /**
-     * LayoutManager used by mRecyclerView
-     */
-    private RecyclerView.LayoutManager mLayoutManager;
 
     /**
      * NavigationDrawer instance
@@ -162,12 +159,12 @@ public class MainActivity extends ActionBarActivity {
      * @since 0.1.0
      */
     private void initDrawer() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
+        recyclerView.setHasFixedSize(true);
 
         Bitmap imgUsuario = mCurrentUser.getProfileImage();
 
-        mAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getName(),
+        RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getName(),
                 mCurrentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View v, int position) {
@@ -175,9 +172,10 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        mRecyclerView.setAdapter(mAdapter);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(drawerAdapter);
+
+        RecyclerView.LayoutManager drawerLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(drawerLayoutManager);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer_layout);
 
@@ -212,33 +210,23 @@ public class MainActivity extends ActionBarActivity {
      * @param position Position of the item clicked, used to define what action have to be executed.
      */
     private void navigationDrawerItemClicked(int position) {
-        if (position == 3) {
-//            new Session(this).closeAndClearTokenInformation();
-            ParseUser.logOut();
-
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-
-            return;
-        }
-
         displayView(position - 1);
 
         // always closes the navigation drawer after the click, adds a delay to wait for animation
         // before closing the drawer
-        mHandler.postDelayed(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 mDrawerLayout.closeDrawers();
             }
-        }, 30);
+        });
     }
 
     /**
      * Switches the view displayed on the main screen.
      *
      * @param code The code of the view to display.
+     * @since 0.1.0
      */
     protected void displayView(int code) {
         switch (code) {
@@ -255,6 +243,10 @@ public class MainActivity extends ActionBarActivity {
                         .replace(R.id.container, new FriendsFeedFragment()).commit();
                 break;
 
+            case VIEW_UFAM_FEED:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, UFAMFeedFragment.newInstance()).commit();
+                break;
 
             default:
                 getSupportFragmentManager().beginTransaction()

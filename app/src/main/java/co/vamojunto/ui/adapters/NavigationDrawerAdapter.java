@@ -48,7 +48,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      *
      * @since 0.1.0
      */
-    private static final int MENU_ITEM_COUNT = 2;
+    private static final int MENU_ITEM_COUNT = 3;
 
     /** Array de Strings contendo os títulos de cada um dos itens exibidos no menu */
     private String mNavTitles[];
@@ -60,6 +60,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      */
     private static int mIcons[] = {
             R.drawable.ic_ride_hand,
+            R.drawable.ic_menu_friends,
             R.drawable.ic_menu_friends
     };
 

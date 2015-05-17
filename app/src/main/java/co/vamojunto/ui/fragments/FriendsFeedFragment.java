@@ -20,7 +20,6 @@
 package co.vamojunto.ui.fragments;
 
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -50,11 +49,6 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
 public class FriendsFeedFragment extends Fragment {
 
     private static final String TAG = "MyFriendsFeedFragment";
-
-    /**
-     * ProgressDialog displayed when the data is being loaded
-     */
-    private ProgressDialog mProDialog;
 
     public FriendsFeedFragment() {
         // Required empty public constructor

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ScrollView android:id="@+id/main_content"
+
+        android:layout_above="@+id/send_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="30dp">
+            <TextView android:id="@+id/message_1_textview"
+
+                android:layout_marginBottom="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="@string/ufam_registration_message_1"
+                android:textSize="@dimen/abc_text_size_body_1_material"
+                />
+
+            <EditText android:id="@+id/matricula_edittext"
+
+                android:layout_below="@+id/message_1_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="Matrícula"
+                android:textSize="@dimen/abc_text_size_body_1_material"/>
+
+            <EditText android:id="@+id/curso_edittext"
+                android:layout_below="@+id/matricula_edittext"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="Curso"
+                android:textSize="@dimen/abc_text_size_body_1_material"/>
+
+            <TextView android:id="@+id/message_2_textview"
+
+                android:layout_below="@+id/curso_edittext"
+                android:layout_marginBottom="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="@string/ufam_registration_message_2"
+                android:textSize="@dimen/abc_text_size_body_1_material" />
+
+            <EditText android:id="@+id/cod_aut_edittext"
+
+                android:layout_below="@+id/message_2_textview"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="Código de autenticação"
+                android:textSize="@dimen/abc_text_size_body_1_material"/>
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <Button android:id="@+id/send_button"
+
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_margin="0dp"
+        android:padding="0dp"
+        android:text="@string/send"
+        android:textColor="@color/white"
+
+        style="@style/Save.Button" />
+</RelativeLayout>

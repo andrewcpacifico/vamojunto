@@ -32,7 +32,7 @@ import co.vamojunto.R;
  * @since 0.1.0
  * @version 1.0.0
  */
-public abstract class DefaultListRidesFragment extends AbstractListRidesFragment {
+public abstract class DefaultListRideOffersFragment extends AbstractListRideOffersFragment {
 
     private static final String TAG = "ListRidesFragment";
 
