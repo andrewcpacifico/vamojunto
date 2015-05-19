@@ -298,8 +298,8 @@ public class FriendsRecyclerViewAdapter
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ViewHolder holder = null;
-        View v = null;
+        ViewHolder holder;
+        View v;
 
         // inflates the layout for view_friend viewType
         if (viewType == VIEW_FRIEND) {

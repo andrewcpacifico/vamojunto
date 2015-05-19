@@ -51,6 +51,11 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     }
 
     @Override
+    protected boolean isAuthorized() {
+        return false;
+    }
+
+    @Override
     protected void initNotAuthorizedComponents(View rootView) {
 //        Button btn = (Button) rootView.findViewById(R.id.button);
 //        btn.setOnClickListener(new View.OnClickListener() {

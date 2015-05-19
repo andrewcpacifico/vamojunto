@@ -126,7 +126,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
         fbAuthButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fbAuthButtonClick(v);
+                fbAuthButtonClick();
             }
         });
 
@@ -175,7 +175,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
      *
      * @since 0.1.0
      */
-    private void fbAuthButtonClick(View v) {
+    private void fbAuthButtonClick() {
         startLoading();
 
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {

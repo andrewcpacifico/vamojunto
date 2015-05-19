@@ -17,32 +17,45 @@
   ~ See LICENSE.txt
   -->
 
-<FrameLayout
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frag_container"
 
     android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="match_parent" >
 
-    <LinearLayout
+    <ViewFlipper
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
 
-        <co.vamojunto.ui.widget.SlidingTabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
+        android:background="@color/white">
+
+        <ProgressBar android:id="@+id/progress_bar"
+
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:elevation="2dp"
-            android:background="@color/ColorPrimary"/>
+            android:layout_gravity="center" />
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
-
-            android:layout_height="match_parent"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_weight="1"
-            />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <co.vamojunto.ui.widget.SlidingTabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                android:background="@color/ColorPrimary"/>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
+
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+    </ViewFlipper>
 
 </FrameLayout>

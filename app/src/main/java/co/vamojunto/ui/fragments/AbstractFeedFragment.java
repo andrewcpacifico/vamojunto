@@ -20,9 +20,12 @@
 package co.vamojunto.ui.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +33,7 @@ import android.view.ViewGroup;
 
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
+import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,7 +44,9 @@ import co.vamojunto.model.Ride;
  */
 public abstract class AbstractFeedFragment extends Fragment {
 
-    private static final String TAG = "DefaultFeedFragment";
+    private static final String TAG = "AbstractFeedFragment";
+
+    private ViewGroup mContainer;
 
     public AbstractFeedFragment() {
         // Required empty public constructor
@@ -49,38 +55,73 @@ public abstract class AbstractFeedFragment extends Fragment {
     @Override
     public final View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        View rootView = inflater.inflate(R.layout.fragment_default_feed, container, false);
-          View rootView = inflater.inflate(getNotAuthorizedLayoutRes(), container, false);
+        View rootView = inflater.inflate(R.layout.fragment_default_feed, container, false);
 
-//        // assigning ViewPager View and setting the adapter
-//        ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
-//        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager(), this));
-//
-//        // assigning the Sliding Tab Layout View
-//        SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
-//        tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
-//
-//        // setting Custom Color for the Scroll bar indicator of the Tab View
-//        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
-//            @Override
-//            public int getIndicatorColor(int position) {
-//                return getResources().getColor(R.color.ColorPrimaryDark);
-//            }
-//        });
-//
-//        // setting the ViewPager For the SlidingTabsLayout
-//        tabs.setViewPager(pager);
-//
-//        // changes the action bar title
-//        ((ActionBarActivity) getActivity()).getSupportActionBar()
-//                .setTitle(getString(R.string.my_friends_feed));
-//
-//        setHasOptionsMenu(true);
+        mContainer = container;
 
-        initNotAuthorizedComponents(rootView);
+        Log.d(TAG, "onCreateView");
+
+        if (isAuthorized()) {
+            initComponents(rootView);
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    changeContent();
+                }
+            }, 3000);
+        }
 
         return rootView;
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        Log.d(TAG, "onDestroyView");
+    }
+
+    public void changeContent() {
+        View rootView = LayoutInflater.from(getActivity())
+                .inflate(getNotAuthorizedLayoutRes(), mContainer, true);
+        initNotAuthorizedComponents(rootView);
+
+        Log.d(TAG, "Trocou");
+    }
+
+    /**
+     *
+     * @param rootView
+     */
+    private void initComponents(View rootView) {
+        // assigning ViewPager View and setting the adapter
+        ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
+        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager(), this));
+
+        // assigning the Sliding Tab Layout View
+        SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+
+        // setting Custom Color for the Scroll bar indicator of the Tab View
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.ColorPrimaryDark);
+            }
+        });
+
+        // setting the ViewPager For the SlidingTabsLayout
+        tabs.setViewPager(pager);
+
+        // changes the action bar title
+        ((ActionBarActivity) getActivity()).getSupportActionBar()
+                .setTitle(getString(R.string.my_friends_feed));
+
+        setHasOptionsMenu(true);
+    }
+
+    protected abstract boolean isAuthorized();
 
     protected abstract void initNotAuthorizedComponents(View rootView);
 
