@@ -30,12 +30,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
+import co.vamojunto.model.User;
+import co.vamojunto.model.UserCompany;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
@@ -63,11 +67,20 @@ public abstract class AbstractFeedFragment extends Fragment {
      */
     private static final int VIEW_DEFAULT = 1;
 
+    /**
+     * Code for error children view on the viewFlipper.
+     *
+     * @since 0.3.0
+     */
+    private static final int VIEW_ERROR = 2;
+
     private ViewGroup mContainer;
 
     private Handler mHandler;
 
     private ViewFlipper mFlipper;
+    private TextView mErrorScreenMsgTextView;
+    private Button mErrorScreenRetryButton;
 
     public AbstractFeedFragment() {
         // Required empty public constructor
@@ -84,17 +97,26 @@ public abstract class AbstractFeedFragment extends Fragment {
         // inflate the viewFlipper of the screen
         mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
+        // inflate components of error screen
+        mErrorScreenMsgTextView =
+                (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+        mErrorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+
         // check if the user is authorized to access the feed
-        isAuthorized().continueWith(new Continuation<Boolean, Void>() {
+        isAuthorized().continueWith(new Continuation<UserCompany.Status, Void>() {
             @Override
-            public Void then(final Task<Boolean> task) throws Exception {
+            public Void then(final Task<UserCompany.Status> task) throws Exception {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (task.getResult()) {
+                        UserCompany.Status approvationStatus = task.getResult();
+
+                        if (approvationStatus == UserCompany.Status.APPROVED) {
                             displayDefaultScreen(rootView);
-                        } else {
+                        } else if (approvationStatus == UserCompany.Status.REJECTED) {
                             changeContent();
+                        } else {
+                            displayErrorScreen(getString(R.string.ufam_feed_waiting_msg), false);
                         }
                     }
                 });
@@ -104,13 +126,6 @@ public abstract class AbstractFeedFragment extends Fragment {
         });
 
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        Log.d(TAG, "onDestroyView");
     }
 
     public void changeContent() {
@@ -157,7 +172,26 @@ public abstract class AbstractFeedFragment extends Fragment {
         mFlipper.setDisplayedChild(VIEW_DEFAULT);
     }
 
-    protected abstract bolts.Task<Boolean> isAuthorized();
+    protected void displayErrorScreen() {
+        displayErrorScreen(getString(R.string.errormsg_default));
+    }
+
+    protected void displayErrorScreen(String msg) {
+        displayErrorScreen(msg, true);
+    }
+
+    protected void displayErrorScreen(String msg, boolean hasButton) {
+        if (hasButton) {
+            mErrorScreenRetryButton.setVisibility(View.VISIBLE);
+        } else {
+            mErrorScreenRetryButton.setVisibility(View.GONE);
+        }
+
+        mErrorScreenMsgTextView.setText(msg);
+        mFlipper.setDisplayedChild(VIEW_ERROR);
+    }
+
+    protected abstract Task<UserCompany.Status> isAuthorized();
 
     protected abstract void initNotAuthorizedComponents(View rootView);
 

@@ -22,14 +22,48 @@ package co.vamojunto.model;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Created by Andrew C. Pacifico <andrewcpacifico@gmail.com> on 18/05/15.
+ * Model class for User -> Company relation.
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @since 0.3.0
+ * @version 1.0.0
  */
 @ParseClassName("UserCompany")
 public class UserCompany extends ParseObject {
 
     public static final String FIELD_USER = "user";
     public static final String FIELD_COMPANY = "company";
+    public static final String FIELD_STATUS = "status";
+
+    public enum Status {
+        APPROVED(1), WAITING(0), REJECTED(-1);
+
+        private int mCode;
+
+        private static Map<Integer, Status> mMap = new HashMap<>();
+
+        static {
+            mMap.put(1, APPROVED);
+            mMap.put(-1, REJECTED);
+            mMap.put(0, WAITING);
+        }
+
+        Status(int code) {
+            mCode = code;
+        }
+
+        public static Status valueOf(int code) {
+            return mMap.get(code);
+        }
+    }
+
+    public static final int STATUS_APPROVED = 1;
+    public static final int STATUS_WAITING = 0;
+    public static final int STATUS_REJECTED = -1;
 
     public User getUser() {
         return (User) getParseUser(FIELD_USER);
@@ -45,6 +79,10 @@ public class UserCompany extends ParseObject {
 
     public void setCompany(Company company) {
         put(FIELD_COMPANY, company);
+    }
+
+    public Status getStatus() {
+        return Status.valueOf(getInt(FIELD_STATUS));
     }
 
 }

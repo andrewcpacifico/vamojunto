@@ -23,7 +23,11 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
 /**
- * Created by Andrew C. Pacifico <andrewcpacifico@gmail.com> on 18/05/15.
+ * Model class for a Company.
+ *
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @since 0.3.0
+ * @version 1.0.0
  */
 @ParseClassName("Company")
 public class Company extends ParseObject {

@@ -56,6 +56,9 @@
                 android:layout_weight="1"
                 />
         </LinearLayout>
+
+        <include
+            layout="@layout/layout_default_error_screen" />
     </ViewFlipper>
 
 </FrameLayout>

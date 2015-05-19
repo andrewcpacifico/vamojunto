@@ -30,6 +30,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.Company;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
+import co.vamojunto.model.UserCompany;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,23 +58,30 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     }
 
     @Override
-    protected Task<Boolean> isAuthorized() {
-        final Task<Boolean>.TaskCompletionSource tcs = Task.create();
+    protected Task<UserCompany.Status> isAuthorized() {
+        final Task<UserCompany.Status>.TaskCompletionSource tcs = Task.create();
 
-        User.getCurrentUser().getUserCompanies().continueWith(new Continuation<List<Company>, Void>() {
+        User.getCurrentUser().getUserCompanies().continueWith(new Continuation<List<UserCompany>, Void>() {
             @Override
-            public Void then(Task<List<Company>> task) throws Exception {
+            public Void then(Task<List<UserCompany>> task) throws Exception {
                 if (task.isCancelled()) {
                     tcs.setCancelled();
                 } else if (task.isFaulted()) {
                     tcs.setError(task.getError());
                 } else {
-                    List<Company> userCompanies = task.getResult();
+                    List<UserCompany> userCompanies = task.getResult();
+                    UserCompany.Status approvationStatus = UserCompany.Status.REJECTED;
 
                     Company ufamCompany = new Company();
                     ufamCompany.setCode(COMPANY_CODE);
 
-                    tcs.setResult(userCompanies.contains(ufamCompany));
+                    for (UserCompany pair: userCompanies) {
+                        if (pair.getCompany().equals(ufamCompany)) {
+                            approvationStatus = pair.getStatus();
+                        }
+                    }
+
+                    tcs.setResult(approvationStatus);
                 }
 
                 return null;
