@@ -21,11 +21,15 @@ package co.vamojunto.ui.fragments;
 
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Company;
 import co.vamojunto.model.Ride;
+import co.vamojunto.model.User;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +39,8 @@ import co.vamojunto.model.Ride;
  * @version 1.0.0
  */
 public class UFAMFeedFragment extends AbstractFeedFragment {
+
+    private static final String COMPANY_CODE = "ufam";
 
     /**
      * Use this factory method to create a new instance of
@@ -51,8 +57,30 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     }
 
     @Override
-    protected boolean isAuthorized() {
-        return false;
+    protected Task<Boolean> isAuthorized() {
+        final Task<Boolean>.TaskCompletionSource tcs = Task.create();
+
+        User.getCurrentUser().getUserCompanies().continueWith(new Continuation<List<Company>, Void>() {
+            @Override
+            public Void then(Task<List<Company>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    List<Company> userCompanies = task.getResult();
+
+                    Company ufamCompany = new Company();
+                    ufamCompany.setCode(COMPANY_CODE);
+
+                    tcs.setResult(userCompanies.contains(ufamCompany));
+                }
+
+                return null;
+            }
+        });
+
+        return tcs.getTask();
     }
 
     @Override

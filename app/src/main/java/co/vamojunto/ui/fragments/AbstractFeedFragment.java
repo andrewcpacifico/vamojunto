@@ -30,7 +30,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ViewFlipper;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Ride;
 import co.vamojunto.ui.widget.SlidingTabLayout;
@@ -46,7 +49,25 @@ public abstract class AbstractFeedFragment extends Fragment {
 
     private static final String TAG = "AbstractFeedFragment";
 
+    /**
+     * Code for loading children view on the viewFlipper
+     *
+     * @since 0.3.0
+     */
+    private static final int VIEW_LOADING = 0;
+
+    /**
+     * Code for default children view on the viewFlipper
+     *
+     * @since 0.3.0
+     */
+    private static final int VIEW_DEFAULT = 1;
+
     private ViewGroup mContainer;
+
+    private Handler mHandler;
+
+    private ViewFlipper mFlipper;
 
     public AbstractFeedFragment() {
         // Required empty public constructor
@@ -55,22 +76,32 @@ public abstract class AbstractFeedFragment extends Fragment {
     @Override
     public final View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_default_feed, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_default_feed, container, false);
 
         mContainer = container;
+        mHandler = new Handler();
 
-        Log.d(TAG, "onCreateView");
+        // inflate the viewFlipper of the screen
+        mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
-        if (isAuthorized()) {
-            initComponents(rootView);
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    changeContent();
-                }
-            }, 3000);
-        }
+        // check if the user is authorized to access the feed
+        isAuthorized().continueWith(new Continuation<Boolean, Void>() {
+            @Override
+            public Void then(final Task<Boolean> task) throws Exception {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (task.getResult()) {
+                            displayDefaultScreen(rootView);
+                        } else {
+                            changeContent();
+                        }
+                    }
+                });
+
+                return null;
+            }
+        });
 
         return rootView;
     }
@@ -91,10 +122,13 @@ public abstract class AbstractFeedFragment extends Fragment {
     }
 
     /**
+     * Change the viewFlipper to display the default screen, and initialize the screen components.
      *
-     * @param rootView
+     * @param rootView The inflated layout.
+     * @since 0.3.0
      */
-    private void initComponents(View rootView) {
+    private void displayDefaultScreen(View rootView) {
+
         // assigning ViewPager View and setting the adapter
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager(), this));
@@ -119,9 +153,11 @@ public abstract class AbstractFeedFragment extends Fragment {
                 .setTitle(getString(R.string.my_friends_feed));
 
         setHasOptionsMenu(true);
+
+        mFlipper.setDisplayedChild(VIEW_DEFAULT);
     }
 
-    protected abstract boolean isAuthorized();
+    protected abstract bolts.Task<Boolean> isAuthorized();
 
     protected abstract void initNotAuthorizedComponents(View rootView);
 

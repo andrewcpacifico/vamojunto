@@ -21,6 +21,7 @@ package co.vamojunto.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.parse.ParseClassName;
@@ -243,6 +244,37 @@ public class User extends ParseUser {
 
     public static User getCurrentUser() {
         return (User) ParseUser.getCurrentUser();
+    }
+
+    public Task<List<Company>> getUserCompanies() {
+        final Task<List<Company>>.TaskCompletionSource tcs = Task.create();
+
+        ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
+        userCompanyQuery.whereEqualTo(UserCompany.FIELD_USER, this);
+        userCompanyQuery.include(UserCompany.FIELD_COMPANY);
+        userCompanyQuery.findInBackground().continueWith(new Continuation<List<UserCompany>, Void>() {
+            @Override
+            public Void then(Task<List<UserCompany>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    List<UserCompany> relation = task.getResult();
+                    List<Company> lstResult = new ArrayList<Company>();
+
+                    for (UserCompany pair : relation) {
+                        lstResult.add(pair.getCompany());
+                    }
+
+                    tcs.setResult(lstResult);
+                }
+
+                return null;
+            }
+        });
+
+        return tcs.getTask();
     }
 
     /**
