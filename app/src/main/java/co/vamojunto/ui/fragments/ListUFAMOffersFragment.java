@@ -36,7 +36,7 @@ import co.vamojunto.model.User;
  * @since 0.3.0
  * @version 1.0.0
  */
-public class ListUFAMOffersFragment extends AbstractListRidesFragment<Ride> {
+public class ListUFAMOffersFragment extends AbstractListRideOffersFragment {
 
     /**
      * Use this factory method to create a new instance of
@@ -70,7 +70,7 @@ public class ListUFAMOffersFragment extends AbstractListRidesFragment<Ride> {
 
     @Override
     protected Task<List<Ride>> filter(Map filterValues) {
-        return null;
+        return Ride.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE, filterValues);
     }
 
 }

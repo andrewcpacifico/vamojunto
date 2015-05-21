@@ -19,8 +19,6 @@
 
 package co.vamojunto.ui.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -33,7 +31,6 @@ import co.vamojunto.model.Company;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
-import co.vamojunto.util.Globals;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,11 +82,11 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
                             for (UserCompany pair : userCompanies) {
                                 if (pair.getCompany().equals(ufamCompany)
                                         && pair.getStatus() == UserCompany.Status.APPROVED) {
-                                        tcs.setResult(pair.getStatus());
+                                    tcs.setResult(pair.getStatus());
 
-                                        // cancel the searching on cloud, if the user has been
-                                        // already approved
-                                        return Task.cancelled();
+                                    // cancel the searching on cloud, if the user has been
+                                    // already approved
+                                    return Task.cancelled();
                                 }
                             }
                         }
@@ -107,7 +104,7 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
                     List<UserCompany> userCompanies = task.getResult();
                     UserCompany.Status approvationStatus = UserCompany.Status.REJECTED;
 
-                    for (UserCompany pair: userCompanies) {
+                    for (UserCompany pair : userCompanies) {
                         if (pair.getCompany().equals(ufamCompany)) {
                             approvationStatus = pair.getStatus();
                         }
@@ -140,7 +137,12 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     }
 
     @Override
-    public AbstractListRidesFragment<Ride> getListOffersFragment() {
+    protected String getTitle() {
+        return getString(R.string.screentitle_ufam_feed);
+    }
+
+    @Override
+    public AbstractListRideOffersFragment getListOffersFragment() {
         return ListUFAMOffersFragment.newInstance();
     }
 

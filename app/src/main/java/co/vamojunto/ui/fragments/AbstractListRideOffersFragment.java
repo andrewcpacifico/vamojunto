@@ -229,13 +229,13 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
         UIUtil.startLoading(getActivity(), getString(R.string.filtering));
 
         // if the user entered a value for starting point filtering, add it to the filter map
-        String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
+        String startingPoint = TextUtil.normalize(filterValues.getString(FILTER_STARTING_POINT));
         if (! startingPoint.equals("")) {
             filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
         }
 
         // if the user entered a value for destination filtering, add it to the filter map
-        String destination = TextUtil.normalize(filterValues.getString(DESTINATION));
+        String destination = TextUtil.normalize(filterValues.getString(FILTER_DESTINATION));
         if (! destination.equals("")) {
             filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
         }

@@ -217,6 +217,7 @@
     <string name="ufam_registration_message_2">Você pode emitir um comprovante de matrícula e enviar o código de autenticação abaixo. Essa informação é opcional mas pode agilizar o processo de validação.</string>
     <string name="send">Enviar</string>
     <string name="ufam_feed_waiting_msg">Sua solicitação já foi enviada, por favor aguarde que já já te respondemos. =)</string>
+    <string name="screentitle_ufam_feed">Caronas UFAM</string>
 
 
 </resources>

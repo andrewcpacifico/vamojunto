@@ -443,4 +443,45 @@ public class Ride extends ParseObject {
 
         return rideQuery.findInBackground();
     }
+
+    /**
+     * Get a list of rides offered by the users of a given company. The current user is excluded
+     * from results.
+     *
+     * @param code The company code
+     * @param filters Filters to apply on query.
+     * @return The {@link bolts.Task} with the result.
+     * @since 0.3.0
+     */
+    public static Task<List<Ride>> getOffersByCompany(String code, Map<String, String> filters) {
+        // select the company with the given code
+        ParseQuery<Company> companyQuery = ParseQuery.getQuery(Company.class);
+        companyQuery.whereEqualTo(Company.FIELD_CODE, code);
+
+        // select all approved entries on the userCompany relation, where the company
+        // are the wanted company
+        ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
+        userCompanyQuery.whereMatchesQuery(UserCompany.FIELD_COMPANY, companyQuery);
+        userCompanyQuery.whereEqualTo(UserCompany.FIELD_STATUS, UserCompany.Status.APPROVED.getValue());
+
+        ParseQuery<Ride> rideQuery = ParseQuery.getQuery(Ride.class);
+        rideQuery.whereMatchesKeyInQuery(FIELD_DRIVER, UserCompany.FIELD_USER, userCompanyQuery);
+        rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
+        rideQuery.include(FIELD_DRIVER);
+        rideQuery.orderByDescending(FIELD_CREATED_AT);
+
+        // filter by starting point
+        String startingPointFIlter = filters.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPointFIlter != null) {
+            rideQuery.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPointFIlter);
+        }
+
+        // filter by destination
+        String destinationFilter = filters.get(FIELD_LC_DESTINATION_TITLE);
+        if (destinationFilter != null) {
+            rideQuery.whereStartsWith(FIELD_LC_DESTINATION_TITLE, destinationFilter);
+        }
+
+        return rideQuery.findInBackground();
+    }
 }

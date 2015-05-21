@@ -160,12 +160,12 @@ public class FilterFeedFragment extends Fragment {
 
         Bundle filterValues = new Bundle();
         filterValues.putString(
-                FilterableFeedFragment.STARTING_POINT,
+                FilterableFeedFragment.FILTER_STARTING_POINT,
                 mStartingPointEditText.getText().toString()
         );
 
         filterValues.putString(
-                FilterableFeedFragment.DESTINATION,
+                FilterableFeedFragment.FILTER_DESTINATION,
                 mDestinationEditText.getText().toString()
         );
 

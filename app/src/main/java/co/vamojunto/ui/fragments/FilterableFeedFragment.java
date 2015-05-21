@@ -31,8 +31,8 @@ import android.support.v4.app.Fragment;
  */
 public abstract class FilterableFeedFragment extends Fragment {
 
-    public static String DESTINATION = "destination";
-    public static String STARTING_POINT = "starting_point";
+    public static String FILTER_DESTINATION = "destination";
+    public static String FILTER_STARTING_POINT = "starting_point";
 
     /**
      * Called to filter feed items.

@@ -35,9 +35,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +50,8 @@ import co.vamojunto.model.Ride;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.TextUtil;
+import co.vamojunto.util.UIUtil;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,7 +60,7 @@ import co.vamojunto.util.NetworkUtil;
  * @since 0.3.0
  * @version 1.0.0
  */
-public abstract class AbstractListRidesFragment<T> extends Fragment {
+public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
     public static final String TAG = "AbstractListRides";
 
@@ -195,82 +199,83 @@ public abstract class AbstractListRidesFragment<T> extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.search_menu) {
-//            FilterFeedFragment filterFragment = new FilterFeedFragment();
-//            filterFragment.show(AbstractListRides.this);
+            FilterFeedFragment filterFragment = new FilterFeedFragment();
+            filterFragment.show(AbstractListRidesFragment.this);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
     public void onFeedFilter(Bundle filterValues) {
-//        // check user's network connection before filter feed
-//        if (! NetworkUtil.isConnected(getActivity())) {
-//            Toast.makeText(
-//                    getActivity(),
-//                    getString(R.string.errormsg_no_internet_connection),
-//                    Toast.LENGTH_LONG
-//            ).show();
-//
-//            return;
-//        }
-//
-//        Map<String, String> filterMap = new HashMap<>();
-//
-//        // display a progress bar
-//        UIUtil.startLoading(getActivity(), getString(R.string.filtering));
-//
-//        // if the user entered a value for starting point filtering, add it to the filter map
-//        String startingPoint = TextUtil.normalize(filterValues.getString(STARTING_POINT));
-//        if (! startingPoint.equals("")) {
-//            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
-//        }
-//
-//        // if the user entered a value for destination filtering, add it to the filter map
-//        String destination = TextUtil.normalize(filterValues.getString(DESTINATION));
-//        if (! destination.equals("")) {
-//            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
-//        }
-//
-//        this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
-//            @Override
-//            public Void then(final Task<List<Ride>> task) throws Exception {
-//                if (! task.isCancelled() && !task.isFaulted()) {
-//                    mHandler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            UIUtil.stopLoading();
-//
-//                            List<Ride> lst = task.getResult();
-//                            mRidesAdapter.setDataset(lst);
-//
-//                            if (lst.size() == 0) {
-//                                displayErrorScreen(
-//                                        getString(R.string.errormsg_no_results_found),
-//                                        false,
-//                                        R.drawable.ic_sad
-//                                );
-//                            } else {
-//                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
-//                            }
-//                        }
-//                    });
-//                } else {
-//                    Toast.makeText(
-//                            getActivity(),
-//                            getString(R.string.errormsg_default),
-//                            Toast.LENGTH_LONG
-//                    ).show();
-//
-//                    if (task.isFaulted()) {
-//                        Log.e(TAG, "Error on filter feed results", task.getError());
-//                    } else {
-//                        Log.e(TAG, "Task cancelled. This shouldn't be happening");
-//                    }
-//                }
-//
-//                return null;
-//            }
-//        });
+        // check user's network connection before filter feed
+        if (! NetworkUtil.isConnected(getActivity())) {
+            Toast.makeText(
+                    getActivity(),
+                    getString(R.string.errormsg_no_internet_connection),
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        Map<String, String> filterMap = new HashMap<>();
+
+        // display a progress bar
+        UIUtil.startLoading(getActivity(), getString(R.string.filtering));
+
+        // if the user entered a value for starting point filtering, add it to the filter map
+        String startingPoint = TextUtil.normalize(filterValues.getString(FILTER_STARTING_POINT));
+        if (! startingPoint.equals("")) {
+            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+        }
+
+        // if the user entered a value for destination filtering, add it to the filter map
+        String destination = TextUtil.normalize(filterValues.getString(FILTER_DESTINATION));
+        if (! destination.equals("")) {
+            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
+        }
+
+        this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
+            @Override
+            public Void then(final Task<List<Ride>> task) throws Exception {
+                if (! task.isCancelled() && !task.isFaulted()) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            UIUtil.stopLoading();
+
+                            List<Ride> lst = task.getResult();
+                            mRidesAdapter.setDataset(lst);
+
+                            if (lst.size() == 0) {
+                                displayErrorScreen(
+                                        getString(R.string.errormsg_no_results_found),
+                                        false,
+                                        R.drawable.ic_sad
+                                );
+                            } else {
+                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(
+                            getActivity(),
+                            getString(R.string.errormsg_default),
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    if (task.isFaulted()) {
+                        Log.e(TAG, "Error on filter feed results", task.getError());
+                    } else {
+                        Log.e(TAG, "Task cancelled. This shouldn't be happening");
+                    }
+                }
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -279,7 +284,7 @@ public abstract class AbstractListRidesFragment<T> extends Fragment {
      * @return A {@link java.util.List} with the filtered items to display on feed.
      * @since 0.1.0
      */
-    protected abstract Task<List<T>> filter(Map<String, String> filterValues);
+    protected abstract Task<List<Ride>> filter(Map<String, String> filterValues);
 
     /**
      * Getter for the fragment layout
@@ -305,7 +310,7 @@ public abstract class AbstractListRidesFragment<T> extends Fragment {
      * @return A {@link bolts.Task} containing the list as result.
      * @since 0.1.0
      */
-    protected abstract Task<List<T>> getRidesAsync();
+    protected abstract Task<List<Ride>> getRidesAsync();
 
     /**
      * TODO this method documentation
@@ -317,15 +322,15 @@ public abstract class AbstractListRidesFragment<T> extends Fragment {
         if (! isOfflineFeed() && ! NetworkUtil.isConnected(getActivity())) {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         } else {
-            Task<List<T>> loadRidesTask = getRidesAsync();
+            Task<List<Ride>> loadRidesTask = getRidesAsync();
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRidesTask != null) {
                 Log.i(TAG, "Loading rides...");
 
-                loadRidesTask.continueWith(new Continuation<List<T>, Void>() {
+                loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
                     @Override
-                    public Void then(final Task<List<T>> task) throws Exception {
+                    public Void then(final Task<List<Ride>> task) throws Exception {
                         // force the code to run on the main thread
                         mHandler.post(new Runnable() {
                             @Override
@@ -333,7 +338,7 @@ public abstract class AbstractListRidesFragment<T> extends Fragment {
                                 mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
                                 if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<Ride> lstRides = (List<Ride>) task.getResult();
+                                    List<Ride> lstRides = task.getResult();
 
                                     mRidesAdapter.setDataset(lstRides);
 

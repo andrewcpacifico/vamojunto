@@ -21,6 +21,7 @@ package co.vamojunto.ui.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -74,12 +75,41 @@ public abstract class AbstractFeedFragment extends Fragment {
      */
     private static final int VIEW_ERROR = 2;
 
+    /**
+     * The container where the feed fragment was inflated in. The container is stored as a field
+     * because if the user is not authorized to access the feed, another layout have to be inflated
+     * to container.
+     *
+     * @since 0.3.0
+     */
     private ViewGroup mContainer;
 
+    /**
+     * A Handler to run code on the main thread.
+     *
+     * @since 0.3.0
+     */
     private Handler mHandler;
 
+    /**
+     * A ViewFlipper to switch between default screen, the progressBar, and the error screen.
+     *
+     * @since 0.3.0
+     */
     private ViewFlipper mFlipper;
+
+    /**
+     * The TextView for the message on the error screen.
+     *
+     * @since 0.3.0
+     */
     private TextView mErrorScreenMsgTextView;
+
+    /**
+     * The Button on the error screen. The button is inflated so we can hide the button.
+     *
+     * @since 0.3.0
+     */
     private Button mErrorScreenRetryButton;
 
     public AbstractFeedFragment() {
@@ -128,12 +158,16 @@ public abstract class AbstractFeedFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * If the user was not authorized to access the feed, a new layout have to be inflated to
+     * fragment container, this method is responsible to do that.
+     *
+     * @since 0.3.0
+     */
     public void changeContent() {
         View rootView = LayoutInflater.from(getActivity())
                 .inflate(getNotAuthorizedLayoutRes(), mContainer, true);
         initNotAuthorizedComponents(rootView);
-
-        Log.d(TAG, "Trocou");
     }
 
     /**
@@ -165,21 +199,39 @@ public abstract class AbstractFeedFragment extends Fragment {
 
         // changes the action bar title
         ((ActionBarActivity) getActivity()).getSupportActionBar()
-                .setTitle(getString(R.string.my_friends_feed));
+                .setTitle(getTitle());
 
         setHasOptionsMenu(true);
 
         mFlipper.setDisplayedChild(VIEW_DEFAULT);
     }
 
+    /**
+     * Display the error screen with default configurations.
+     *
+     * @since 0.3.0
+     */
     protected void displayErrorScreen() {
         displayErrorScreen(getString(R.string.errormsg_default));
     }
 
+    /**
+     * Display the error screen with a custom message.
+     *
+     * @param msg The message to display.
+     * @since 0.3.0
+     */
     protected void displayErrorScreen(String msg) {
         displayErrorScreen(msg, true);
     }
 
+    /**
+     * Display the error screen with a custom message, and with the option to hide the retry button.
+     *
+     * @param msg The message to display.
+     * @param hasButton Define if the retry button have to be displayed.
+     * @since 0.3.0
+     */
     protected void displayErrorScreen(String msg, boolean hasButton) {
         if (hasButton) {
             mErrorScreenRetryButton.setVisibility(View.VISIBLE);
@@ -191,13 +243,49 @@ public abstract class AbstractFeedFragment extends Fragment {
         mFlipper.setDisplayedChild(VIEW_ERROR);
     }
 
+    /**
+     * Define the authorization status for user accessing the feed. The {@link UserCompany.Status}
+     * are used to define the user authorization.
+     *
+     * @return A Task containing the result for the user status searching.
+     * @since 0.3.0
+     */
     protected abstract Task<UserCompany.Status> isAuthorized();
 
+    /**
+     * Inflate the components on the screen displayed to user if h eis not authorized to access
+     * the feed. Usually this screen will have a registration form, and on this method the components
+     * of this form are inflated.
+     *
+     * @param rootView The inflated layout for the not authorized screen.
+     * @since 0.3.0
+     */
     protected abstract void initNotAuthorizedComponents(View rootView);
 
-    protected abstract int getNotAuthorizedLayoutRes();
+    /**
+     * Return the layout resource of the screen displayed to user if he is not authorized to access
+     * the feed.
+     *
+     * @return The layout resource.
+     * @since 0.3.0
+     */
+    protected abstract @LayoutRes int getNotAuthorizedLayoutRes();
 
-    protected abstract AbstractListRidesFragment<Ride> getListOffersFragment();
+    /**
+     * Return a String to use as the title of the screen.
+     *
+     * @return The title of the screen.
+     * @since 0.3.0
+     */
+    protected abstract String getTitle();
+
+    /**
+     * Return the fragment that displays the list of ride offers on this feed.
+     *
+     * @return The ride offers listing fragment.
+     * @since 0.3.0
+     */
+    protected abstract AbstractListRideOffersFragment getListOffersFragment();
 
 //    public abstract ListUFAMOffersFragment getListRequestsFragment();
 
