@@ -246,10 +246,49 @@ public class User extends ParseUser {
         return (User) ParseUser.getCurrentUser();
     }
 
+    /**
+     * Get the list of companies that the user is confirmed.
+     *
+     * @return The {@link bolts.Task} with the result.
+     * @since 0.3.0
+     */
     public Task<List<UserCompany>> getUserCompanies() {
+        final Task<List<UserCompany>>.TaskCompletionSource tcs = Task.create();
+
         ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
         userCompanyQuery.whereEqualTo(UserCompany.FIELD_USER, this);
         userCompanyQuery.include(UserCompany.FIELD_COMPANY);
+
+        userCompanyQuery.findInBackground().continueWith(new Continuation<List<UserCompany>, Void>() {
+            @Override
+            public Void then(Task<List<UserCompany>> task) throws Exception {
+                if (task.isCancelled()) {
+                    tcs.setCancelled();
+                } else if (task.isFaulted()) {
+                    tcs.setError(task.getError());
+                } else {
+                    pinAllInBackground("userCompanies", task.getResult());
+                    tcs.setResult(task.getResult());
+                }
+
+                return null;
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    /**
+     * Do the same of {@link User#getUserCompanies()} but search on cache data.
+     *
+     * @return The {@link bolts.Task} with the result.
+     * @since 0.3.0
+     */
+    public Task<List<UserCompany>> getCachedUserCompanies() {
+        ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
+        userCompanyQuery.whereEqualTo(UserCompany.FIELD_USER, this);
+        userCompanyQuery.include(UserCompany.FIELD_COMPANY);
+        userCompanyQuery.fromPin("userCompanies");
 
         return userCompanyQuery.findInBackground();
     }

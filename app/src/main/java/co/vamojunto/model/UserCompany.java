@@ -59,6 +59,10 @@ public class UserCompany extends ParseObject {
         public static Status valueOf(int code) {
             return mMap.get(code);
         }
+
+        public int getValue() {
+            return mCode;
+        }
     }
 
     public static final int STATUS_APPROVED = 1;

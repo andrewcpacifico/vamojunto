@@ -19,6 +19,8 @@
 
 package co.vamojunto.ui.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -31,6 +33,7 @@ import co.vamojunto.model.Company;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
+import co.vamojunto.util.Globals;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,7 +44,7 @@ import co.vamojunto.model.UserCompany;
  */
 public class UFAMFeedFragment extends AbstractFeedFragment {
 
-    private static final String COMPANY_CODE = "ufam";
+    public static final String COMPANY_CODE = "ufam";
 
     /**
      * Use this factory method to create a new instance of
@@ -61,7 +64,39 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     protected Task<UserCompany.Status> isAuthorized() {
         final Task<UserCompany.Status>.TaskCompletionSource tcs = Task.create();
 
-        User.getCurrentUser().getUserCompanies().continueWith(new Continuation<List<UserCompany>, Void>() {
+        final Company ufamCompany = new Company();
+        ufamCompany.setCode(COMPANY_CODE);
+
+        // first look for user companies on the local datastore, if the ufam company was found
+        // cancel the next task, if the company
+        User.getCurrentUser().getCachedUserCompanies().continueWithTask(
+                new Continuation<List<UserCompany>, Task<List<UserCompany>>>() {
+                    @Override
+                    public Task<List<UserCompany>> then(Task<List<UserCompany>> task) throws Exception {
+                        if (task.isCancelled()) {
+                            return task;
+                        } else if (task.isFaulted()) {
+                            return task;
+                        } else {
+                            List<UserCompany> userCompanies = task.getResult();
+
+                            // iterate over user companies, to check if user have approved to view
+                            // the ufam feed
+                            for (UserCompany pair : userCompanies) {
+                                if (pair.getCompany().equals(ufamCompany)
+                                        && pair.getStatus() == UserCompany.Status.APPROVED) {
+                                        tcs.setResult(pair.getStatus());
+
+                                        // cancel the searching on cloud, if the user has been
+                                        // already approved
+                                        return Task.cancelled();
+                                }
+                            }
+                        }
+
+                        return User.getCurrentUser().getUserCompanies();
+                    }
+                }).continueWith(new Continuation<List<UserCompany>, Void>() {
             @Override
             public Void then(Task<List<UserCompany>> task) throws Exception {
                 if (task.isCancelled()) {
@@ -71,9 +106,6 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
                 } else {
                     List<UserCompany> userCompanies = task.getResult();
                     UserCompany.Status approvationStatus = UserCompany.Status.REJECTED;
-
-                    Company ufamCompany = new Company();
-                    ufamCompany.setCode(COMPANY_CODE);
 
                     for (UserCompany pair: userCompanies) {
                         if (pair.getCompany().equals(ufamCompany)) {

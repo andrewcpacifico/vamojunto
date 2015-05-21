@@ -19,11 +19,7 @@
 
 package co.vamojunto.ui.fragments;
 
-import android.os.Bundle;
 import android.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -69,7 +65,7 @@ public class ListUFAMOffersFragment extends AbstractListRidesFragment<Ride> {
 
     @Override
     protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getFriendsOffersAsync(User.getCurrentUser());
+        return Ride.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE);
     }
 
     @Override
