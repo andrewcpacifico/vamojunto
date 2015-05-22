@@ -20,8 +20,15 @@
 package co.vamojunto.ui.fragments;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.parse.ParseCloud;
+
+import java.util.HashMap;
 import java.util.List;
 
 import bolts.Continuation;
@@ -31,6 +38,7 @@ import co.vamojunto.model.Company;
 import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
+import co.vamojunto.util.UIUtil;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,6 +48,8 @@ import co.vamojunto.model.UserCompany;
  * @version 1.0.0
  */
 public class UFAMFeedFragment extends AbstractFeedFragment {
+
+    private static final String TAG = "UFAMFeedFragment";
 
     public static final String COMPANY_CODE = "ufam";
 
@@ -122,13 +132,37 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
 
     @Override
     protected void initNotAuthorizedComponents(View rootView) {
-//        Button btn = (Button) rootView.findViewById(R.id.button);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "Teste", Toast.LENGTH_LONG).show();
-//            }
-//        });
+        final EditText matriculaEditText = (EditText) rootView.findViewById(R.id.matricula_edittext);
+
+        final EditText cursoEditText = (EditText) rootView.findViewById(R.id.curso_edittext);
+
+        final EditText codAuthEditText = (EditText) rootView.findViewById(R.id.cod_aut_edittext);
+
+        Button btn = (Button) rootView.findViewById(R.id.send_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // define the options to send to cloud function
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("user_id", User.getCurrentUser().getId());
+                params.put("company_code", COMPANY_CODE);
+
+                params.put("curso", cursoEditText.getText().toString());
+                params.put("matricula", matriculaEditText.getText().toString());
+                params.put("cod_aut", codAuthEditText.getText().toString());
+
+                UIUtil.startLoading(getActivity(), "Carregando...");
+                // call cloud function to confirm the seat
+                ParseCloud.callFunctionInBackground("askPermission", params).continueWith(new Continuation<Object, Object>() {
+                    @Override
+                    public Object then(Task<Object> task) throws Exception {
+                        UIUtil.stopLoading();
+
+                        return null;
+                    }
+                });
+            }
+        });
     }
 
     @Override
