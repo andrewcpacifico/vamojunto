@@ -197,9 +197,9 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
         return ListUFAMOffersFragment.newInstance();
     }
 
-//    @Override
-//    public ListUFAMOffersFragment getListRequestsFragment() {
-//        return ListUFAMOffersFragment.newInstance();
-//    }
+    @Override
+    public AbstractListRideRequestsFragment getListRequestsFragment() {
+        return ListUFAMRequestsFragment.newInstance();
+    }
 
 }

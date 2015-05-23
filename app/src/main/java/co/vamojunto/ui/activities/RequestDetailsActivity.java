@@ -76,7 +76,7 @@ public class RequestDetailsActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ride_details);
+        setContentView(R.layout.activity_request_details);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()

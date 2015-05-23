@@ -57,9 +57,9 @@ public class RideRequest extends ParseObject {
     public static final String FIELD_DESTINATION_LNG = "destination_lng";
     public static final String FIELD_DESTINATION_TITLE = "destination_title";
     public static final String FIELD_DETAILS = "details";
-    private static final String FIELD_CREATED_AT = "createdAt";
-    private static final String FIELD_LC_STARTING_POINT_TITLE = "lc_starting_point_title";
-    private static final String FIELD_LC_DESTINATION_TITLE = "lc_destination_title";
+    public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_LC_STARTING_POINT_TITLE = "lc_starting_point_title";
+    public static final String FIELD_LC_DESTINATION_TITLE = "lc_destination_title";
 
     private static Map<String, RideRequest> instances = new HashMap<String, RideRequest>();
 
@@ -212,7 +212,7 @@ public class RideRequest extends ParseObject {
         return query.findInBackground();
     }
 
-    public static Task<List<RideRequest>> getFilteredFriendsOffersAsync(
+    public static Task<List<RideRequest>> getFilteredFriendsRequestsAsync(
             User user,
             Map<String, String> filterValues
     ) {
@@ -241,5 +241,74 @@ public class RideRequest extends ParseObject {
         }
 
         return query.findInBackground();
+    }
+
+    /**
+     * Get a list of rides requested by the users of a given company. The current user is excluded
+     * from results.
+     *
+     * @param code The company code
+     * @return The {@link bolts.Task} with the result.
+     * @since 0.3.0
+     */
+    public static Task<List<RideRequest>> getRequestsByCompany(String code) {
+        // select the company with the given code
+        ParseQuery<Company> companyQuery = ParseQuery.getQuery(Company.class);
+        companyQuery.whereEqualTo(Company.FIELD_CODE, code);
+
+        // select all approved entries on the userCompany relation, where the company
+        // are the wanted company
+        ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
+        userCompanyQuery.whereMatchesQuery(UserCompany.FIELD_COMPANY, companyQuery);
+        userCompanyQuery.whereEqualTo(UserCompany.FIELD_STATUS, UserCompany.Status.APPROVED.getValue());
+
+        ParseQuery<RideRequest> requestQuery = ParseQuery.getQuery(RideRequest.class);
+        requestQuery.whereMatchesKeyInQuery(FIELD_REQUESTER, UserCompany.FIELD_USER, userCompanyQuery);
+        requestQuery.whereNotEqualTo(FIELD_REQUESTER, User.getCurrentUser());
+        requestQuery.include(FIELD_REQUESTER);
+        requestQuery.orderByDescending(FIELD_CREATED_AT);
+
+        return requestQuery.findInBackground();
+    }
+
+    /**
+     * Get a list of rides requested by the users of a given company. The current user is excluded
+     * from results.
+     *
+     * @param code The company code
+     * @param filters The filters to apply on the requests search.
+     * @return The {@link bolts.Task} with the result.
+     * @since 0.3.0
+     */
+    public static Task<List<RideRequest>> getRequestsByCompany(String code, Map<String, String> filters) {
+        // select the company with the given code
+        ParseQuery<Company> companyQuery = ParseQuery.getQuery(Company.class);
+        companyQuery.whereEqualTo(Company.FIELD_CODE, code);
+
+        // select all approved entries on the userCompany relation, where the company
+        // are the wanted company
+        ParseQuery<UserCompany> userCompanyQuery = ParseQuery.getQuery(UserCompany.class);
+        userCompanyQuery.whereMatchesQuery(UserCompany.FIELD_COMPANY, companyQuery);
+        userCompanyQuery.whereEqualTo(UserCompany.FIELD_STATUS, UserCompany.Status.APPROVED.getValue());
+
+        ParseQuery<RideRequest> requestQuery = ParseQuery.getQuery(RideRequest.class);
+        requestQuery.whereMatchesKeyInQuery(FIELD_REQUESTER, UserCompany.FIELD_USER, userCompanyQuery);
+        requestQuery.whereNotEqualTo(FIELD_REQUESTER, User.getCurrentUser());
+        requestQuery.include(FIELD_REQUESTER);
+        requestQuery.orderByDescending(FIELD_CREATED_AT);
+
+        // filter by starting point
+        String startingPointFIlter = filters.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPointFIlter != null) {
+            requestQuery.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPointFIlter);
+        }
+
+        // filter by destination
+        String destinationFilter = filters.get(FIELD_LC_DESTINATION_TITLE);
+        if (destinationFilter != null) {
+            requestQuery.whereStartsWith(FIELD_LC_DESTINATION_TITLE, destinationFilter);
+        }
+
+        return requestQuery.findInBackground();
     }
 }

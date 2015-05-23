@@ -23,6 +23,7 @@ package co.vamojunto.ui.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -296,7 +297,9 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
      * @return The layout resource.
      * @since 0.1.0
      */
-    protected abstract int getLayoutResource();
+    protected @LayoutRes int getLayoutResource() {
+        return R.layout.fragment_list_rides;
+    }
 
     /**
      * Defines if this list is an offline feed or not. This value is used to know if it is necessary

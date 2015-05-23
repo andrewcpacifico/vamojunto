@@ -34,7 +34,7 @@ import co.vamojunto.model.User;
  * @since 0.1.0
  * @version 1.0.0
  */
-public class RidesAsPassengerFragment extends DefaultListRideOffersFragment {
+public class RidesAsPassengerFragment extends AbstractListRideOffersFragment {
 
     @Override
     protected Task<List<Ride>> filter(Map<String, String> filterValues) {

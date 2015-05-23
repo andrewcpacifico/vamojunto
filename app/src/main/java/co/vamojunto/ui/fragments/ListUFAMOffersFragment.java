@@ -69,7 +69,7 @@ public class ListUFAMOffersFragment extends AbstractListRideOffersFragment {
     }
 
     @Override
-    protected Task<List<Ride>> filter(Map filterValues) {
+    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
         return Ride.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE, filterValues);
     }
 

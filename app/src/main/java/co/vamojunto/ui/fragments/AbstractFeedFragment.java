@@ -309,7 +309,7 @@ public abstract class AbstractFeedFragment extends Fragment {
      */
     protected abstract AbstractListRideOffersFragment getListOffersFragment();
 
-//    public abstract ListUFAMOffersFragment getListRequestsFragment();
+    protected abstract AbstractListRideRequestsFragment getListRequestsFragment();
 
     /**
      * Adapter to fill the pages on this Fragment tabs.  Two tabs are displayed, one where the
@@ -345,16 +345,16 @@ public abstract class AbstractFeedFragment extends Fragment {
         public Fragment getItem(int position) {
             if (position == 0) {
                 return mContainerFragment.getListOffersFragment();
+            } else if (position == 1) {
+                return mContainerFragment.getListRequestsFragment();
             }
-//            else if (position == 1)
-//                return mContainerFragment.getListRequestsFragment();
 
             else return null;
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
     }
 

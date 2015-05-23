@@ -22,7 +22,7 @@ package co.vamojunto.ui.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,23 +46,24 @@ import java.util.Map;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideRequest;
+import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
-import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
+import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 import co.vamojunto.util.TextUtil;
 import co.vamojunto.util.UIUtil;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link android.support.v4.app.Fragment} subclass.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.3.0
  * @version 1.0.0
  */
-public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
+public abstract class AbstractListRideRequestsFragment extends FilterableFeedFragment {
 
-    public static final String TAG = "AbstractListRides";
+    public static final String TAG = "AbstractListRideRequests";
 
     /**
      * Code of the view that displays a progress bar on the viewflipper.
@@ -90,7 +91,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      *
      * @since 0.3.0
      */
-    protected RidesRecyclerViewAdapter mRidesAdapter;
+    protected RequestsRecyclerViewAdapter mRideRequestsAdapter;
 
     /**
      * ViewFlipper used to alternate between the ProgressBar, that is displayed when the rides
@@ -139,7 +140,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
         initComponents(rootView);
 
-        loadRides();
+        loadRideRequests();
 
         return rootView;
     }
@@ -151,7 +152,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      * @since 0.3.0
      */
     protected void initComponents(View rootView) {
-        RecyclerView ridesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
+        RecyclerView ridesRecyclerView = (RecyclerView) rootView.findViewById(R.id.requests_recycler_view);
         ridesRecyclerView.setHasFixedSize(true);
 
         // inits the RecyclerView LayoutManager
@@ -159,19 +160,19 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
         ridesRecyclerView.setLayoutManager(ridesLayoutManager);
 
         // inits the RecyclerView Adapter
-        mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
-                new ArrayList<Ride>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
+        mRideRequestsAdapter = new RequestsRecyclerViewAdapter(getActivity(),
+                new ArrayList<RideRequest>(), new RequestsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(int position) {
-                Ride choosenRide = mRidesAdapter.getItem(position);
-                Intent intent = new Intent(AbstractListRidesFragment.this.getActivity(),
-                        RideDetailsActivity.class);
+                RideRequest choosenRideRequest = mRideRequestsAdapter.getItem(position);
+                Intent intent = new Intent(AbstractListRideRequestsFragment.this.getActivity(),
+                        RequestDetailsActivity.class);
 
-                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                RideRequest.storeInstance(RequestDetailsActivity.EXTRA_REQUEST, choosenRideRequest);
                 startActivity(intent);
             }
         });
-        ridesRecyclerView.setAdapter(mRidesAdapter);
+        ridesRecyclerView.setAdapter(mRideRequestsAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
@@ -181,7 +182,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
         mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadRides();
+                loadRideRequests();
             }
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
@@ -200,7 +201,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
 
         if (id == R.id.search_menu) {
             FilterFeedFragment filterFragment = new FilterFeedFragment();
-            filterFragment.show(AbstractListRidesFragment.this);
+            filterFragment.show(AbstractListRideRequestsFragment.this);
         }
 
         return super.onOptionsItemSelected(item);
@@ -227,26 +228,26 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
         // if the user entered a value for starting point filtering, add it to the filter map
         String startingPoint = TextUtil.normalize(filterValues.getString(FILTER_STARTING_POINT));
         if (! startingPoint.equals("")) {
-            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+            filterMap.put(RideRequest.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
         }
 
         // if the user entered a value for destination filtering, add it to the filter map
         String destination = TextUtil.normalize(filterValues.getString(FILTER_DESTINATION));
         if (! destination.equals("")) {
-            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
+            filterMap.put(RideRequest.FIELD_LC_DESTINATION_TITLE, destination);
         }
 
-        this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
+        this.filter(filterMap).continueWith(new Continuation<List<RideRequest>, Void>() {
             @Override
-            public Void then(final Task<List<Ride>> task) throws Exception {
+            public Void then(final Task<List<RideRequest>> task) throws Exception {
                 if (! task.isCancelled() && !task.isFaulted()) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             UIUtil.stopLoading();
 
-                            List<Ride> lst = task.getResult();
-                            mRidesAdapter.setDataset(lst);
+                            List<RideRequest> lst = task.getResult();
+                            mRideRequestsAdapter.setDataset(lst);
 
                             if (lst.size() == 0) {
                                 displayErrorScreen(
@@ -282,17 +283,9 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      * Filter the feed items.
      *
      * @return A {@link java.util.List} with the filtered items to display on feed.
-     * @since 0.1.0
+     * @since 0.3.0
      */
-    protected abstract Task<List<Ride>> filter(Map<String, String> filterValues);
-
-    /**
-     * Getter for the fragment layout
-     *
-     * @return The layout resource.
-     * @since 0.1.0
-     */
-    protected abstract int getLayoutResource();
+    protected abstract Task<List<RideRequest>> filter(Map<String, String> filterValues);
 
     /**
      * Defines if this list is an offline feed or not. This value is used to know if it is necessary
@@ -300,37 +293,47 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      *
      * @return <code>true</code> if this list will be displayed on an offline feed,
      *         or <code>false</code> if it is not.
-     * @since 0.1.0
+     * @since 0.3.0
      */
     protected abstract boolean isOfflineFeed();
+
+    /**
+     * Getter for the fragment layout
+     *
+     * @return The layout resource.
+     * @since 0.3.0
+     */
+    protected @LayoutRes int getLayoutResource() {
+        return R.layout.fragment_list_requests;
+    }
 
     /**
      * Get a list of rides that will be displayed on the feed.
      *
      * @return A {@link bolts.Task} containing the list as result.
-     * @since 0.1.0
+     * @since 0.3.0
      */
-    protected abstract Task<List<Ride>> getRidesAsync();
+    protected abstract Task<List<RideRequest>> getRideRequestsAsync();
 
     /**
      * TODO this method documentation
      */
-    protected void loadRides() {
+    protected void loadRideRequests() {
         mViewFlipper.setDisplayedChild(PROGRESS_VIEW);
 
         // check for user's network connection if this fragment is not used on an offline feed
         if (! isOfflineFeed() && ! NetworkUtil.isConnected(getActivity())) {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         } else {
-            Task<List<Ride>> loadRidesTask = getRidesAsync();
+            Task<List<RideRequest>> loadRideRequestsTask = getRideRequestsAsync();
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
-            if (loadRidesTask != null) {
+            if (loadRideRequestsTask != null) {
                 Log.i(TAG, "Loading rides...");
 
-                loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
+                loadRideRequestsTask.continueWith(new Continuation<List<RideRequest>, Void>() {
                     @Override
-                    public Void then(final Task<List<Ride>> task) throws Exception {
+                    public Void then(final Task<List<RideRequest>> task) throws Exception {
                         // force the code to run on the main thread
                         mHandler.post(new Runnable() {
                             @Override
@@ -338,13 +341,13 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
                                 mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
                                 if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<Ride> lstRides = task.getResult();
+                                    List<RideRequest> lstRides = task.getResult();
 
-                                    mRidesAdapter.setDataset(lstRides);
+                                    mRideRequestsAdapter.setDataset(lstRides);
 
                                     // if there is no ride, displays a specific message to the user
                                     if (lstRides.size() == 0) {
-                                        displayNoRideMessage();
+                                        displayNoRideRequestMessage();
                                     }
                                 } else {
                                     Log.e(TAG, task.getError().getMessage());
@@ -364,10 +367,10 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
     /**
      * Displays a message to user, when there is no ride to display on feed.
      *
-     * @since 0.1.0
+     * @since 0.3.0
      */
-    protected void displayNoRideMessage() {
-        displayErrorScreen(getString(R.string.no_ride_to_display));
+    protected void displayNoRideRequestMessage() {
+        displayErrorScreen(getString(R.string.no_request_to_display));
         mErrorScreenRetryButton.setVisibility(View.GONE);
         mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
     }
@@ -379,7 +382,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      * @param hasButton Defines if the reload button has to be visible.
      * @param iconResource The resource of the error icon.
      *
-     * @since 0.2.0
+     * @since 0.3.0
      */
     protected void displayErrorScreen(String errorMsg, boolean hasButton, int iconResource) {
         displayErrorScreen(errorMsg);
@@ -396,7 +399,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
      *
      * @param errorMsg The message displayed on the screen, if the param value is null, the default
      *                 error message is used.
-     * @since 0.1.0
+     * @since 0.3.0
      */
     protected void displayErrorScreen(String errorMsg) {
         if (errorMsg == null)
@@ -410,7 +413,7 @@ public abstract class AbstractListRidesFragment extends FilterableFeedFragment {
     /**
      * Switches the viewFlipper to display the error screen using the default error screen message.
      *
-     * @since 0.1.0
+     * @since 0.3.0
      */
     protected void displayErrorScreen() {
         displayErrorScreen(getString(R.string.errormsg_default));

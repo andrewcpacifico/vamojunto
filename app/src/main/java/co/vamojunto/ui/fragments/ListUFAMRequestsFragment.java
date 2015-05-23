@@ -19,22 +19,35 @@
 
 package co.vamojunto.ui.fragments;
 
+
 import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
 import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
+import co.vamojunto.model.RideRequest;
 
 /**
- * A {@link android.support.v4.app.Fragment} to display a list of rides offered by the
- * current user's friends.
+ * A Fragment to display the list of ride requests made on the UFAM Feed.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @since 0.1.0
+ * @since 0.3.0
  * @version 1.0.0
  */
-public class FriendsOffersFragment extends AbstractListRideOffersFragment {
+public class ListUFAMRequestsFragment extends AbstractListRideRequestsFragment {
+
+    public ListUFAMRequestsFragment() {
+        // Required empty public constructor
+    }
+
+    public static ListUFAMRequestsFragment newInstance() {
+        return new ListUFAMRequestsFragment();
+    }
+
+    @Override
+    protected Task<List<RideRequest>> filter(Map<String, String> filterValues) {
+        return RideRequest.getRequestsByCompany(UFAMFeedFragment.COMPANY_CODE, filterValues);
+    }
 
     @Override
     protected boolean isOfflineFeed() {
@@ -42,13 +55,8 @@ public class FriendsOffersFragment extends AbstractListRideOffersFragment {
     }
 
     @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getFriendsOffersAsync(User.getCurrentUser());
-    }
-
-    @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredFriendsOffersAsync(User.getCurrentUser(), filterValues);
+    protected Task<List<RideRequest>> getRideRequestsAsync() {
+        return RideRequest.getRequestsByCompany(UFAMFeedFragment.COMPANY_CODE);
     }
 
 }
