@@ -134,7 +134,7 @@ public class MainActivity extends ActionBarActivity {
                 displayView(viewCode);
             } else if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MainFragment())
+                        .add(R.id.container, new FriendsFeedFragment())
                         .commit();
             }
 
