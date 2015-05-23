@@ -18,30 +18,29 @@
   ~ See LICENSE.txt
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:layout_height="wrap_content"
+    android:layout_height="48dp"
+
     android:background="@drawable/white_list_item_selector"
-    android:orientation="horizontal"
-    android:gravity="center_vertical">
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
+    <ImageView android:id="@+id/rowIcon"
+        android:layout_centerVertical="true"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/rowIcon"
-        android:paddingLeft="16dp"
         android:src="@drawable/ic_launcher"/>
 
-    <TextView
+    <TextView android:id="@+id/rowText"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="56dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="12dp"
-        android:paddingTop="4dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/rowText" />
 
-</LinearLayout>
+        android:text="Medium Text"
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textColor="@color/black_87" />
+
+</RelativeLayout>

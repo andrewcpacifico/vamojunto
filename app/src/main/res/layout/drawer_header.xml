@@ -19,48 +19,49 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="178dp"
-    android:orientation="vertical"
-    android:weightSum="1"
-    android:background="@color/ColorPrimary">
+    android:layout_height="wrap_content"
+
+    android:background="@color/ColorPrimary"
+    android:paddingBottom="8dp"
+    android:layout_marginBottom="8dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_image_view"
+
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:src="@drawable/no_profile_pic" />
 
     <LinearLayout
+        android:layout_below="@+id/user_image_view"
+        android:layout_marginLeft="16dp"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:textColor="#ffffff"
+            android:textColor="@color/white"
             android:text="Antônio Nunes"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textSize="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/email"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="5dp"
-            android:text="user@domain.com"
-            android:textSize="14sp"
-            android:textStyle="normal" />
-    </LinearLayout>
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:src="@drawable/no_profile_pic"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="38dp"
-        android:id="@+id/circleView"
-        />
+            android:textColor="@color/white"
+            android:text="user@domain.com"
+            android:textSize="@dimen/abc_text_size_small_material" />
+    </LinearLayout>
 
 </RelativeLayout>

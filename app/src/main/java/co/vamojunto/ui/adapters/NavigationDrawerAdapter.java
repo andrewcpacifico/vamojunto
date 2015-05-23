@@ -21,6 +21,7 @@ package co.vamojunto.ui.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,16 +32,15 @@ import android.widget.TextView;
 import co.vamojunto.R;
 
 /**
- * Adapter utilizado para preencher os dados do NavigationDrawer
+ * Adapter for the RecyclerView used on Application's NavigationDrawer.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ * @version 1.1.0
  * @since 0.1.0
  */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
 
-    /** Utilizado para indicar que o View que está sendo construído pelo RecyclerView é o cabeçalho */
     private static final int TYPE_HEADER = 0;
-    /** Utilizado para indicar que o View que está sendo construído pelo RecyclerView é um item da lista */
     private static final int TYPE_ITEM = 1;
 
     /**
@@ -50,7 +50,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      */
     private static final int MENU_ITEM_COUNT = 3;
 
-    /** Array de Strings contendo os títulos de cada um dos itens exibidos no menu */
+    /**
+     * Array containing the labels for each item on drawer.
+     *
+     * @since 0.1.0
+     */
     private String mNavTitles[];
 
     /**
@@ -61,55 +65,49 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     private static int mIcons[] = {
             R.drawable.ic_ride_hand,
             R.drawable.ic_menu_friends,
-            R.drawable.ic_menu_friends
+            R.drawable.ic_drawer_ufam
     };
 
-    /** Nome do usuário autenticado no sistema para ser exibido no cabeçalho */
-    private String mNomeUsuario;
-    /** Bitmap da imagem de perfil do usuário */
-    private Bitmap mImgUsuario;
-    /** Email do usuário autenticado para ser exibido no cabeçalho */
-    private String mEmailUsuario;
+    private String mUserName;
+    private Bitmap mUserPicture;
+    private String mUserEmail;
 
     private OnItemClickListener mItemClickListener;
 
-    /**
-     * Sobrescrita do {@link android.support.v7.widget.RecyclerView.ViewHolder}
-     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private int mHolderType;
 
-        // Views dos itens do menu
-        public TextView mTituloView;
-        public ImageView mImagemView;
+        public TextView mItemLabelTextView;
+        public ImageView mItemIconView;
 
-        // Views do cabeçalho
         public ImageView mImgUsuarioView;
         public TextView mNomeUsuarioView;
         public TextView mEmailView;
 
-        /**
-         * Construtor do ViewHolder, carrega os Views correspondentes, de acordo com o tipo passado
-         * como parâmetro (item ou cabeçalho).
-         *
-         * @param itemView Layout inflado
-         * @param viewType Tipo de ViewHolder a ser carregado (Item de menu ou cabeçalho).
-         */
         public ViewHolder(View itemView, int viewType, final OnItemClickListener clickListener) {
             super(itemView);
 
-            // Here we set the appropriate view in accordance with the the view type as passed when the holder object is created
+            Typeface mediumFont = Typeface.createFromAsset(
+                    itemView.getContext().getAssets(), "fonts/Roboto-Medium.ttf");
 
-            // Carrega os views apropriados, de acordo com o tipo de view passado quando o ViewHolder
-            // foi criado.
+            Typeface lightFont = Typeface.createFromAsset(
+                    itemView.getContext().getAssets(), "fonts/Roboto-Light.ttf");
+
             if (viewType == TYPE_ITEM) {
-                mTituloView = (TextView) itemView.findViewById(R.id.rowText);
-                mImagemView = (ImageView) itemView.findViewById(R.id.rowIcon);
+                mItemLabelTextView = (TextView) itemView.findViewById(R.id.rowText);
+                mItemIconView = (ImageView) itemView.findViewById(R.id.rowIcon);
                 mHolderType = TYPE_ITEM;
+
+                // apply the default item typography
+                mItemLabelTextView.setTypeface(mediumFont);
             } else {
                 mNomeUsuarioView = (TextView) itemView.findViewById(R.id.name);
+                mNomeUsuarioView.setTypeface(mediumFont);
+
                 mEmailView = (TextView) itemView.findViewById(R.id.email);
-                mImgUsuarioView = (ImageView) itemView.findViewById(R.id.circleView);
+                mEmailView.setTypeface(lightFont);
+
+                mImgUsuarioView = (ImageView) itemView.findViewById(R.id.user_image_view);
                 mHolderType = TYPE_HEADER;
             }
 
@@ -139,9 +137,9 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, Bitmap imgUsuario,
                                    NavigationDrawerAdapter.OnItemClickListener clickListener) {
         /* Inicializa os dados do usuário */
-        mNomeUsuario = nomeUsuario;
-        mEmailUsuario = emailUsuario;
-        mImgUsuario = imgUsuario;
+        mUserName = nomeUsuario;
+        mUserEmail = emailUsuario;
+        mUserPicture = imgUsuario;
 
         /* initialize the menu data */
         mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
@@ -176,16 +174,16 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public void onBindViewHolder(NavigationDrawerAdapter.ViewHolder holder, int position) {
         // Verifica se o tipo do holder que vai ser vinculado é um item, ou cabeçalho.
         if (holder.mHolderType == TYPE_ITEM) {
-            holder.mTituloView.setText(mNavTitles[position - 1]);
-            holder.mImagemView.setImageResource(mIcons[position - 1]);
+            holder.mItemLabelTextView.setText(mNavTitles[position - 1]);
+            holder.mItemIconView.setImageResource(mIcons[position - 1]);
         } else {
             // Caso o usuário tenha se inscrito direto pelo aplicativo, e não tenha feito upload
             // de uma imagem de perfil.
-            if ( mImgUsuario != null )
-                holder.mImgUsuarioView.setImageBitmap(mImgUsuario);
+            if ( mUserPicture != null )
+                holder.mImgUsuarioView.setImageBitmap(mUserPicture);
 
-            holder.mNomeUsuarioView.setText(mNomeUsuario);
-            holder.mEmailView.setText(mEmailUsuario);
+            holder.mNomeUsuarioView.setText(mUserName);
+            holder.mEmailView.setText(mUserEmail);
         }
     }
 

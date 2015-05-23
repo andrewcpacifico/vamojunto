@@ -22,7 +22,10 @@
 
     <!-- Color names -->
     <color name="black">#000000</color>
+    <color name="black_87">#DF000000</color>
+
     <color name="white">#ffffff</color>
+
     <color name="transparent">#00000000</color>
     <color name="black_22_opacity">#22000000</color>
     <color name="white_22_opacity">#22ffffff</color>
