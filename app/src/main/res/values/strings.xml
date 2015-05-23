@@ -25,7 +25,7 @@
     <string name="complete_name">Nome completo</string>
     <string name="create_account">Criar uma conta</string>
     <string name="email">Email</string>
-    <string name="error_required_field">Campo obrigatório</string>
+    <string name="errormsg_required_field">Campo obrigatório</string>
     <string name="fb_app_id">865170056839482</string>
     <string name="forgot_password_button_label"><u>Esqueceu sua senha?</u></string>
     <string name="hello_world">Hello world!</string>

@@ -451,7 +451,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         String strNumLugares = String.valueOf(numLugaresEditText.getText());
 
         if ( strNumLugares.equals("") ) {
-            numLugaresEditText.setError(getString(R.string.error_required_field));
+            numLugaresEditText.setError(getString(R.string.errormsg_required_field));
             numLugaresEditText.requestFocus();
 
             return false;

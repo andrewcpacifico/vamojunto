@@ -360,7 +360,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     public boolean isDataValid() {
         // checks if the starting point was set
         if ( mStartingPoint == null ) {
-            mStartingPointEditText.setError(getString(R.string.error_required_field));
+            mStartingPointEditText.setError(getString(R.string.errormsg_required_field));
             // since the field was not focusable, the error message ended up not being displayed
             // so I used a Toast for it
             Toast.makeText(getActivity(), getString(R.string.error_starting_point_missing), Toast.LENGTH_LONG).show();

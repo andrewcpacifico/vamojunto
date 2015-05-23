@@ -17,17 +17,16 @@
   ~ See LICENSE.txt
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frag_container"
 
     android:layout_height="match_parent"
-    android:layout_width="match_parent" >
+    android:layout_width="match_parent"
+    android:background="@color/white">
 
     <ViewFlipper android:id="@+id/flipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        android:background="@color/white">
+        android:layout_height="match_parent">
 
         <ProgressBar android:id="@+id/progress_bar"
 
@@ -61,4 +60,4 @@
             layout="@layout/layout_default_error_screen" />
     </ViewFlipper>
 
-</FrameLayout>
+</LinearLayout>

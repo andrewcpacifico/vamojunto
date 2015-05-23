@@ -92,11 +92,11 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     private CallbackManager mCallbackManager;
 
     // Campos do formulário de login
-    @Required(order = 1, messageResId = R.string.error_required_field)
+    @Required(order = 1, messageResId = R.string.errormsg_required_field)
     @Email(order = 2, messageResId = R.string.error_invalid_email)
     private EditText mEmailEditText;
 
-    @Required(order = 3, messageResId = R.string.error_required_field)
+    @Required(order = 3, messageResId = R.string.errormsg_required_field)
     private EditText mSenhaEditText;
     // Campos do formulário de login
 

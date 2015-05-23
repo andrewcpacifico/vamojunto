@@ -62,13 +62,13 @@ public class RegistrationFragment extends Fragment implements Validator.Validati
     /**
      * The field containing the name of the user
      */
-    @Required(order = 1, messageResId = R.string.error_required_field)
+    @Required(order = 1, messageResId = R.string.errormsg_required_field)
     private EditText mNameEditText;
 
     /**
      * The field containing the email of the user
      */
-    @Required(order = 2, messageResId = R.string.error_required_field)
+    @Required(order = 2, messageResId = R.string.errormsg_required_field)
     @Email(order = 3, messageResId = R.string.error_invalid_email)
     private EditText mEmailEditText;
 

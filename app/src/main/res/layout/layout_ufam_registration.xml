@@ -28,11 +28,13 @@
 
         android:layout_above="@+id/send_button"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+
+        android:fillViewport="true" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="30dp">
             <TextView android:id="@+id/message_1_textview"
 
@@ -51,7 +53,8 @@
                 android:layout_height="wrap_content"
 
                 android:hint="Matrícula"
-                android:textSize="@dimen/abc_text_size_body_1_material"/>
+                android:textSize="@dimen/abc_text_size_body_1_material"
+                android:inputType="number" />
 
             <EditText android:id="@+id/curso_edittext"
                 android:layout_below="@+id/matricula_edittext"
@@ -61,7 +64,8 @@
                 android:layout_height="wrap_content"
 
                 android:hint="Curso"
-                android:textSize="@dimen/abc_text_size_body_1_material"/>
+                android:textSize="@dimen/abc_text_size_body_1_material"
+                android:inputType="text" />
 
             <TextView android:id="@+id/message_2_textview"
 
@@ -81,7 +85,8 @@
                 android:layout_height="wrap_content"
 
                 android:hint="Código de autenticação"
-                android:textSize="@dimen/abc_text_size_body_1_material"/>
+                android:textSize="@dimen/abc_text_size_body_1_material"
+                android:inputType="text" />
         </RelativeLayout>
 
     </ScrollView>

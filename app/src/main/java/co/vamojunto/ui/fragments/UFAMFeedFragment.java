@@ -20,11 +20,9 @@
 package co.vamojunto.ui.fragments;
 
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.parse.ParseCloud;
 
@@ -35,7 +33,6 @@ import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.Company;
-import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
 import co.vamojunto.util.UIUtil;
@@ -142,6 +139,18 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (matriculaEditText.getText().toString().equals("")) {
+                    matriculaEditText.setError(getString(R.string.errormsg_required_field));
+                    matriculaEditText.requestFocus();
+
+                    return;
+                } else if (cursoEditText.toString().equals("")){
+                    cursoEditText.setError(getString(R.string.errormsg_required_field));
+                    cursoEditText.requestFocus();
+
+                    return;
+                }
+
                 // define the options to send to cloud function
                 HashMap<String, Object> params = new HashMap<>();
                 params.put("user_id", User.getCurrentUser().getId());
@@ -157,6 +166,14 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
                     @Override
                     public Object then(Task<Object> task) throws Exception {
                         UIUtil.stopLoading();
+
+                        getHandler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                changeContent(SCREEN_DEFAULT);
+                                displayErrorScreen(getString(R.string.ufam_feed_waiting_msg) , false);
+                            }
+                        });
 
                         return null;
                     }

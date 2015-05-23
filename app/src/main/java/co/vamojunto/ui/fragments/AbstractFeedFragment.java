@@ -54,6 +54,9 @@ public abstract class AbstractFeedFragment extends Fragment {
 
     private static final String TAG = "AbstractFeedFragment";
 
+    public static final int SCREEN_DEFAULT = 0;
+    public static final int SCREEN_NOT_AUTHORIZED = 1;
+
     /**
      * Code for loading children view on the viewFlipper
      *
@@ -124,14 +127,6 @@ public abstract class AbstractFeedFragment extends Fragment {
         mContainer = container;
         mHandler = new Handler();
 
-        // inflate the viewFlipper of the screen
-        mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
-
-        // inflate components of error screen
-        mErrorScreenMsgTextView =
-                (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
-        mErrorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
-
         // check if the user is authorized to access the feed
         isAuthorized().continueWith(new Continuation<UserCompany.Status, Void>() {
             @Override
@@ -144,7 +139,7 @@ public abstract class AbstractFeedFragment extends Fragment {
                         if (approvationStatus == UserCompany.Status.APPROVED) {
                             displayDefaultScreen(rootView);
                         } else if (approvationStatus == UserCompany.Status.REJECTED) {
-                            changeContent();
+                            changeContent(SCREEN_NOT_AUTHORIZED);
                         } else {
                             displayErrorScreen(getString(R.string.ufam_feed_waiting_msg), false);
                         }
@@ -155,7 +150,19 @@ public abstract class AbstractFeedFragment extends Fragment {
             }
         });
 
+        initComponents(rootView);
+
         return rootView;
+    }
+
+    protected void initComponents(View rootView) {
+        // inflate the viewFlipper of the screen
+        mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
+
+        // inflate components of error screen
+        mErrorScreenMsgTextView =
+                (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
+        mErrorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
     }
 
     /**
@@ -164,10 +171,21 @@ public abstract class AbstractFeedFragment extends Fragment {
      *
      * @since 0.3.0
      */
-    public void changeContent() {
+    public void changeContent(final int content) {
+        int layoutRes = (content == SCREEN_DEFAULT)
+                ? R.layout.fragment_default_feed
+                : getNotAuthorizedLayoutRes();
+
+        mContainer.removeAllViews();
+
         View rootView = LayoutInflater.from(getActivity())
-                .inflate(getNotAuthorizedLayoutRes(), mContainer, true);
-        initNotAuthorizedComponents(rootView);
+                .inflate(layoutRes, mContainer, true);
+
+        if (content == SCREEN_NOT_AUTHORIZED) {
+            initNotAuthorizedComponents(rootView);
+        } else {
+            initComponents(rootView);
+        }
     }
 
     /**
@@ -204,6 +222,10 @@ public abstract class AbstractFeedFragment extends Fragment {
         setHasOptionsMenu(true);
 
         mFlipper.setDisplayedChild(VIEW_DEFAULT);
+    }
+
+    protected Handler getHandler() {
+        return mHandler;
     }
 
     /**
