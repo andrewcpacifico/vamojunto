@@ -32,6 +32,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
@@ -48,7 +50,7 @@ import co.vamojunto.ui.fragments.UFAMFeedFragment;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.1.0
+ * @version 1.2.0
  */
 public class MainActivity extends ActionBarActivity {
 
@@ -93,6 +95,8 @@ public class MainActivity extends ActionBarActivity {
     private User mCurrentUser;
 
     private Handler mHandler;
+
+    private FloatingActionMenu mFloatingMenu;
 
 
 /*************************************************************************************************
@@ -144,6 +148,18 @@ public class MainActivity extends ActionBarActivity {
 
             // setups the application's NavigationDrawer
             initDrawer();
+
+            mFloatingMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
+            mFloatingMenu.setClosedOnTouchOutside(true);
+
+            FloatingActionButton fabOfferRide = (FloatingActionButton) findViewById(R.id.fab_offer_ride);
+            fabOfferRide.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, NewRideActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
     }
 
