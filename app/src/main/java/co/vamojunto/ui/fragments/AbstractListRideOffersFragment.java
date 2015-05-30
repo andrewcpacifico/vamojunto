@@ -59,7 +59,7 @@ import co.vamojunto.util.UIUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.1
+ * @version 1.0.2
  */
 public abstract class AbstractListRideOffersFragment extends FilterableFeedFragment {
 
@@ -338,28 +338,33 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
                 loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
                     @Override
                     public Void then(final Task<List<Ride>> task) throws Exception {
-                        // force the code to run on the main thread
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                        // check if Fragment is attached to some Activity, before change the view
+                        if (getActivity() != null) {
+                            // force the code to run on the main thread
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
-                                if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<Ride> lstRides = task.getResult();
+                                    if (!task.isFaulted() && !task.isCancelled()) {
+                                        List<Ride> lstRides = task.getResult();
 
-                                    mRidesAdapter.setDataset(lstRides);
+                                        mRidesAdapter.setDataset(lstRides);
 
-                                    // if there is no ride, displays a specific message to the user
-                                    if (lstRides.size() == 0) {
-                                        displayNoRideMessage();
+                                        // if there is no ride, displays a specific message to the user
+                                        if (lstRides.size() == 0) {
+                                            displayNoRideMessage();
+                                        }
+                                    } else {
+                                        Log.e(TAG, "Error on load ride offers", task.getError());
+
+                                        displayErrorScreen();
                                     }
-                                } else {
-                                    Log.e(TAG, task.getError().getMessage());
-
-                                    displayErrorScreen();
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            Log.d(TAG, "Fragment detached from Activity");
+                        }
 
                         return null;
                     }

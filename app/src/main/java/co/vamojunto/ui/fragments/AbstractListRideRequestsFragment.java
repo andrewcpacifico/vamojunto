@@ -59,11 +59,11 @@ import co.vamojunto.util.UIUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.3.0
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class AbstractListRideRequestsFragment extends FilterableFeedFragment {
 
-    public static final String TAG = "AbstractListRideRequests";
+    public static final String TAG = "ListRideRequests";
 
     /**
      * Code of the view that displays a progress bar on the viewflipper.
@@ -334,28 +334,32 @@ public abstract class AbstractListRideRequestsFragment extends FilterableFeedFra
                 loadRideRequestsTask.continueWith(new Continuation<List<RideRequest>, Void>() {
                     @Override
                     public Void then(final Task<List<RideRequest>> task) throws Exception {
-                        // force the code to run on the main thread
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
+                        if (getActivity() != null) {
+                            // force the code to run on the main thread
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
-                                if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<RideRequest> lstRides = task.getResult();
+                                    if (!task.isFaulted() && !task.isCancelled()) {
+                                        List<RideRequest> lstRides = task.getResult();
 
-                                    mRideRequestsAdapter.setDataset(lstRides);
+                                        mRideRequestsAdapter.setDataset(lstRides);
 
-                                    // if there is no ride, displays a specific message to the user
-                                    if (lstRides.size() == 0) {
-                                        displayNoRideRequestMessage();
+                                        // if there is no ride, displays a specific message to the user
+                                        if (lstRides.size() == 0) {
+                                            displayNoRideRequestMessage();
+                                        }
+                                    } else {
+                                        Log.e(TAG, task.getError().getMessage());
+
+                                        displayErrorScreen();
                                     }
-                                } else {
-                                    Log.e(TAG, task.getError().getMessage());
-
-                                    displayErrorScreen();
                                 }
-                            }
-                        });
+                            });
+                        } else  {
+                            Log.e(TAG, "Fragment detached from Activity");
+                        }
 
                         return null;
                     }

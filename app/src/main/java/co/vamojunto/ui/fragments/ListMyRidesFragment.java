@@ -58,7 +58,7 @@ import co.vamojunto.util.NetworkUtil;
  * a driver or passenger.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.1.0
  */
 public class ListMyRidesFragment extends Fragment {
@@ -93,6 +93,13 @@ public class ListMyRidesFragment extends Fragment {
     private TextView mErrorScreenMsgTextView;
 
     /**
+     * A handler to run code on main thread.
+     *
+     * @since 0.4.0
+     */
+    private Handler mHandler;
+
+    /**
      * Required default constructor
      */
     public ListMyRidesFragment() { }
@@ -102,6 +109,8 @@ public class ListMyRidesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_list_my_rides, container, false);
+
+        mHandler = new Handler();
 
         initComponents(rootView);
 
@@ -195,31 +204,42 @@ public class ListMyRidesFragment extends Fragment {
     /**
      * Loads the user's ride offers. At the end of the method, the user's rides list is defined
      * as the dataset from mRideRecyclerView
+     *
+     * @since 0.1.0
      */
     public void loadMyRides() {
         mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
 
         // Loads the rides from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            Ride.getByDriverAsync((User) User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
+            Ride.getByDriverAsync(User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
                 @Override
-                public Void then(Task<List<Ride>> task) throws Exception {
-                    mViewFlipper.setDisplayedChild(VIEW_PADRAO);
-
-                    if (!task.isFaulted() && !task.isCancelled()) {
-                        List<Ride> lstRides = task.getResult();
-                        Collections.sort(lstRides, new Comparator<Ride>() {
+                public Void then(final Task<List<Ride>> task) throws Exception {
+                    if (getActivity() != null) {
+                        mHandler.post(new Runnable() {
                             @Override
-                            public int compare(Ride lhs, Ride rhs) {
-                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                            public void run() {
+                                mViewFlipper.setDisplayedChild(VIEW_PADRAO);
+
+                                if (!task.isFaulted() && !task.isCancelled()) {
+                                    List<Ride> lstRides = task.getResult();
+                                    Collections.sort(lstRides, new Comparator<Ride>() {
+                                        @Override
+                                        public int compare(Ride lhs, Ride rhs) {
+                                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                        }
+                                    });
+
+                                    mRidesAdapter.setDataset(lstRides);
+                                } else {
+                                    Log.e(TAG, "Error on load user offers", task.getError());
+
+                                    displayErrorScreen();
+                                }
                             }
                         });
-
-                        mRidesAdapter.setDataset(lstRides);
                     } else {
-                        Log.e(TAG, task.getError().getMessage());
-
-                        displayErrorScreen();
+                        Log.d(TAG, "Fragment detached from Activity");
                     }
 
                     return null;

@@ -56,7 +56,7 @@ import co.vamojunto.util.NetworkUtil;
  *  A {@link android.support.v4.app.Fragment} to list all the rides that a user have requested.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.1.0
+ * @version 1.1.1
  * @since 0.1.0
  */
 public class ListMyRequestsFragment extends Fragment {
@@ -92,6 +92,13 @@ public class ListMyRequestsFragment extends Fragment {
     private TextView mErrorScreenMsgTextView;
 
     /**
+     * A handler to run code on main thread.
+     *
+     * @since 0.4.0
+     */
+    private Handler mHandler;
+
+    /**
      * Required default constructor
      */
     public ListMyRequestsFragment() { }
@@ -101,6 +108,8 @@ public class ListMyRequestsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_list_my_requests, container, false);
+
+        mHandler = new Handler();
 
         initComponents(rootView);
 
@@ -203,26 +212,33 @@ public class ListMyRequestsFragment extends Fragment {
         if (NetworkUtil.isConnected(getActivity())) {
             RideRequest.getByRequesterAsync(User.getCurrentUser()).continueWith(new Continuation<List<RideRequest>, Void>() {
                 @Override
-                public Void then(Task<List<RideRequest>> task) throws Exception {
-                    if (!task.isFaulted() && !task.isCancelled()) {
-                        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                public Void then(final Task<List<RideRequest>> task) throws Exception {
 
-                        List<RideRequest> requestList = task.getResult();
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!task.isFaulted() && !task.isCancelled()) {
+                                mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
 
-                        // sort the list by creation date
-                        Collections.sort(requestList, new Comparator<RideRequest>() {
-                            @Override
-                            public int compare(RideRequest lhs, RideRequest rhs) {
-                                return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                List<RideRequest> requestList = task.getResult();
+
+                                // sort the list by creation date
+                                Collections.sort(requestList, new Comparator<RideRequest>() {
+                                    @Override
+                                    public int compare(RideRequest lhs, RideRequest rhs) {
+                                        return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                    }
+                                });
+
+                                mRequestsAdapter.setDataset(requestList);
+                            } else {
+                                Log.e(TAG, "Error on load user requests", task.getError());
+
+                                displayErrorScreen();
                             }
-                        });
 
-                        mRequestsAdapter.setDataset(requestList);
-                    } else {
-                        Log.e(TAG, task.getError().getMessage());
-
-                        displayErrorScreen();
-                    }
+                        }
+                    });
 
                     return null;
                 }
