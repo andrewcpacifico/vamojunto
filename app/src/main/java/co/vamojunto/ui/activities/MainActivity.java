@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,12 +31,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+
+import java.util.List;
 
 import co.vamojunto.R;
 import co.vamojunto.model.User;
@@ -44,6 +48,7 @@ import co.vamojunto.ui.fragments.FriendsFeedFragment;
 import co.vamojunto.ui.fragments.MainFragment;
 import co.vamojunto.ui.fragments.MinhasCaronasFragment;
 import co.vamojunto.ui.fragments.UFAMFeedFragment;
+import co.vamojunto.util.Globals;
 
 /**
  * System's Main Activity
@@ -109,7 +114,12 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "onActivityResult");
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            }
+        }
     }
 
     @Override
@@ -156,14 +166,36 @@ public class MainActivity extends ActionBarActivity {
             fabOfferRide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mFloatingMenu.close(true);
+
                     Intent intent = new Intent(MainActivity.this, NewRideActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
+                }
+            });
+
+            FloatingActionButton fabRequestRide = (FloatingActionButton) findViewById(R.id.fab_request_ride);
+            fabRequestRide.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mFloatingMenu.close(true);
+
+                    Intent intent = new Intent(MainActivity.this, NewRideRequestActivity.class);
+                    startActivityForResult(intent, Globals.NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE);
                 }
             });
         }
     }
 
-/***************************************************************************************************
+    @Override
+    public void onBackPressed() {
+        if (mFloatingMenu.isOpened()) {
+            mFloatingMenu.close(true);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    /***************************************************************************************************
  *
  * Other methods
  *

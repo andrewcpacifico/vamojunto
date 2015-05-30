@@ -71,11 +71,6 @@ public class ListMyRidesFragment extends Fragment {
     private static final int VIEW_PADRAO = 2;
 
     /**
-     * RecyclerView where the rides are displayed
-     */
-    private RecyclerView mRidesRecyclerView;
-
-    /**
      * LayoutManager used by the mRidesRecyclerView
      */
     private LinearLayoutManager mRidesLayoutManager;
@@ -98,11 +93,6 @@ public class ListMyRidesFragment extends Fragment {
     private TextView mErrorScreenMsgTextView;
 
     /**
-     * The {@link android.widget.Button} used to retry an action that failed on error screen.
-     */
-    private Button mErrorScreenRetryButton;
-
-    /**
      * Required default constructor
      */
     public ListMyRidesFragment() { }
@@ -111,7 +101,7 @@ public class ListMyRidesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_lista_caronas, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_list_my_rides, container, false);
 
         initComponents(rootView);
 
@@ -150,12 +140,12 @@ public class ListMyRidesFragment extends Fragment {
      */
     public void initComponents(View rootView) {
         // inits the RecyclerView
-        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
-        mRidesRecyclerView.setHasFixedSize(true);
+        RecyclerView ridesRecyclerView = (RecyclerView) rootView.findViewById(R.id.rides_recycler_view);
+        ridesRecyclerView.setHasFixedSize(true);
 
         // inits the RecyclerView LayoutManager
         mRidesLayoutManager = new LinearLayoutManager(rootView.getContext());
-        mRidesRecyclerView.setLayoutManager(mRidesLayoutManager);
+        ridesRecyclerView.setLayoutManager(mRidesLayoutManager);
 
         // inits the RecyclerView Adapter
         mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
@@ -170,24 +160,15 @@ public class ListMyRidesFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        mRidesRecyclerView.setAdapter(mRidesAdapter);
-
-        Button okButton = (Button) rootView.findViewById(R.id.ok_button);
-        okButton.setText(getText(R.string.offer_ride));
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewRideActivity.class);
-                getParentFragment().startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
-            }
-        });
+        ridesRecyclerView.setAdapter(mRidesAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
         // looks for the error screen views
         mErrorScreenMsgTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
-        mErrorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
-        mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
+
+        Button errorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        errorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadMyRides();

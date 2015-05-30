@@ -64,25 +64,31 @@
                     android:id="@+id/fab_offer_ride"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_edit"
+                    android:src="@drawable/ic_car_pool"
+
                     fab:fab_size="mini"
-                    fab:fab_label="Oferecer Carona" />
+                    fab:fab_label="@string/offer_ride"
+                    fab:fab_colorNormal="#05A1E4"
+                    fab:fab_colorPressed="#05A1E4"/>
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/fab_request_ride"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_edit"
-                    fab:fab_size="mini"
-                    fab:fab_label="Pedir Carona" />
+                    android:src="@drawable/ic_hand"
 
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/fab_send_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_edit"
+                    fab:fab_colorNormal="#E79335"
+                    fab:fab_colorPressed="#E79335"
                     fab:fab_size="mini"
-                    fab:fab_label="Enviar uma mensagem" />
+                    fab:fab_label="@string/request_ride" />
+
+                <!--<com.github.clans.fab.FloatingActionButton-->
+                    <!--android:id="@+id/fab_send_message"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:src="@drawable/ic_edit"-->
+                    <!--fab:fab_size="mini"-->
+                    <!--fab:fab_label="Enviar uma mensagem" />-->
 
             </com.github.clans.fab.FloatingActionMenu>
         </RelativeLayout>

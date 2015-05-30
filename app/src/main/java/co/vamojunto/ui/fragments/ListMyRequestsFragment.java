@@ -56,7 +56,7 @@ import co.vamojunto.util.NetworkUtil;
  *  A {@link android.support.v4.app.Fragment} to list all the rides that a user have requested.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.1.0
  * @since 0.1.0
  */
 public class ListMyRequestsFragment extends Fragment {
@@ -68,11 +68,6 @@ public class ListMyRequestsFragment extends Fragment {
     private static final int VIEW_PROGRESS = 0;
     private static final int VIEW_ERROR = 1;
     private static final int VIEW_DEFAULT = 2;
-
-    /**
-     * RecyclerView where the rides are displayed
-     */
-    private RecyclerView mRidesRecyclerView;
 
     /**
      * LayoutManager used by the mRidesRecyclerView
@@ -95,11 +90,6 @@ public class ListMyRequestsFragment extends Fragment {
      * The {@link android.widget.TextView} that displays a error message, on the error screen View
      */
     private TextView mErrorScreenMsgTextView;
-
-    /**
-     * The {@link android.widget.Button} used to retry an action that failed on error screen.
-     */
-    private Button mErrorScreenRetryButton;
 
     /**
      * Required default constructor
@@ -148,12 +138,11 @@ public class ListMyRequestsFragment extends Fragment {
      * @since 0.1.0
      */
     public void initComponents(View rootView) {
-        mRidesRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_requests_recycler_view);
-
-        mRidesRecyclerView.setHasFixedSize(true);
+        RecyclerView ridesRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_requests_recycler_view);
+        ridesRecyclerView.setHasFixedSize(true);
 
         mRequestsLayoutManager = new LinearLayoutManager(rootView.getContext());
-        mRidesRecyclerView.setLayoutManager(mRequestsLayoutManager);
+        ridesRecyclerView.setLayoutManager(mRequestsLayoutManager);
 
         mRequestsAdapter = new RequestsRecyclerViewAdapter(
             getActivity(),
@@ -171,24 +160,15 @@ public class ListMyRequestsFragment extends Fragment {
                 }
             }
         );
-        mRidesRecyclerView.setAdapter(mRequestsAdapter);
-
-        Button requestButton = (Button) rootView.findViewById(R.id.ok_button);
-        requestButton.setText(getText(R.string.request_ride));
-        requestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewRideRequestActivity.class);
-                getParentFragment().startActivityForResult(intent, NewRideRequestActivity.REQ_CODE);
-            }
-        });
+        ridesRecyclerView.setAdapter(mRequestsAdapter);
 
         mViewFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
         // looks for the error screen views
         mErrorScreenMsgTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
-        mErrorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
-        mErrorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
+
+        Button errorScreenRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        errorScreenRetryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadMyRequests();
