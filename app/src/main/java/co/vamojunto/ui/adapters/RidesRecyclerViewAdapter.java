@@ -41,6 +41,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * lists are displayed on the user's rides administration screen, and in the groups walls.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
+ *
+ * @version 1.0.0 First Version
+ * @version 1.1.0 Display a cancelled stamp, if the rid was cancelled.
+ *
  * @since 0.1.0
  */
 public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecyclerViewAdapter.ViewHolder> {
@@ -74,6 +78,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
         public TextView mDestinationTextView;
         public TextView mDateTextView;
         public TextView mTimeTextView;
+        public TextView mCancelledStampTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -84,6 +89,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
             mDestinationTextView = (TextView) itemView.findViewById(R.id.destination_text_view);
             mDateTextView = (TextView) itemView.findViewById(R.id.date_text_view);
             mTimeTextView = (TextView) itemView.findViewById(R.id.time_text_view);
+            mCancelledStampTextView = (TextView) itemView.findViewById(R.id.cancelled_stamp);
         }
     }
 
@@ -181,17 +187,21 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        RideOffer c = mDataset.get(position);
+        RideOffer offer = mDataset.get(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
-        holder.mDriverNameTextView.setText(c.getDriver().getName());
-        holder.mDriverImageView.setImageBitmap(c.getDriver().getProfileImage());
-        holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + c.getStartingPoint().getTitulo());
-        holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + c.getDestination().getTitulo());
-        holder.mDateTextView.setText(dateFormat.format(c.getDatetime().getTime()));
-        holder.mTimeTextView.setText(timeFormat.format(c.getDatetime().getTime()));
+        holder.mDriverNameTextView.setText(offer.getDriver().getName());
+        holder.mDriverImageView.setImageBitmap(offer.getDriver().getProfileImage());
+        holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + offer.getStartingPoint().getTitulo());
+        holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + offer.getDestination().getTitulo());
+        holder.mDateTextView.setText(dateFormat.format(offer.getDatetime().getTime()));
+        holder.mTimeTextView.setText(timeFormat.format(offer.getDatetime().getTime()));
+
+        if (! offer.isActive()) {
+            holder.mCancelledStampTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
