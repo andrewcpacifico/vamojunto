@@ -31,7 +31,8 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
 
-        android:src="@drawable/ic_launcher"/>
+        android:alpha="0.54"
+        android:src="@drawable/ic_people_black_24dp"/>
 
     <TextView android:id="@+id/rowText"
         android:layout_centerVertical="true"

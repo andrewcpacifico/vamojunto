@@ -63,8 +63,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      * @since 0.1.0
      */
     private static int mIcons[] = {
-            R.drawable.ic_ride_hand,
-            R.drawable.ic_menu_friends,
+            R.drawable.ic_hand_black_24dp,
+            R.drawable.ic_people_black_24dp,
             R.drawable.ic_drawer_ufam
     };
 
