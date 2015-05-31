@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ See LICENSE.txt
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+
+    android:background="@drawable/clickable_transparent_background_selector"
+    android:clickable="true"
+    style="@android:style/Widget.ActionButton">
+
+    <ImageView
+        android:id="@+id/hotlist_bell"
+        android:src="@drawable/ic_notifications_white_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_margin="0dp"
+        android:contentDescription="bell"
+        />
+
+    <TextView
+        android:id="@+id/hotlist_hot"
+
+        android:layout_alignTop="@id/hotlist_bell"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_width="wrap_content"
+
+        android:text="123"
+
+        android:background="@drawable/rounded_square"
+        android:gravity="center"
+        android:minWidth="13dp"
+        android:padding="1dp"
+        android:textSize="10sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+</RelativeLayout>

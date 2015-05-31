@@ -30,7 +30,7 @@ import co.vamojunto.ui.fragments.RideDetailsFragment;
 /**
  * Activity where the user can view the details of a specific ride.
  *
- * @author Andrew C. Pacifico <andrewpcpacifico@gmail.com>
+ * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @version 1.0.0
  * @since 0.1.0
  */
@@ -38,16 +38,21 @@ public class RideDetailsActivity extends ActionBarActivity {
 
     public static final String TAG = "RideDetailsActivity";
 
-    // constants used to define the input extras names
+    /**
+     * This constant is used to identify the ride to display, when a {@link co.vamojunto.model.Ride}
+     * is passed as an extra to this activity.
+     *
+     * @since 0.1.0
+     */
     public static final String EXTRA_RIDE = TAG + ".ride";
 
-    // constants used to define the input extras names
-    public static final String EXTRA_RIDE_ID = TAG + ".rideId";
-
     /**
-     * The Activity toolbar
+     * This constant is used to identify the id of the ride to display, when just the ride id is passed to
+     * this activity, a query is done to fetch the ride data.
+     *
+     * @since 0.1.0
      */
-    private Toolbar mToolbarActionBar;
+    public static final String EXTRA_RIDE_ID = TAG + ".rideId";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +70,21 @@ public class RideDetailsActivity extends ActionBarActivity {
 
     /**
      * Initializes the activity's App Bar
+     *
+     * @since 0.1.0
      */
     private void setupAppBar() {
-        mToolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        Toolbar toolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
 
-        setSupportActionBar(mToolbarActionBar);
+        setSupportActionBar(toolbarActionBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
      * Overriding the onBackPressed method, to make an "up" navigation when this activity is
      * opened from a notification.
+     *
+     * @since 0.1.0
      */
     @Override
     public void onBackPressed() {

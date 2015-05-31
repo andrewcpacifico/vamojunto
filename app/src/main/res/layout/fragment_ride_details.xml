@@ -17,9 +17,9 @@
   ~ See LICENSE.txt
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="co.vamojunto.ui.activities.RideDetailsActivity.RideDetailsFragment">
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <ViewFlipper
         android:id="@+id/flipper"
 
@@ -42,7 +42,6 @@
 
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/ask_button"
 
                 android:fillViewport="true"
                 >
@@ -230,7 +229,7 @@
                                 android:numColumns="2"
                                 android:stretchMode="columnWidth"
                                 android:gravity="center"
-                            />
+                                />
                             <LinearLayout
                                 android:gravity="center_horizontal"
                                 android:layout_width="match_parent"
@@ -258,21 +257,21 @@
                 </RelativeLayout> <!-- end of main panel -->
             </ScrollView> <!-- end of main content-->
 
-            <Button
-                android:id="@+id/ask_button"
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_ask_seat"
 
                 android:layout_alignParentBottom="true"
-                android:layout_width="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
+                android:src="@drawable/ic_hand"
 
-                android:padding="0dp"
-                android:text="@string/request_a_ride"
-                android:textColor="@color/white"
-                style="@style/Save.Button"
-                />
-
+                fab:fab_colorNormal="@color/ColorPrimary"
+                fab:fab_colorPressed="@color/ColorPrimaryDark"/>
 
         </RelativeLayout>
+
     </ViewFlipper>
 </RelativeLayout>

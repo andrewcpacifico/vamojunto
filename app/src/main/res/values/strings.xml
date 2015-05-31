@@ -218,6 +218,8 @@
     <string name="send">Enviar</string>
     <string name="ufam_feed_waiting_msg">Sua solicitação já foi enviada, por favor aguarde que já já te respondemos. =)</string>
     <string name="screentitle_ufam_feed">Caronas UFAM</string>
+    <string name="delete_ride">Excluir carona</string>
+    <string name="view_seat_requests">Visualizar os pedidos de lugar</string>
 
 
 </resources>

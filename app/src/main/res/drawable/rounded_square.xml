@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
   ~
@@ -17,18 +18,9 @@
   ~ See LICENSE.txt
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="co.vamojunto.ui.activities.RideDetailsActivity">
-
-    <item android:id="@+id/action_notifications"
-        android:icon="@drawable/ic_notifications_white_24dp"
-        app:actionLayout="@layout/action_bar_notification_icon"
-        app:showAsAction="always"
-        android:title="@string/view_seat_requests" />
-
-    <item android:id="@+id/action_delete" android:title="@string/delete_ride"
-        android:icon="@drawable/ic_delete_white_24dp" app:showAsAction="always" />
-
-</menu>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="6dp" />
+    <solid android:color="#ffff0000" />
+</shape>
