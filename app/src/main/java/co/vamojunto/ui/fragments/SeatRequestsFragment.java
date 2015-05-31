@@ -40,7 +40,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.adapters.SeatRequestRecyclerViewAdapter;
@@ -82,7 +82,7 @@ public class SeatRequestsFragment extends Fragment {
     /**
      * The ride to get the seat requests to show.
      */
-    private Ride mRide;
+    private RideOffer mRideOffer;
 
     /**
      * The {@link android.widget.TextView} that displays a error message, on the error screen View
@@ -125,7 +125,7 @@ public class SeatRequestsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_seat_requests, container, false);
 
         // retrieves the input ride
-        mRide = Ride.getStoredInstance(SeatRequestsActivity.INPUT_RIDE);
+        mRideOffer = RideOffer.getStoredInstance(SeatRequestsActivity.INPUT_RIDE);
 
         mHandler = new Handler();
 
@@ -255,7 +255,7 @@ public class SeatRequestsFragment extends Fragment {
         // checks the user network connection, before start the work
         if (NetworkUtil.isConnected(getActivity())) {
             // checks if the ride have any seat available, before confirm the seat request
-            if (mRide.getSeatsAvailable() == 0) {
+            if (mRideOffer.getSeatsAvailable() == 0) {
                 Toast.makeText(getActivity(),
                         getString(R.string.errormsg_no_seats_available),
                         Toast.LENGTH_LONG).show();
@@ -279,7 +279,7 @@ public class SeatRequestsFragment extends Fragment {
                         mAdapter.removeItem(position);
 
                         // decrements the number of seats available in mRide
-                        mRide.setSeatsAvailable(mRide.getSeatsAvailable() - 1);
+                        mRideOffer.setSeatsAvailable(mRideOffer.getSeatsAvailable() - 1);
 
                         mHandler.post(new Runnable() {
                             @Override
@@ -328,7 +328,7 @@ public class SeatRequestsFragment extends Fragment {
 
         //Loads the seat requests from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            SeatRequest.getWaitingByRide(mRide).continueWith(new Continuation<List<SeatRequest>, Void>() {
+            SeatRequest.getWaitingByRide(mRideOffer).continueWith(new Continuation<List<SeatRequest>, Void>() {
                 @Override
                 public Void then(Task<List<SeatRequest>> task) throws Exception {
                     // checks if task finished with no problems
@@ -339,7 +339,7 @@ public class SeatRequestsFragment extends Fragment {
                         // gets the list of items returned by task, and use it as mAdapter dataset
                         List<SeatRequest> lst = task.getResult();
                         for (SeatRequest sr: lst) {
-                            sr.setRide(mRide);
+                            sr.setRide(mRideOffer);
                         }
 
                         // checks if there are some requests sent to this ride, if any requests

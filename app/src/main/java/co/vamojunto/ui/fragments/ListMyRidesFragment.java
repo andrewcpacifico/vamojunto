@@ -44,11 +44,11 @@ import java.util.List;
 
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
-import co.vamojunto.model.Ride;
 import co.vamojunto.model.User;
 import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
@@ -125,7 +125,7 @@ public class ListMyRidesFragment extends Fragment {
 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE) {
-                final Ride c = Ride.getStoredInstance(NewRideActivity.RES_RIDE);
+                final RideOffer c = RideOffer.getStoredInstance(NewRideActivity.RES_RIDE);
 
                 // was necessary to use a delay to add the item to the screen, so that the RecyclerView
                 // could show the animation, and positioning at the new item
@@ -158,14 +158,14 @@ public class ListMyRidesFragment extends Fragment {
 
         // inits the RecyclerView Adapter
         mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
-                new ArrayList<Ride>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
+                new ArrayList<RideOffer>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(int position) {
-                Ride choosenRide = mRidesAdapter.getItem(position);
+                RideOffer choosenRideOffer = mRidesAdapter.getItem(position);
                 Intent intent = new Intent(ListMyRidesFragment.this.getActivity(),
                         RideDetailsActivity.class);
 
-                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                RideOffer.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRideOffer);
                 startActivity(intent);
             }
         });
@@ -191,7 +191,7 @@ public class ListMyRidesFragment extends Fragment {
      *
      * @param c Ride to be added to the UI.
      */
-    private void addItem(Ride c) {
+    private void addItem(RideOffer c) {
         mRidesAdapter.addItem(c);
 
         // after the item addition, scrolls the recyclerview to the first position, so that the user
@@ -212,9 +212,9 @@ public class ListMyRidesFragment extends Fragment {
 
         // Loads the rides from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
-            Ride.getByDriverAsync(User.getCurrentUser()).continueWith(new Continuation<List<Ride>, Void>() {
+            RideOffer.getByDriverAsync(User.getCurrentUser()).continueWith(new Continuation<List<RideOffer>, Void>() {
                 @Override
-                public Void then(final Task<List<Ride>> task) throws Exception {
+                public Void then(final Task<List<RideOffer>> task) throws Exception {
                     if (getActivity() != null) {
                         mHandler.post(new Runnable() {
                             @Override
@@ -222,15 +222,15 @@ public class ListMyRidesFragment extends Fragment {
                                 mViewFlipper.setDisplayedChild(VIEW_PADRAO);
 
                                 if (!task.isFaulted() && !task.isCancelled()) {
-                                    List<Ride> lstRides = task.getResult();
-                                    Collections.sort(lstRides, new Comparator<Ride>() {
+                                    List<RideOffer> lstRideOffers = task.getResult();
+                                    Collections.sort(lstRideOffers, new Comparator<RideOffer>() {
                                         @Override
-                                        public int compare(Ride lhs, Ride rhs) {
+                                        public int compare(RideOffer lhs, RideOffer rhs) {
                                             return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
                                         }
                                     });
 
-                                    mRidesAdapter.setDataset(lstRides);
+                                    mRidesAdapter.setDataset(lstRideOffers);
                                 } else {
                                     Log.e(TAG, "Error on load user offers", task.getError());
 

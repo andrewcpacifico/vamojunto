@@ -39,7 +39,7 @@ public class RideDetailsActivity extends ActionBarActivity {
     public static final String TAG = "RideDetailsActivity";
 
     /**
-     * This constant is used to identify the ride to display, when a {@link co.vamojunto.model.Ride}
+     * This constant is used to identify the ride to display, when a {@link co.vamojunto.model.RideOffer}
      * is passed as an extra to this activity.
      *
      * @since 0.1.0

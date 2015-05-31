@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -50,7 +50,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
     /**
      * The data to be displayed on the RecyclerView
      */
-    private List<Ride> mDataset;
+    private List<RideOffer> mDataset;
 
     /**
      * The RecyclerView Context
@@ -91,7 +91,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
         public void OnItemClick(int position);
     }
 
-    public RidesRecyclerViewAdapter(Context context, List<Ride> dataset, OnItemClickListener itemClickListener) {
+    public RidesRecyclerViewAdapter(Context context, List<RideOffer> dataset, OnItemClickListener itemClickListener) {
         this.mDataset = dataset;
         this.mContext = context;
         this.mHandler = new Handler(Looper.getMainLooper());
@@ -103,7 +103,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
      *
      * @param dataset O novo dataset.
      */
-    public void setDataset(List<Ride> dataset) {
+    public void setDataset(List<RideOffer> dataset) {
         this.mDataset = dataset;
 
         // notifies all the listeners that the dataset was changed. That action have to be executed
@@ -116,7 +116,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
         });
     }
 
-    public List<Ride> getDataset() {
+    public List<RideOffer> getDataset() {
         return this.mDataset;
     }
 
@@ -124,10 +124,10 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
      * Adds a new item to the dataset, then notifies all the listeners, so that the RecyclerView
      * is updated.
      *
-     * @param r The {@link co.vamojunto.model.Ride} to be added to the dataset and consequently
+     * @param r The {@link co.vamojunto.model.RideOffer} to be added to the dataset and consequently
      *          to the screen.
      */
-    public void addItem(Ride r) {
+    public void addItem(RideOffer r) {
         // the new item is added to the first position on the dataset,to be displayed at the top of the list
         this.mDataset.add(0, r);
 
@@ -142,17 +142,17 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
     }
 
     /**
-     * Returns a {@link co.vamojunto.model.Ride} in a specific position of the RecyclerView
+     * Returns a {@link co.vamojunto.model.RideOffer} in a specific position of the RecyclerView
      *
      * @param position The position of the Ride wanted.
-     * @return A {@link co.vamojunto.model.Ride} stored in a position of the dataset, or <code>null</code> if
+     * @return A {@link co.vamojunto.model.RideOffer} stored in a position of the dataset, or <code>null</code> if
      *         the position is invalid, or dataset is <code>null</code>
      */
-    public Ride getItem(int position) {
+    public RideOffer getItem(int position) {
         if (this.mDataset == null)
             return null;
 
-        Ride r = null;
+        RideOffer r = null;
         try {
             r = this.mDataset.get(position);
         } catch (IndexOutOfBoundsException e) {
@@ -181,7 +181,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Ride c = mDataset.get(position);
+        RideOffer c = mDataset.get(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));

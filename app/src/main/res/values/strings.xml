@@ -220,6 +220,8 @@
     <string name="screentitle_ufam_feed">Caronas UFAM</string>
     <string name="delete_ride">Excluir carona</string>
     <string name="view_seat_requests">Visualizar os pedidos de lugar</string>
+    <string name="cancelling_ride">Cancelando oferta de carona...</string>
+    <string name="errormsg_ride_cancel">Ocorreu um erro ao excluir a oferta de carona, por favor tente novamente.</string>
 
 
 </resources>

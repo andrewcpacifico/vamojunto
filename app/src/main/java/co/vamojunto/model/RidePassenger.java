@@ -70,11 +70,11 @@ public class RidePassenger extends ParseObject {
     /**
      * Get the ride field.
      *
-     * @return A {@link co.vamojunto.model.Ride} instance of the ride field.
+     * @return A {@link RideOffer} instance of the ride field.
      * @since 0.1.0
      */
-    public Ride getRide() {
-        return (Ride) get(FIELD_RIDE);
+    public RideOffer getRide() {
+        return (RideOffer) get(FIELD_RIDE);
     }
 
     /**
@@ -82,8 +82,8 @@ public class RidePassenger extends ParseObject {
      *
      * @since 0.1.0
      */
-    public void setRide(Ride ride) {
-        put(FIELD_RIDE, ride);
+    public void setRide(RideOffer rideOffer) {
+        put(FIELD_RIDE, rideOffer);
     }
 
 }

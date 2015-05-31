@@ -30,14 +30,12 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
-import com.parse.ParsePushBroadcastReceiver;
-import com.parse.PushService;
 import com.parse.SaveCallback;
 
 import co.vamojunto.model.Company;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.RequestMessage;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.RidePassenger;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.SeatRequest;
@@ -72,7 +70,7 @@ public class MyApplication extends Application {
         String clientId = getResources().getString(R.string.parse_client_id);
 
         ParseObject.registerSubclass(User.class);
-        ParseObject.registerSubclass(Ride.class);
+        ParseObject.registerSubclass(RideOffer.class);
         ParseObject.registerSubclass(RideRequest.class);
         ParseObject.registerSubclass(SeatRequest.class);
         ParseObject.registerSubclass(Friendship.class);

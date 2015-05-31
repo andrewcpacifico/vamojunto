@@ -47,7 +47,7 @@ import java.util.Map;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.adapters.RidesRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
@@ -165,14 +165,14 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
 
         // inits the RecyclerView Adapter
         mRidesAdapter = new RidesRecyclerViewAdapter(getActivity(),
-                new ArrayList<Ride>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
+                new ArrayList<RideOffer>(), new RidesRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(int position) {
-                Ride choosenRide = mRidesAdapter.getItem(position);
+                RideOffer choosenRideOffer = mRidesAdapter.getItem(position);
                 Intent intent = new Intent(AbstractListRideOffersFragment.this.getActivity(),
                         RideDetailsActivity.class);
 
-                Ride.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRide);
+                RideOffer.storeInstance(RideDetailsActivity.EXTRA_RIDE, choosenRideOffer);
                 startActivity(intent);
             }
         });
@@ -232,25 +232,25 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
         // if the user entered a value for starting point filtering, add it to the filter map
         String startingPoint = TextUtil.normalize(filterValues.getString(FILTER_STARTING_POINT));
         if (! startingPoint.equals("")) {
-            filterMap.put(Ride.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
+            filterMap.put(RideOffer.FIELD_LC_STARTING_POINT_TITLE, startingPoint);
         }
 
         // if the user entered a value for destination filtering, add it to the filter map
         String destination = TextUtil.normalize(filterValues.getString(FILTER_DESTINATION));
         if (! destination.equals("")) {
-            filterMap.put(Ride.FIELD_LC_DESTINATION_TITLE, destination);
+            filterMap.put(RideOffer.FIELD_LC_DESTINATION_TITLE, destination);
         }
 
-        this.filter(filterMap).continueWith(new Continuation<List<Ride>, Void>() {
+        this.filter(filterMap).continueWith(new Continuation<List<RideOffer>, Void>() {
             @Override
-            public Void then(final Task<List<Ride>> task) throws Exception {
+            public Void then(final Task<List<RideOffer>> task) throws Exception {
                 if (! task.isCancelled() && !task.isFaulted()) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             UIUtil.stopLoading();
 
-                            List<Ride> lst = task.getResult();
+                            List<RideOffer> lst = task.getResult();
                             mRidesAdapter.setDataset(lst);
 
                             if (lst.size() == 0) {
@@ -289,7 +289,7 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
      * @return A {@link java.util.List} with the filtered items to display on feed.
      * @since 0.1.0
      */
-    protected abstract Task<List<Ride>> filter(Map<String, String> filterValues);
+    protected abstract Task<List<RideOffer>> filter(Map<String, String> filterValues);
 
     /**
      * Getter for the fragment layout
@@ -317,7 +317,7 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
      * @return A {@link bolts.Task} containing the list as result.
      * @since 0.1.0
      */
-    protected abstract Task<List<Ride>> getRidesAsync();
+    protected abstract Task<List<RideOffer>> getRidesAsync();
 
     /**
      * TODO this method documentation
@@ -329,15 +329,15 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
         if (! isOfflineFeed() && ! NetworkUtil.isConnected(getActivity())) {
             displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
         } else {
-            Task<List<Ride>> loadRidesTask = getRidesAsync();
+            Task<List<RideOffer>> loadRidesTask = getRidesAsync();
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRidesTask != null) {
                 Log.i(TAG, "Loading rides...");
 
-                loadRidesTask.continueWith(new Continuation<List<Ride>, Void>() {
+                loadRidesTask.continueWith(new Continuation<List<RideOffer>, Void>() {
                     @Override
-                    public Void then(final Task<List<Ride>> task) throws Exception {
+                    public Void then(final Task<List<RideOffer>> task) throws Exception {
                         // check if Fragment is attached to some Activity, before change the view
                         if (getActivity() != null) {
                             // force the code to run on the main thread
@@ -347,12 +347,12 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
                                     mViewFlipper.setDisplayedChild(DEFAULT_VIEW);
 
                                     if (!task.isFaulted() && !task.isCancelled()) {
-                                        List<Ride> lstRides = task.getResult();
+                                        List<RideOffer> lstRideOffers = task.getResult();
 
-                                        mRidesAdapter.setDataset(lstRides);
+                                        mRidesAdapter.setDataset(lstRideOffers);
 
                                         // if there is no ride, displays a specific message to the user
-                                        if (lstRides.size() == 0) {
+                                        if (lstRideOffers.size() == 0) {
                                             displayNoRideMessage();
                                         }
                                     } else {

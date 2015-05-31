@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.User;
 
 /**
@@ -37,8 +37,8 @@ import co.vamojunto.model.User;
 public class RidesAsPassengerFragment extends AbstractListRideOffersFragment {
 
     @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getFilteredRidesAsPassengerAsync(User.getCurrentUser(), filterValues);
+    protected Task<List<RideOffer>> filter(Map<String, String> filterValues) {
+        return RideOffer.getFilteredRidesAsPassengerAsync(User.getCurrentUser(), filterValues);
     }
 
     @Override
@@ -54,8 +54,8 @@ public class RidesAsPassengerFragment extends AbstractListRideOffersFragment {
      * @since 0.1.0
      */
     @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getRidesAsPassengerAsync(User.getCurrentUser());
+    protected Task<List<RideOffer>> getRidesAsync() {
+        return RideOffer.getRidesAsPassengerAsync(User.getCurrentUser());
     }
 
 }

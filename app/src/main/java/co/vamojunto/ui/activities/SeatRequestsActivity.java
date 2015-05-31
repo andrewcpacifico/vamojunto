@@ -19,21 +19,12 @@
 
 package co.vamojunto.ui.activities;
 
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
-import bolts.Continuation;
-import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.SeatRequest;
 import co.vamojunto.ui.fragments.SeatRequestsFragment;
 
 /**

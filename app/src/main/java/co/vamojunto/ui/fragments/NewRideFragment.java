@@ -53,7 +53,7 @@ import co.vamojunto.ui.activities.GetLocationActivity;
 import co.vamojunto.ui.activities.NewRideActivity;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GeocodingHelper;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.Place;
 import co.vamojunto.model.User;
 
@@ -177,7 +177,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
             dataHora.set(Calendar.HOUR_OF_DAY, hora.get(Calendar.HOUR_OF_DAY));
             dataHora.set(Calendar.MINUTE, hora.get(Calendar.MINUTE));
 
-            final Ride c = new Ride(
+            final RideOffer c = new RideOffer(
                     dataHora,
                     (User) User.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
@@ -197,7 +197,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Ride.storeInstance(NewRideActivity.RES_RIDE, c);
+                                RideOffer.storeInstance(NewRideActivity.RES_RIDE, c);
 
                                 getActivity().setResult(Activity.RESULT_OK);
                                 getActivity().finish();

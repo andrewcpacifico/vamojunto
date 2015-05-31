@@ -38,8 +38,6 @@ import android.widget.ViewFlipper;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 

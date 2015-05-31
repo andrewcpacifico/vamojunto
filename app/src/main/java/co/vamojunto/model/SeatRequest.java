@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bolts.Continuation;
 import bolts.Task;
 
 /**
@@ -96,7 +95,7 @@ public class SeatRequest extends ParseObject {
      * @param r The ride wanted.
      * @param message The message sent by the requester.
      */
-    public SeatRequest(User u, Ride r, String message) {
+    public SeatRequest(User u, RideOffer r, String message) {
         this.setUser(u);
         this.setRide(r);
         this.setMessage(message);
@@ -196,7 +195,7 @@ public class SeatRequest extends ParseObject {
      * @param r The ride to get the requests.
      * @return A {@link bolts.Task} that returns the list, if no error occurs..
      */
-    public static Task<List<SeatRequest>> getWaitingByRide(Ride r) {
+    public static Task<List<SeatRequest>> getWaitingByRide(RideOffer r) {
         final Task<List<SeatRequest>>.TaskCompletionSource tcs = Task.create();
 
         ParseQuery<SeatRequest> query = ParseQuery.getQuery(SeatRequest.class);
@@ -235,14 +234,14 @@ public class SeatRequest extends ParseObject {
         put(FIELD_USER_ID, myUser);
     }
 
-    public Ride getRide() {
-        return (Ride) get(FIELD_RIDE_ID);
+    public RideOffer getRide() {
+        return (RideOffer) get(FIELD_RIDE_ID);
     }
 
-    public void setRide(Ride r) {
-        Ride myRide = Ride.createWithoutData(Ride.class, r.getId());
+    public void setRide(RideOffer r) {
+        RideOffer myRideOffer = RideOffer.createWithoutData(RideOffer.class, r.getId());
 
-        put(FIELD_RIDE_ID, myRide);
+        put(FIELD_RIDE_ID, myRideOffer);
     }
 
     private int getStatus() {

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import bolts.Task;
-import co.vamojunto.model.Ride;
 import co.vamojunto.model.RideRequest;
 
 /**

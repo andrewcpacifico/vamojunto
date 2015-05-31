@@ -26,8 +26,7 @@ import java.util.Map;
 
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
-import co.vamojunto.model.User;
+import co.vamojunto.model.RideOffer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,13 +63,13 @@ public class ListUFAMOffersFragment extends AbstractListRideOffersFragment {
     }
 
     @Override
-    protected Task<List<Ride>> getRidesAsync() {
-        return Ride.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE);
+    protected Task<List<RideOffer>> getRidesAsync() {
+        return RideOffer.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE);
     }
 
     @Override
-    protected Task<List<Ride>> filter(Map<String, String> filterValues) {
-        return Ride.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE, filterValues);
+    protected Task<List<RideOffer>> filter(Map<String, String> filterValues) {
+        return RideOffer.getOffersByCompany(UFAMFeedFragment.COMPANY_CODE, filterValues);
     }
 
 }

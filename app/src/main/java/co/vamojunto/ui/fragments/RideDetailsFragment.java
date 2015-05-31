@@ -52,7 +52,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
-import co.vamojunto.model.Ride;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
@@ -61,6 +61,7 @@ import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.widget.ExpandableHeightGridView;
 import co.vamojunto.util.DateUtil;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.UIUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -180,7 +181,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      *
      * @since 0.1.0
      */
-    private Ride mRide;
+    private RideOffer mRideOffer;
 
     /**
      * This field is used when no ride instance is passed to activity. In this cases a ride id is
@@ -269,7 +270,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         mRootView = inflater.inflate(R.layout.fragment_ride_details, container, false);
 
         // gets the data sent to activity
-        mRide = Ride.getStoredInstance(RideDetailsActivity.EXTRA_RIDE);
+        mRideOffer = RideOffer.getStoredInstance(RideDetailsActivity.EXTRA_RIDE);
 
         mHandler = new Handler();
 
@@ -288,7 +289,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         super.onStart();
 
         // if the ride data was already fetched, show the ride passengers on screen
-        if (mRide != null) {
+        if (mRideOffer != null) {
             showPassengers();
         }
     }
@@ -317,7 +318,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View v) {
                 // sends the ride to SeatRequestsActivity
-                Ride.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRide);
+                RideOffer.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRideOffer);
 
                 Intent intent = new Intent(getActivity(), SeatRequestsActivity.class);
                 startActivity(intent);
@@ -347,11 +348,44 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             } else {
                 getActivity().finish();
             }
-        } else {
-            Toast.makeText(getActivity(), "Teste", Toast.LENGTH_LONG).show();
+        } else if (id == R.id.action_delete) {
+            deleteMenuItemAction();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Called when the delete menu item is clicked by user. This method is responsible for cancel
+     * the ride offer.
+     *
+     * @since 0.4.0
+     */
+    private void deleteMenuItemAction() {
+        UIUtil.startLoading(getActivity(), getString(R.string.cancelling_ride));
+        mRideOffer.cancel().continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(final Task<Void> task) throws Exception {
+                UIUtil.stopLoading();
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (task.isFaulted()) {
+                            Toast.makeText(
+                                    getActivity(),
+                                    getString(R.string.errormsg_ride_cancel),
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+                            Log.e(TAG, "Error on cancel ride", task.getError());
+                        }
+                    }
+                });
+
+                return null;
+            }
+        });
     }
 
     /**
@@ -402,7 +436,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         // if no ride was sent to activity, fetch ride data and shows a progress bar to user while
         // this process is being executed
-        if (mRide == null) {
+        if (mRideOffer == null) {
             mRideId = getActivity().getIntent()
                     .getStringExtra(RideDetailsActivity.EXTRA_RIDE_ID);
             fetchRideData();
@@ -419,8 +453,8 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      */
     private void displayDriverMenu() {
         if (
-            mDeleteMenuItem != null && mNotificationMenuItem != null && mRide != null
-                && mRide.getDriver().equals(User.getCurrentUser())
+            mDeleteMenuItem != null && mNotificationMenuItem != null && mRideOffer != null
+                && mRideOffer.getDriver().equals(User.getCurrentUser())
         ) {
             mDeleteMenuItem.setVisible(true);
             mNotificationMenuItem.setVisible(true);
@@ -449,25 +483,25 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      */
     private void bindRideData() {
         // finishes the method if mRide have no data to display
-        if (mRide == null) return;
+        if (mRideOffer == null) return;
 
         // checks if the driver have a profile image
-        if (mRide.getDriver().getProfileImage() != null)
-            mDriverImageView.setImageBitmap(mRide.getDriver().getProfileImage());
+        if (mRideOffer.getDriver().getProfileImage() != null)
+            mDriverImageView.setImageBitmap(mRideOffer.getDriver().getProfileImage());
 
-        mDriverNameTextView.setText(mRide.getDriver().getName());
+        mDriverNameTextView.setText(mRideOffer.getDriver().getName());
         mStartingPointTextView.setText(getString(R.string.from) + ": " +
-                mRide.getStartingPoint().getTitulo());
+                mRideOffer.getStartingPoint().getTitulo());
         mDestinationTextView.setText(getString(R.string.to) + ": " +
-                mRide.getDestination().getTitulo());
+                mRideOffer.getDestination().getTitulo());
         mDatetimeTextView.setText(getString(R.string.when) + ": " +
-                DateUtil.getFormattedDateTime(getActivity(), mRide.getDatetime()));
-        mDetailsTextView.setText(getString(R.string.details) + ": " + mRide.getDetails());
+                DateUtil.getFormattedDateTime(getActivity(), mRideOffer.getDatetime()));
+        mDetailsTextView.setText(getString(R.string.details) + ": " + mRideOffer.getDetails());
 
         FloatingActionButton fabAskSeat = (FloatingActionButton) mRootView.findViewById(R.id.fab_ask_seat);
-        boolean isDriver = mRide.getDriver().equals(User.getCurrentUser());
+        boolean isDriver = mRideOffer.getDriver().equals(User.getCurrentUser());
 
-        if (isDriver || mRide.getSeatsAvailable() == 0) {
+        if (isDriver || mRideOffer.getSeatsAvailable() == 0) {
             fabAskSeat.setVisibility(View.GONE);
         } else {
             fabAskSeat.setOnClickListener(new View.OnClickListener() {
@@ -521,9 +555,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 //            });
 //        }
 
-        if (mRide.getSeatsAvailable() > 0) {
+        if (mRideOffer.getSeatsAvailable() > 0) {
             mSeatsAvailableTextView.setText(getString(R.string.seats_available) + ": "
-                    + mRide.getSeatsAvailable());
+                    + mRideOffer.getSeatsAvailable());
         } else {
             mSeatsAvailableTextView.setText(getString(R.string.no_seats_available));
         }
@@ -573,7 +607,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @since 0.1.0
      */
     private void requestSeat(String message) {
-        final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRide, message);
+        final SeatRequest request = new SeatRequest(User.getCurrentUser(), mRideOffer, message);
 
         // checks if user is connected to the Internet
         if ( ! NetworkUtil.isConnected(getActivity())) {
@@ -667,7 +701,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_PROGRESS);
 
         if (NetworkUtil.isConnected(getActivity())) {
-            mRide.getPassengers().continueWith(new Continuation<List<User>, Void>() {
+            mRideOffer.getPassengers().continueWith(new Continuation<List<User>, Void>() {
                 @Override
                 public Void then(Task<List<User>> task) throws Exception {
                     if (!task.isCancelled() && !task.isFaulted()) {
@@ -735,16 +769,16 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
             Log.i(TAG, "Fetching ride data to display...");
 
-            ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
-            query.include(Ride.FIELD_DRIVER);
-            query.getInBackground(mRideId).continueWith(new Continuation<Ride, Void>() {
+            ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
+            query.include(RideOffer.FIELD_DRIVER);
+            query.getInBackground(mRideId).continueWith(new Continuation<RideOffer, Void>() {
                 @Override
-                public Void then(Task<Ride> task) throws Exception {
+                public Void then(Task<RideOffer> task) throws Exception {
                     if (!task.isCancelled() && !task.isFaulted()) {
                         Log.i(TAG, "Ride data fetched.");
 
                         // task result contains the ride instance with complete data for mRide
-                        mRide = task.getResult();
+                        mRideOffer = task.getResult();
 
                         // visual components have to be executed on the main thread
                         mHandler.post(new Runnable() {

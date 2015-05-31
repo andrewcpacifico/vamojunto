@@ -21,6 +21,7 @@ package co.vamojunto.model;
 
 import com.parse.FindCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -39,11 +40,11 @@ import co.vamojunto.util.TextUtil;
  * System's Ride Model
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.1.0
  * @since 0.1.0
  */
 @ParseClassName("Ride")
-public class Ride extends ParseObject {
+public class RideOffer extends ParseObject {
 
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_DATETIME = "datetime";
@@ -58,15 +59,41 @@ public class Ride extends ParseObject {
     public static final String FIELD_LC_DESTINATION_TITLE = "lc_destination_title";
     public static final String FIELD_SEATS = "seats";
     public static final String FIELD_DETAILS = "details";
+    public static final String FIELD_STATUS = "status";
 
-    private static Map<String, Ride> instances = new HashMap<String, Ride>();
+    public enum Status {
+        ACTIVE(1), CANCELLED(-1);
 
-    public static void storeInstance(String key, Ride value) {
+        private int mCode;
+
+        private static Map<Integer, Status> mMap = new HashMap<>();
+
+        static {
+            mMap.put(1, ACTIVE);
+            mMap.put(-1, CANCELLED);
+        }
+
+        Status(int code) {
+            mCode = code;
+        }
+
+        public static Status valueOf(int code) {
+            return mMap.get(code);
+        }
+
+        public int getValue() {
+            return mCode;
+        }
+    }
+
+    private static Map<String, RideOffer> instances = new HashMap<String, RideOffer>();
+
+    public static void storeInstance(String key, RideOffer value) {
         instances.put(key, value);
     }
 
-    public static Ride getStoredInstance(String key) {
-        Ride r = instances.get(key);
+    public static RideOffer getStoredInstance(String key) {
+        RideOffer r = instances.get(key);
         instances.remove(key);
 
         return r;
@@ -75,20 +102,29 @@ public class Ride extends ParseObject {
     /**
      * Required default constructor
      */
-    public Ride() { }
+    public RideOffer() { }
 
-    public Ride(Calendar datetime, User driver, int seats,
-                String details, Place startingPoint, Place destination) {
+    public RideOffer(Calendar datetime, User driver, int seats,
+                     String details, Place startingPoint, Place destination) {
         setDatetime(datetime);
         setDriver(driver);
         setSeatsAvailable(seats);
         setDetails(details);
         setStartingPoint(startingPoint);
         setDestination(destination);
+        setStatus(Status.ACTIVE);
     }
 
     public String getId() {
         return getObjectId();
+    }
+
+    public Status getStatus() {
+        return Status.valueOf(getInt(FIELD_STATUS));
+    }
+
+    public void setStatus(Status status) {
+        put(FIELD_STATUS, status.getValue());
     }
 
     public Calendar getDatetime() {
@@ -155,6 +191,26 @@ public class Ride extends ParseObject {
     }
 
     /**
+     * Cancel the ride offer. The driver can cancel the ride offer on the ride details screen. When
+     * ge does that, all ride passengers are notified and the ride is marked as canceled on the
+     * cloud.
+     *
+     * The ride is still visible for a couple of days (the number of days not defined yet), and will
+     * be displayed as canceled to other app users, than it will be effectively deleted from the
+     * database.
+     *
+     * @since 0.4.0
+     */
+    public Task<Void> cancel() {
+        setStatus(Status.CANCELLED);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", getId());
+
+        return ParseCloud.callFunctionInBackground("cancelRideOffer", params);
+    }
+
+    /**
      * Retrieves a list of rides, that have a specific user as driver, ie, retrieves all
      * the rides offered by that user.
      *
@@ -162,20 +218,20 @@ public class Ride extends ParseObject {
      * @return A {@link bolts.Task}that finishes after the search, if all occurs well,
      *         this {@link bolts.Task} will contain a list of rides.
      */
-    public static Task<List<Ride>> getByDriverAsync(final User u) {
-        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+    public static Task<List<RideOffer>> getByDriverAsync(final User u) {
+        final Task<List<RideOffer>>.TaskCompletionSource tcs = Task.create();
 
-        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
         query.whereEqualTo(FIELD_DRIVER, u);
 
-        query.findInBackground(new FindCallback<Ride>() {
+        query.findInBackground(new FindCallback<RideOffer>() {
             @Override
-            public void done(List<Ride> rides, ParseException e) {
+            public void done(List<RideOffer> rideOffers, ParseException e) {
                 if ( e == null ) {
-                    tcs.setResult(rides);
+                    tcs.setResult(rideOffers);
                 } else {
                     tcs.setError(e);
                 }
@@ -223,15 +279,15 @@ public class Ride extends ParseObject {
      * @param currentUser The user to get the friends offers.
      * @return A {@link bolts.Task} containing the result of the operation.
      */
-    public static Task<List<Ride>> getFriendsOffersAsync(User currentUser) {
-        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+    public static Task<List<RideOffer>> getFriendsOffersAsync(User currentUser) {
+        final Task<List<RideOffer>>.TaskCompletionSource tcs = Task.create();
 
         // selects all friendships where the currentUser is the follower
         ParseQuery<Friendship> qFriendship = ParseQuery.getQuery(Friendship.class);
         qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, currentUser);
 
         // gets all rides offered by the users followed by the currentUser
-        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
         query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
 
         // includes the driver data, to display on list screen
@@ -239,11 +295,11 @@ public class Ride extends ParseObject {
 
         query.orderByDescending(FIELD_CREATED_AT);
 
-        query.findInBackground(new FindCallback<Ride>() {
+        query.findInBackground(new FindCallback<RideOffer>() {
             @Override
-            public void done(List<Ride> rides, ParseException e) {
+            public void done(List<RideOffer> rideOffers, ParseException e) {
                 if ( e == null ) {
-                    tcs.setResult(rides);
+                    tcs.setResult(rideOffers);
                 } else {
                     tcs.setError(e);
                 }
@@ -259,8 +315,8 @@ public class Ride extends ParseObject {
      * @param user The user to look for the rides.
      * @return A {@link bolts.Task} containing a {@link java.util.List} of rides as result.
      */
-    public static Task<List<Ride>> getRidesAsPassengerAsync(User user) {
-        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+    public static Task<List<RideOffer>> getRidesAsPassengerAsync(User user) {
+        final Task<List<RideOffer>>.TaskCompletionSource tcs = Task.create();
 
         // creates a query to look for all rows on RidePassenger table where user is the passenger
         // the query includes the ride field, thereby the query result will contain all rides
@@ -268,7 +324,7 @@ public class Ride extends ParseObject {
         ParseQuery<RidePassenger> passengerQuery = ParseQuery.getQuery(RidePassenger.class);
         passengerQuery.whereEqualTo(RidePassenger.FIELD_PASSENGER, user);
         passengerQuery.include(RidePassenger.FIELD_RIDE);
-        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + Ride.FIELD_DRIVER);
+        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + RideOffer.FIELD_DRIVER);
 
         // run the query in background, on the query completion processes the method return
         passengerQuery.findInBackground().continueWith(new Continuation<List<RidePassenger>, Void>() {
@@ -284,7 +340,7 @@ public class Ride extends ParseObject {
                     List<RidePassenger> passengerList = task.getResult();
 
                     // the list to use as task result
-                    List<Ride> resultList = new ArrayList<Ride>();
+                    List<RideOffer> resultList = new ArrayList<RideOffer>();
 
                     // iterate over the RidePassenger records to get only the rides, and adds them
                     // to resultList
@@ -308,10 +364,10 @@ public class Ride extends ParseObject {
      * @param user The user to get the friends offers.
      * @param filterValues Filters to apply on search.
      * @return A {@link bolts.Task} with the resulting list.
-     * @see co.vamojunto.model.Ride#getFriendsOffersAsync
+     * @see RideOffer#getFriendsOffersAsync
      * @since 0.1.0
      */
-    public static Task<List<Ride>> getFilteredFriendsOffersAsync(
+    public static Task<List<RideOffer>> getFilteredFriendsOffersAsync(
             User user,
             Map<String, String> filterValues
     ) {
@@ -320,7 +376,7 @@ public class Ride extends ParseObject {
         qFriendship.whereEqualTo(Friendship.FIELD_FOLLOWER, user);
 
         // gets all rides offered by the users followed by the user
-        ParseQuery<Ride> query = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
         query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
 
         // includes the driver data, to display on list screen
@@ -349,23 +405,23 @@ public class Ride extends ParseObject {
      * @param user The user to get the list of rides as a passenger.
      * @param filterValues The filters to apply on search.
      * @return A {@link Task} containing the filtered list of rides.
-     * @see Ride#getRidesAsPassengerAsync(User)
+     * @see RideOffer#getRidesAsPassengerAsync(User)
      * @since 0.1.0
      */
-    public static Task<List<Ride>> getFilteredRidesAsPassengerAsync(
+    public static Task<List<RideOffer>> getFilteredRidesAsPassengerAsync(
             User user,
             Map<String, String> filterValues
     ) {
-        final Task<List<Ride>>.TaskCompletionSource tcs = Task.create();
+        final Task<List<RideOffer>>.TaskCompletionSource tcs = Task.create();
 
         // a query to filter the results by ride fields
-        ParseQuery<Ride> rideQuery = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> rideQuery = ParseQuery.getQuery(RideOffer.class);
 
         // filter by starting point
         String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
         if (startingPoint != null) {
             rideQuery.whereStartsWith(
-                    Ride.FIELD_LC_STARTING_POINT_TITLE,
+                    RideOffer.FIELD_LC_STARTING_POINT_TITLE,
                     TextUtil.normalize(startingPoint)
             );
         }
@@ -375,7 +431,7 @@ public class Ride extends ParseObject {
         // that user is passenger
         ParseQuery<RidePassenger> passengerQuery = ParseQuery.getQuery(RidePassenger.class);
         passengerQuery.include(RidePassenger.FIELD_RIDE);
-        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + Ride.FIELD_DRIVER);
+        passengerQuery.include(RidePassenger.FIELD_RIDE + "." + RideOffer.FIELD_DRIVER);
 
         // filter by passenger
         passengerQuery.whereEqualTo(RidePassenger.FIELD_PASSENGER, user);
@@ -397,7 +453,7 @@ public class Ride extends ParseObject {
                     List<RidePassenger> passengerList = task.getResult();
 
                     // the list to use as task result
-                    List<Ride> resultList = new ArrayList<Ride>();
+                    List<RideOffer> resultList = new ArrayList<RideOffer>();
 
                     // iterate over the RidePassenger records to get only the rides, and adds them
                     // to resultList
@@ -423,7 +479,7 @@ public class Ride extends ParseObject {
      * @return The {@link bolts.Task} with the result.
      * @since 0.3.0
      */
-    public static Task<List<Ride>> getOffersByCompany(String code) {
+    public static Task<List<RideOffer>> getOffersByCompany(String code) {
         // select the company with the given code
         ParseQuery<Company> companyQuery = ParseQuery.getQuery(Company.class);
         companyQuery.whereEqualTo(Company.FIELD_CODE, code);
@@ -434,7 +490,7 @@ public class Ride extends ParseObject {
         userCompanyQuery.whereMatchesQuery(UserCompany.FIELD_COMPANY, companyQuery);
         userCompanyQuery.whereEqualTo(UserCompany.FIELD_STATUS, UserCompany.Status.APPROVED.getValue());
 
-        ParseQuery<Ride> rideQuery = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> rideQuery = ParseQuery.getQuery(RideOffer.class);
         rideQuery.whereMatchesKeyInQuery(FIELD_DRIVER, UserCompany.FIELD_USER, userCompanyQuery);
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
         rideQuery.include(FIELD_DRIVER);
@@ -452,7 +508,7 @@ public class Ride extends ParseObject {
      * @return The {@link bolts.Task} with the result.
      * @since 0.3.0
      */
-    public static Task<List<Ride>> getOffersByCompany(String code, Map<String, String> filters) {
+    public static Task<List<RideOffer>> getOffersByCompany(String code, Map<String, String> filters) {
         // select the company with the given code
         ParseQuery<Company> companyQuery = ParseQuery.getQuery(Company.class);
         companyQuery.whereEqualTo(Company.FIELD_CODE, code);
@@ -463,16 +519,16 @@ public class Ride extends ParseObject {
         userCompanyQuery.whereMatchesQuery(UserCompany.FIELD_COMPANY, companyQuery);
         userCompanyQuery.whereEqualTo(UserCompany.FIELD_STATUS, UserCompany.Status.APPROVED.getValue());
 
-        ParseQuery<Ride> rideQuery = ParseQuery.getQuery(Ride.class);
+        ParseQuery<RideOffer> rideQuery = ParseQuery.getQuery(RideOffer.class);
         rideQuery.whereMatchesKeyInQuery(FIELD_DRIVER, UserCompany.FIELD_USER, userCompanyQuery);
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
         rideQuery.include(FIELD_DRIVER);
         rideQuery.orderByDescending(FIELD_CREATED_AT);
 
         // filter by starting point
-        String startingPointFIlter = filters.get(FIELD_LC_STARTING_POINT_TITLE);
-        if (startingPointFIlter != null) {
-            rideQuery.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPointFIlter);
+        String startingPointFilter = filters.get(FIELD_LC_STARTING_POINT_TITLE);
+        if (startingPointFilter != null) {
+            rideQuery.whereStartsWith(FIELD_LC_STARTING_POINT_TITLE, startingPointFilter);
         }
 
         // filter by destination
@@ -483,4 +539,5 @@ public class Ride extends ParseObject {
 
         return rideQuery.findInBackground();
     }
+
 }
