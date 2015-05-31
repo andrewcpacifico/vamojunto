@@ -454,7 +454,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     private void displayDriverMenu() {
         if (
             mDeleteMenuItem != null && mNotificationMenuItem != null && mRideOffer != null
-                && mRideOffer.getDriver().equals(User.getCurrentUser())
+                && mRideOffer.getDriver().equals(User.getCurrentUser()) && mRideOffer.isActive()
         ) {
             mDeleteMenuItem.setVisible(true);
             mNotificationMenuItem.setVisible(true);
@@ -565,7 +565,11 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         // displays the main screen
         mViewFlipper.setDisplayedChild(VIEW_MAIN);
 
-        showPassengers();
+        if (mRideOffer.isActive()) {
+            showPassengers();
+        } else {
+            mRootView.findViewById(R.id.cancelled_view).setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -698,6 +702,10 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @since 0.1.0
      */
     private void showPassengers() {
+        if (! mRideOffer.isActive()) {
+            return;
+        }
+
         mPassengersViewFlipper.setDisplayedChild(PASSENGERS_VIEW_PROGRESS);
 
         if (NetworkUtil.isConnected(getActivity())) {

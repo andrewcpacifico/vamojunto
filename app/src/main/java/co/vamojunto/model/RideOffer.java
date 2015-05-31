@@ -130,6 +130,10 @@ public class RideOffer extends ParseObject {
         put(FIELD_STATUS, status.getValue());
     }
 
+    public boolean isActive() {
+        return this.getStatus() == Status.ACTIVE;
+    }
+
     public Calendar getDatetime() {
         Calendar c = Calendar.getInstance();
         c.setTime(getDate(FIELD_DATETIME));

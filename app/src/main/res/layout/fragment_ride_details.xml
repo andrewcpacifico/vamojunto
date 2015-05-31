@@ -36,7 +36,10 @@
         <include
             layout="@layout/layout_default_error_screen" />
 
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
             <ScrollView
                 android:id="@+id/main_content"
 
@@ -270,6 +273,28 @@
 
                 fab:fab_colorNormal="@color/ColorPrimary"
                 fab:fab_colorPressed="@color/ColorPrimaryDark"/>
+
+            <LinearLayout
+                android:id="@+id/cancelled_view"
+
+                android:background="#70ffffff"
+                android:clickable="true"
+                android:gravity="center"
+                android:visibility="gone"
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:background="@drawable/red_border"
+                    android:rotation="-25"
+                    android:padding="10dp"
+                    android:text="CANCELADA"
+                    android:textSize="40sp"
+                    android:textColor="@android:color/holo_red_dark"/>
+            </LinearLayout>
 
         </RelativeLayout>
 
