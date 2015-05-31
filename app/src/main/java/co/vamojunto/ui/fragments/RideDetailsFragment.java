@@ -29,6 +29,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.DialogPreference;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -44,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.clans.fab.FloatingActionButton;
 import com.parse.ParseQuery;
 
@@ -362,31 +364,59 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @since 0.4.0
      */
     private void deleteMenuItemAction() {
-        UIUtil.startLoading(getActivity(), getString(R.string.cancelling_ride));
-        mRideOffer.cancel().continueWith(new Continuation<Void, Void>() {
+        MaterialDialog.Builder confirmDialog =
+                new MaterialDialog.Builder(getActivity())
+                    .title(R.string.cancel_ride_confirmation_title)
+                    .content(R.string.cancel_ride_confirmation_message)
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no);
+
+        confirmDialog.callback(new MaterialDialog.ButtonCallback() {
             @Override
-            public Void then(final Task<Void> task) throws Exception {
-                UIUtil.stopLoading();
-
-                mHandler.post(new Runnable() {
+            public void onPositive(MaterialDialog dialog) {
+                UIUtil.startLoading(getActivity(), getString(R.string.cancelling_ride));
+                mRideOffer.cancel().continueWith(new Continuation<Void, Void>() {
                     @Override
-                    public void run() {
-                        if (task.isFaulted()) {
-                            Toast.makeText(
-                                    getActivity(),
-                                    getString(R.string.errormsg_ride_cancel),
-                                    Toast.LENGTH_LONG
-                            ).show();
+                    public Void then(final Task<Void> task) throws Exception {
+                        UIUtil.stopLoading();
 
-                            Log.e(TAG, "Error on cancel ride", task.getError());
-                        }
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!task.isFaulted() && !task.isCancelled()) {
+                                    new MaterialDialog.Builder(getActivity())
+                                            .title(R.string.ride_offer_cancelled_title)
+                                            .content(R.string.ride_offer_successfully_cancelled)
+                                            .positiveText(R.string.ok)
+                                            .dismissListener(new DialogInterface.OnDismissListener() {
+                                                @Override
+                                                public void onDismiss(DialogInterface dialog) {
+                                                    bindRideData();
+                                                    displayDriverMenu();
+                                                }
+                                            })
+                                            .show();
+                                } else if (task.isFaulted()) {
+                                    new MaterialDialog.Builder(getActivity())
+                                            .title(R.string.error)
+                                            .content(R.string.errormsg_ride_cancel)
+                                            .positiveText(R.string.ok)
+                                            .show();
+
+                                    Log.e(TAG, "Error on cancel ride", task.getError());
+                                }
+                            }
+                        });
+
+                        return null;
                     }
                 });
-
-                return null;
             }
         });
+
+        confirmDialog.show();
     }
+
 
     /**
      * Initializes the screen
@@ -452,12 +482,14 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * @since 0.4.0
      */
     private void displayDriverMenu() {
-        if (
-            mDeleteMenuItem != null && mNotificationMenuItem != null && mRideOffer != null
-                && mRideOffer.getDriver().equals(User.getCurrentUser()) && mRideOffer.isActive()
-        ) {
-            mDeleteMenuItem.setVisible(true);
-            mNotificationMenuItem.setVisible(true);
+        if (mDeleteMenuItem != null && mNotificationMenuItem != null && mRideOffer != null) {
+            if (mRideOffer.getDriver().equals(User.getCurrentUser()) && mRideOffer.isActive()) {
+                mDeleteMenuItem.setVisible(true);
+                mNotificationMenuItem.setVisible(true);
+            } else {
+                mDeleteMenuItem.setVisible(false);
+                mNotificationMenuItem.setVisible(false);
+            }
         }
     }
 

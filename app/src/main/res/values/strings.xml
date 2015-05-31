@@ -224,7 +224,18 @@
     <string name="delete_ride">Excluir carona</string>
     <string name="view_seat_requests">Visualizar os pedidos de lugar</string>
     <string name="cancelling_ride">Cancelando oferta de carona...</string>
-    <string name="errormsg_ride_cancel">Ocorreu um erro ao excluir a oferta de carona, por favor tente novamente.</string>
+    <string name="errormsg_ride_cancel">
+        Ocorreu um erro ao excluir a oferta de carona, por favor tente novamente.\n
+        Se o erro persistir por favor entre em contato com a nossa equipe.
+    </string>
+    <string name="ride_offer_successfully_cancelled">A oferta de carona foi cancelada com sucesso. Todos os passageiros serão notificados do cancelamento, o registro será apagado em breve.</string>
+    <string name="cancel_ride_confirmation_title">Deseja cancelar a oferta?</string>
+    <string name="cancel_ride_confirmation_message">Tem certeza que deseja cancelar esta oferta de carona? Esta operação não poderá ser desfeita!</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="ride_offer_cancelled_title">Oferta de carona cancelada</string>
+    <string name="ok">Ok</string>
+    <string name="error">Erro</string>
 
 
 </resources>
