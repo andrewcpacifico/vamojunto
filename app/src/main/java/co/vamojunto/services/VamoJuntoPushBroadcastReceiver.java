@@ -42,7 +42,11 @@ import co.vamojunto.ui.activities.RideDetailsActivity;
  * to application.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ *
+ * @version 1.0.0 First version
+ * @version 1.0.1 Added support for notifications sent when a ride offer is cancelled, on that
+ *                situation, all ride passengers are notified.
+ *
  * @since 0.1.0
  */
 public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
@@ -69,6 +73,13 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      * @since 0.1.0
      */
     private static final int REQUEST_MSG_RECEIVED = 3;
+
+    /**
+     * Code for notifications pushed when a ride offer is cancelled by driver.
+     *
+     * @since 0.4.0
+     */
+    private static final int RIDE_OFFER_CANCELLED = 4;
 
     /**
      * Data sent by ParsePush
@@ -112,11 +123,11 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         Intent resultIntent = getIntent(context);
 
         if (resultIntent != null) {
-            NotificationCompat.Builder mBuilder =
-                    null;
+            NotificationCompat.Builder mBuilder;
+
             try {
                 mBuilder = new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_stat_notify)
+                        .setSmallIcon(R.drawable.ic_logo_24dp)
                         .setContentTitle(context.getString(R.string.app_name))
                         .setContentText(getMessage(context));
             } catch (JSONException e) {
@@ -151,19 +162,20 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      * Returns a message to display on notification
      *
      * @return A message for notification
+     * @since 0.1.0
      */
     protected String getMessage(Context context) throws JSONException {
-        switch (mCode) {
-            case SEAT_REQ_RECEIVED:
-                return context.getString(R.string.notifymsg_seat_requested);
-
-            case SEAT_REQ_CONFIRMED:
-                String driverName = mData.getString("driver_name");
-                return context.getString(R.string.notifymsg_seatrequest_confirmed, driverName);
-
-            case REQUEST_MSG_RECEIVED:
-                String senderName = mData.getString("user_from");
-                return context.getString(R.string.notifymsg_requestmsg_received, senderName);
+        if (mCode == SEAT_REQ_RECEIVED ) {
+            return context.getString(R.string.notifymsg_seat_requested);
+        } else if (mCode == SEAT_REQ_CONFIRMED) {
+            String driverName = mData.getString("driver_name");
+            return context.getString(R.string.notifymsg_seatrequest_confirmed, driverName);
+        } else if (mCode == REQUEST_MSG_RECEIVED) {
+            String senderName = mData.getString("user_from");
+            return context.getString(R.string.notifymsg_requestmsg_received, senderName);
+        } else if (mCode == RIDE_OFFER_CANCELLED) {
+            String driverName = mData.getString("driver_name");
+            return context.getString(R.string.notifymsg_rideoffer_cancelled, driverName);
         }
 
         return "";
@@ -192,6 +204,31 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             case REQUEST_MSG_RECEIVED:
                 intent = getRequestDetailsIntent(context);
                 break;
+
+            case RIDE_OFFER_CANCELLED:
+                intent = getRideOfferCancelledIntent(context);
+        }
+
+        return intent;
+    }
+
+    /**
+     * Returns an Intent to display a RideDetails Activity.
+     *
+     * @param context The context of notification.
+     * @return The resultIntent for notification.
+     * @since 0.4.0
+     */
+    private Intent getRideOfferCancelledIntent(Context context) {
+        Intent intent = null;
+
+        try {
+            String offerId = mData.getString("ride_offer_id");
+
+            intent = new Intent(context, RideDetailsActivity.class);
+            intent.putExtra(RideDetailsActivity.EXTRA_RIDE_ID, offerId);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error on parse input json", e);
         }
 
         return intent;

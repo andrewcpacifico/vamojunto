@@ -40,7 +40,10 @@ import co.vamojunto.util.TextUtil;
  * System's Ride Model
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.1.0
+ *
+ * @version 1.0.0 First Version
+ * @version 1.0.1 Added the status field, and the functionality to cancel a ride offer.
+ *
  * @since 0.1.0
  */
 @ParseClassName("Ride")
@@ -206,6 +209,7 @@ public class RideOffer extends ParseObject {
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", getId());
+        params.put("driver_name", getDriver().getName());
 
         return ParseCloud.callFunctionInBackground("cancelRideOffer", params);
     }
