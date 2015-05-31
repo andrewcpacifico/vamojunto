@@ -42,7 +42,8 @@ import co.vamojunto.util.TextUtil;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  *
  * @version 1.0.0 First Version
- * @version 1.0.1 Added the status field, and the functionality to cancel a ride offer.
+ * @version 1.1.0 Added the status field, and the functionality to cancel a ride offer.
+ * @version 1.2.0 Excluding cancelled offers from getFriendOffers and getOffersByCompany methods.
  *
  * @since 0.1.0
  */
@@ -297,6 +298,7 @@ public class RideOffer extends ParseObject {
         // gets all rides offered by the users followed by the currentUser
         ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
         query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
+        query.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
@@ -386,6 +388,7 @@ public class RideOffer extends ParseObject {
         // gets all rides offered by the users followed by the user
         ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
         query.whereMatchesKeyInQuery(FIELD_DRIVER, Friendship.FIELD_FOLLOWING, qFriendship);
+        query.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
@@ -501,6 +504,7 @@ public class RideOffer extends ParseObject {
         ParseQuery<RideOffer> rideQuery = ParseQuery.getQuery(RideOffer.class);
         rideQuery.whereMatchesKeyInQuery(FIELD_DRIVER, UserCompany.FIELD_USER, userCompanyQuery);
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
+        rideQuery.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
         rideQuery.include(FIELD_DRIVER);
         rideQuery.orderByDescending(FIELD_CREATED_AT);
 
@@ -530,6 +534,7 @@ public class RideOffer extends ParseObject {
         ParseQuery<RideOffer> rideQuery = ParseQuery.getQuery(RideOffer.class);
         rideQuery.whereMatchesKeyInQuery(FIELD_DRIVER, UserCompany.FIELD_USER, userCompanyQuery);
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
+        rideQuery.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
         rideQuery.include(FIELD_DRIVER);
         rideQuery.orderByDescending(FIELD_CREATED_AT);
 
