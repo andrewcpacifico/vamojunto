@@ -32,13 +32,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -52,41 +59,84 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
+import co.vamojunto.ui.adapters.SearchPlaceAdapter;
 import co.vamojunto.util.Globals;
 
 /**
- * Tela utilizada para o usuário buscar uma localização no mapa.
+ * Screen where the user can search for a location, the main UI is a google maps Fragment, and if
+ * the user clicks on the search box, another fragment is displayed, so the user can do a google
+ * places search.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
+ * @version 2.0
  */
-public class GetLocationActivity extends ActionBarActivity
+public class GetLocationActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GetLocationActivity";
 
-    private static final String PACKAGE = "co.vamojunto.ui.activities.GetLocationActivity.";
-
-    public static final String RES_PLACE = PACKAGE + "res_place";
-    public static final String INITIAL_PLACE = PACKAGE + "place";
-    public static final String TITULO = PACKAGE + "title";
-    public static final String PIN_RES_ID = PACKAGE + "pinId";
-    public static final String BUTTON_MSG = PACKAGE + "buttonMsg";
+    public static final String RES_PLACE = "res_place";
+    public static final String INITIAL_PLACE = "place";
+    public static final String TITLE = "title";
+    public static final String PIN_RES_ID = "pinId";
+    public static final String BUTTON_MSG = "buttonMsg";
 
     public static final int GET_LOCATION_REQUEST_CODE = 3127;
 
-    /** Guarda a instância do MapFragment da Activity */
+    private RecyclerView mPlacesRecyclerView;
+    private SearchPlaceAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private GooglePlacesHelper mGooglePlacesHelper;
+
+    private ImageButton mBtnClear;
+    private ProgressBar mProgressBar;
+    private ImageView mSearchIcon;
+
+    /**
+     * Avoid multiple searches in parallel
+     *
+     * @since 0.5.0
+     */
+    private static boolean isSearching = false;
+
+    /**
+     * Stores the last values searched, this value is compared to the text on the search box
+     * when the search finishes, if the values are different, a new search are made.
+     *
+     * @since 0.5.0
+     */
+     private String mLastSearch;
+
+    /**
+     * Indicate which view is being displayed, the map view, or the search place view.
+     *
+     * @since 0.5.0
+     */
+    private boolean mMapVisible;
+
+    /**
+     * The instance of displayed map
+     *
+     * @since 0.1.0
+     */
     private GoogleMap mMap;
 
     /** Instância da Google Play Services API Client, utilizada para manipular o Location API */
     private GoogleApiClient mGoogleApiClient;
 
-    /** Armazena a última localização do usuário */
+    /**
+     * The user's last location.
+     *
+     * @since 0.1.0
+     */
     private Location mLastLocation;
 
     /** Booleano para verificar se o app está resolvendo algum erro. */
@@ -101,12 +151,16 @@ public class GetLocationActivity extends ActionBarActivity
     private Handler mHandler;
 
     private ProgressDialog mProDialog;
+    private EditText mSearchEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_location);
 
+        mHandler = new Handler();
+        mMapVisible = true;
+        mLastSearch = "";
         initComponents();
     }
 
@@ -242,8 +296,6 @@ public class GetLocationActivity extends ActionBarActivity
      * Inicializa os componentes da tela
      */
     private void initComponents() {
-        mHandler = new Handler();
-
         mLocal = null;
 
         // Constrói o GoogleApiClient
@@ -278,15 +330,177 @@ public class GetLocationActivity extends ActionBarActivity
                 pinImg.setImageDrawable(getResources().getDrawable(resId));
         }
 
-        AutoCompleteTextView textView = (AutoCompleteTextView)
-                findViewById(R.id.local_auto_complete);
-        textView.setOnClickListener(new View.OnClickListener() {
+        mSearchEditText = (EditText) findViewById(R.id.search_edit_text);
+        mSearchEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), SearchPlaceActivity.class);
-                startActivityForResult(intent, SearchPlaceActivity.REQUEST_CODE);
+                findViewById(R.id.list_places).setVisibility(View.VISIBLE);
+                findViewById(R.id.pin_layout).setVisibility(View.GONE);
+                findViewById(R.id.ok_button).setVisibility(View.GONE);
+                mMapVisible = false;
             }
         });
+
+        mSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
+                searchEditTextOnTextChanged(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        initSearchPlaceComponents();
+    }
+
+    private void searchEditTextOnTextChanged(CharSequence s) {
+        // hide the clear button if the search box is empty, and display it again if not
+        if ( s.length() == 0) {
+            mBtnClear.setVisibility(View.GONE);
+        } else {
+            mBtnClear.setVisibility(View.VISIBLE);
+        }
+
+        placeSearch(s.toString());
+    }
+
+    private void initSearchPlaceComponents() {
+        mPlacesRecyclerView = (RecyclerView) findViewById(R.id.places_recyclerview);
+        mPlacesRecyclerView.setHasFixedSize(true);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mPlacesRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new SearchPlaceAdapter(this, null, new SearchPlaceAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClicked(View v, int position) {
+                Place p = mAdapter.getItem(position);
+
+                if ( p != null ) {
+                    Log.d(TAG, p.toString());
+                }
+            }
+        });
+        mPlacesRecyclerView.setAdapter(mAdapter);
+
+        mGooglePlacesHelper = new GooglePlacesHelper(this);
+
+        mBtnClear = (ImageButton) findViewById(R.id.clear_button);
+        mBtnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchEditText.setText("");
+            }
+        });
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mSearchIcon = (ImageView) findViewById(R.id.ic_search);
+    }
+
+
+
+    /**
+     * Chamado sempre que o usuário altera o conteúdo do campo de busca. Recebe como parâmetro
+     * o conteúdo digitado pelo usuário, e repassa para o método que busca os locais utilizando
+     * a API do Google Places.
+     *
+     * @param strBusca String digitada pelo usuário, representando a busca que ele deseja realizar.
+     */
+    private void placeSearch(String searchedTerm) {
+        // searches only if no other search is being processed
+        if ( !isSearching ) {
+            Log.d(TAG, "Starting a new place search, searched term: " + searchedTerm);
+
+            // starts a new search only after the user has been typed at least 3 characters
+            if (searchedTerm.length() > 2) {
+                // blocks other searches, until this one has been finished
+                isSearching = true;
+
+                // stores the searched value, to compare with the text on search box, when the
+                // searching completes
+                mLastSearch = searchedTerm;
+
+                // display the ProgressBar instead of the search icon
+                mSearchIcon.setVisibility(View.INVISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+
+                mGooglePlacesHelper.autocompleteAsync(searchedTerm).
+                        continueWith(new Continuation<List<Place>, Void>() {
+                            @Override
+                            public Void then(final Task<List<Place>> task) {
+                                // unblock new searches
+                                isSearching = false;
+
+                                // Verifica se a tarefa foi executada com sucesso
+                                // TODO Exibir essa mensagem de erro na tela, e não apenas em um Toast
+                                if (task.isFaulted()) {
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(
+                                                    GetLocationActivity.this,
+                                                    R.string.search_error,
+                                                    Toast.LENGTH_LONG
+                                            ).show();
+                                        }
+                                    });
+
+                                    Log.e(TAG, "Error on searching for a place", task.getError());
+                                } else if (!task.isCancelled()) {
+                                    mAdapter.setDataset(task.getResult());
+
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // restore the search icon
+                                        mProgressBar.setVisibility(View.INVISIBLE);
+                                        mSearchIcon.setVisibility(View.VISIBLE);
+
+                                        // Verifica se o usuário alterou o valor do campo de busca enquanto
+                                        // a última busca era processada. Caso tenha alterado, realiza
+                                        // uma outra busca.
+
+                                        if (!mSearchEditText.getText().toString().equals(mLastSearch)) {
+                                            placeSearch(mSearchEditText.getText().toString());
+                                        }
+                                    }
+                                });
+
+                                return null;
+                            }
+                        });
+            }
+        } else {
+            Log.d(TAG, "[buscaLocal] Uma consulta já está sendo realizada, a consulta foi cancelada.");
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (! mMapVisible) {
+            mMapVisible = true;
+
+            findViewById(R.id.list_places).setVisibility(View.GONE);
+            findViewById(R.id.pin_layout).setVisibility(View.VISIBLE);
+            findViewById(R.id.ok_button).setVisibility(View.VISIBLE);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -414,8 +628,8 @@ public class GetLocationActivity extends ActionBarActivity
     private void initAppBar() {
         Toolbar appBar = (Toolbar) findViewById(R.id.tool_bar);
 
-        if ( getIntent().hasExtra(TITULO) )
-            appBar.setTitle(getIntent().getStringExtra(TITULO));
+        if ( getIntent().hasExtra(TITLE) )
+            appBar.setTitle(getIntent().getStringExtra(TITLE));
         else
             appBar.setTitle(getString(R.string.get_location_activity_title));
 
@@ -477,6 +691,7 @@ public class GetLocationActivity extends ActionBarActivity
         mProDialog.dismiss();
         mProDialog = null;
     }
+
 
 
 /***************************************************************************************************

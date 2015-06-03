@@ -236,6 +236,7 @@
     <string name="ride_offer_cancelled_title">Oferta de carona cancelada</string>
     <string name="ok">Ok</string>
     <string name="error">Erro</string>
+    <string name="title_activity_teste">Teste</string>
 
 
 </resources>

@@ -36,7 +36,7 @@
         card_view:cardCornerRadius="4dp">
 
         <RelativeLayout
-            android:id="@+id/caixa_pesquisa"
+            android:id="@+id/search_box"
             android:layout_below="@+id/tool_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

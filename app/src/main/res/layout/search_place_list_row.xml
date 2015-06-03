@@ -58,7 +58,7 @@
         android:id="@+id/txt_descricao" />
 
     <View
-        android:id="@+id/separador"
+        android:id="@+id/separator"
 
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"

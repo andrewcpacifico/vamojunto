@@ -233,7 +233,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         mOrigemEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.choose_starting_point));
+        intent.putExtra(GetLocationActivity.TITLE, getString(R.string.choose_starting_point));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
@@ -257,7 +257,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         mDestinoEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
-        intent.putExtra(GetLocationActivity.TITULO, getString(R.string.search_place));
+        intent.putExtra(GetLocationActivity.TITLE, getString(R.string.search_place));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destination));
 

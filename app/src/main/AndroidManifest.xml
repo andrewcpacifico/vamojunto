@@ -64,12 +64,11 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
 
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
-
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".ui.activities.MainActivity"
             android:label="@string/app_name"
@@ -124,12 +123,12 @@
         <activity
             android:name=".ui.activities.SeatRequestsActivity"
             android:label="@string/title_activity_seat_requests"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.activities.SplashActivity"
             android:label="@string/title_activity_splash"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
 
         <!-- Definitions for Parse Push Service -->
@@ -164,12 +163,16 @@
         <activity
             android:name=".ui.activities.ManageFriendsActivity"
             android:label="@string/title_activity_manage_friends"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.activities.RequestDetailsActivity"
             android:label="@string/title_activity_request_details"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ui.activities.Teste"
+            android:label="@string/title_activity_teste" >
         </activity>
     </application>
 
