@@ -137,13 +137,76 @@
         android:layout_height="match_parent"
 
         android:background="@color/background_material_light"
-        android:visibility="gone"
-        android:orientation="vertical">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/places_recyclerview"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <android.support.v7.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ufam_card"
 
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+
+            android:clickable="true"
+
+            card_view:cardCornerRadius="4dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/white_list_item_selector">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:paddingTop="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="2dp"
+                    android:paddingLeft="10dp"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:text="UFAM - Univ. Federal do Amazonas"
+
+                    android:ellipsize="end"
+                    android:singleLine="true"
+
+                    android:id="@+id/ufam_title" />
+
+                <TextView
+                    android:layout_below="@+id/ufam_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:paddingLeft="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="10dp"
+                    android:textSize="12sp"
+                    android:text="Av. Rodrigo Otávio, Coroado - Manaus, AM"
+
+                    android:ellipsize="end"
+                    android:singleLine="true" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/results_card"
+
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            card_view:cardCornerRadius="4dp">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/places_recyclerview"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </android.support.v7.widget.CardView>
     </LinearLayout>
 
     <Button

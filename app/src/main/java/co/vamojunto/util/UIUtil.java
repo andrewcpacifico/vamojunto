@@ -19,15 +19,17 @@
 
 package co.vamojunto.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 
 /**
  * Util class with User Interface functions.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 2.0
  */
 public class UIUtil {
 
@@ -54,6 +56,23 @@ public class UIUtil {
     public static void stopLoading() {
         mProDialog.dismiss();
         mProDialog = null;
+    }
+
+    /**
+     * Force the soft keyboard to hide.
+     *
+     * @param activity The context activity.
+     * @since 0.5.0
+     */
+    public static void hideKeyboard(Activity activity) {
+        ((InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE))
+                .toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+//        if (imm.isActive()){
+//            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0); // hide
+//        } else {
+//            imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY); // show
+//        }
     }
 
 }

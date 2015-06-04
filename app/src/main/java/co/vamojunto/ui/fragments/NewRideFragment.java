@@ -63,6 +63,8 @@ import co.vamojunto.model.User;
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @version 1.0.0
  * @since 0.1.0
+ *
+ * TODO Change this Fragment to english, to make it on the same pattern of all other classes
  */
 public class NewRideFragment extends Fragment implements TimePickerDialog.OnTimeSetListener,
         DatePickerDialog.OnDateSetListener {
@@ -71,21 +73,21 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
 
     /** Flag utilizada para indicar se o campo origem está sendo editado. A flag é utilizada para
      * identificar para onde irá o resultado após a escolha de uma coordenada pelo usuário. */
-    private boolean mEditandoOrigem;
+    private boolean mEditingStartingPoint;
 
     /** Flag utilizada para indicar se o campo destino está sendo editado. A flag é utilizada para
      * identificar para onde irá o resultado após a escolha de uma coordenada pelo usuário. */
-    private boolean mEditandoDestino;
+    private boolean mEditingDestination;
 
-    private EditText mOrigemEditText;
-    private EditText mDestinoEditText;
+    private EditText mStartingPointEditText;
+    private EditText mDestinationEditText;
     private EditText mHoraEditText;
     private EditText mDataEditText;
     private EditText mNumLugaresEditText;
     private EditText mDetalhesEditText;
 
-    private Place mOrigem;
-    private Place mDestino;
+    private Place mStartingPoint;
+    private Place mDestination;
     private ProgressDialog mProDialog;
 
 /***************************************************************************************************
@@ -96,13 +98,23 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Verifica se o resultado foi enviado pela tela de seleção de localização.
+        // result sent by GetLocationActivity
         if (requestCode == GetLocationActivity.GET_LOCATION_REQUEST_CODE) {
+            // resultCode is RESULT_OK when the user successfully choose a place
             if ( resultCode == Activity.RESULT_OK ) {
                 Place p = Place.getStoredInstance(GetLocationActivity.RES_PLACE);
 
-                if (p.hasCoord())
-                    traduzCoordenadas(p);
+                if (mEditingStartingPoint) {
+                    mEditingStartingPoint = false;
+
+                    mStartingPoint = p;
+                    mStartingPointEditText.setText(p.getTitulo());
+                } else if (mEditingDestination) {
+                    mEditingDestination = false;
+
+                    mDestination = p;
+                    mDestinationEditText.setText(p.getTitulo());
+                }
             }
         }
     }
@@ -182,8 +194,8 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                     (User) User.getCurrentUser(),
                     Integer.parseInt(mNumLugaresEditText.getText().toString()),
                     mDetalhesEditText.getText().toString(),
-                    mOrigem,
-                    mDestino
+                    mStartingPoint,
+                    mDestination
             );
 
             startLoading();
@@ -228,17 +240,17 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
      * @param v Instância do EditText clicado.
      */
     private void origemEditTextOnClick(View v) {
-        mEditandoOrigem = true;
+        mEditingStartingPoint = true;
         // Oculta o ícone de erro
-        mOrigemEditText.setError(null);
+        mStartingPointEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.choose_starting_point));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_orig);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_start_point));
 
-        if (mOrigem != null) {
-            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mOrigem);
+        if (mStartingPoint != null) {
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mStartingPoint);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
@@ -252,17 +264,17 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
      * @param v Instância do EditText clicado.
      */
     private void destinoEditTextOnclick(View v) {
-        mEditandoDestino = true;
+        mEditingDestination = true;
         // Oculta o ícone de erro
-        mDestinoEditText.setError(null);
+        mDestinationEditText.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.search_place));
         intent.putExtra(GetLocationActivity.PIN_RES_ID, R.drawable.ic_pin_dest);
         intent.putExtra(GetLocationActivity.BUTTON_MSG, getString(R.string.set_destination));
 
-        if (mDestino != null) {
-            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestino);
+        if (mDestination != null) {
+            Place.storeInstance(GetLocationActivity.INITIAL_PLACE, mDestination);
         }
 
         startActivityForResult(intent, GetLocationActivity.GET_LOCATION_REQUEST_CODE);
@@ -279,11 +291,11 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
      * Inicializa as propriedades dos componentes da Activity
      */
     private void initComponents(View rootView) {
-        mEditandoDestino = mEditandoOrigem = false;
-        mOrigem = mDestino = null;
+        mEditingDestination = mEditingStartingPoint = false;
+        mStartingPoint = mDestination = null;
 
-        mOrigemEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
-        mDestinoEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
+        mDestinationEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
         mHoraEditText = (EditText) rootView.findViewById(R.id.time_edit_text);
         mDataEditText = (EditText) rootView.findViewById(R.id.date_edit_text);
         mNumLugaresEditText = (EditText) rootView.findViewById(R.id.num_lugares_edit_text);
@@ -320,7 +332,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         });
 
         // Vincula o método que será executado no evento OnClick do EditText da origem da carona
-        mOrigemEditText.setOnClickListener(new View.OnClickListener() {
+        mStartingPointEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 origemEditTextOnClick(v);
@@ -328,7 +340,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         });
 
         // Vincula o método que será executado no evento OnClick do EditText do destino da carona
-        mDestinoEditText.setOnClickListener(new View.OnClickListener() {
+        mDestinationEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 destinoEditTextOnclick(v);
@@ -484,8 +496,8 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
      */
     public boolean validaDados() {
         // Valida o campo origem do formullário.
-        if ( mOrigem == null ) {
-            mOrigemEditText.setError("Campo obrigatório");
+        if ( mStartingPoint == null ) {
+            mStartingPointEditText.setError("Campo obrigatório");
             // Como o campo não é selecionável, a mensagem de erro acabava não aparecendo, então
             // utilizei um Toast.
             Toast.makeText(getActivity(), getString(R.string.error_starting_point_missing), Toast.LENGTH_LONG).show();
@@ -494,9 +506,9 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         }
 
         // Valida o campo destino do formulário
-        if ( mDestino == null ) {
-            mDestinoEditText.setError("Campo obrigatório");
-            mDestinoEditText.requestFocus();
+        if ( mDestination == null ) {
+            mDestinationEditText.setError("Campo obrigatório");
+            mDestinationEditText.requestFocus();
 
             Toast.makeText(getActivity(), getString(R.string.error_destination_missing), Toast.LENGTH_LONG).show();
 
@@ -550,80 +562,6 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         }
 
         return true;
-    }
-
-    /**
-     * Converte o par de coordenadas recebidos da GetLocationActivity, em um endereço.
-     *
-     * @param p Instância de Place retornada, caso o usuário tenha feito uma busca por local, ou null.
-     */
-    private void traduzCoordenadas(Place p) {
-        // Verifica qual localização está sendo editada para poder atribuir o valor ao campo correto
-        // Em seguida converte as coordenadas para o endereço por escrito. Essa solução tá
-        // muito feia, mas são 00:00 do dia 19/02/2015, eu estou programando desde as 7:00
-        // então vai ficar assim mesmo. Você que está lendo isso agora, favor pensar numa
-        // maneira mais bonita de fazer essa parte.
-        if ( mEditandoOrigem ) {
-            mEditandoOrigem = false;
-            mOrigem = p;
-
-            if ( p.isGooglePlace() ) {
-                mOrigemEditText.setText(p.getTitulo());
-            } else {
-                mOrigemEditText.setText(getString(R.string.loading_address));
-
-                LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
-                GeocodingHelper.reverseGeocodeInBackground(getActivity(), latLng).continueWith(
-                    new Continuation<Address, Void>() {
-                        @Override
-                        public Void then(Task<Address> task) throws Exception {
-                            final String e = task.getResult().getAddressLine(0);
-
-                            mOrigemEditText.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mOrigemEditText.setText(e);
-                                    mOrigem.setTitulo(e);
-                                    mOrigem.setEndereco(e);
-                                }
-                            });
-
-                            return null;
-                        }
-                    }
-                );
-            }
-        } else if ( mEditandoDestino ) {
-            mEditandoDestino = false;
-            mDestino = p;
-
-            if ( p.isGooglePlace() ) {
-                mDestinoEditText.setText(p.getTitulo());
-            } else {
-                mDestinoEditText.setText(getString(R.string.loading_address));
-
-                LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
-                GeocodingHelper.reverseGeocodeInBackground(getActivity(), latLng).continueWith(
-                    new Continuation<Address, Void>() {
-                        @Override
-                        public Void then(Task<Address> task) throws Exception {
-                            final String e = task.getResult().getAddressLine(0);
-
-                            mDestinoEditText.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mDestinoEditText.setText(e);
-                                    mDestino.setTitulo(e);
-                                    mDestino.setEndereco(e);
-                                }
-                            });
-
-                            return null;
-                        }
-                    }
-                );
-            }
-        }
     }
 
     /**

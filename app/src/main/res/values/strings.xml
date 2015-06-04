@@ -237,6 +237,11 @@
     <string name="ok">Ok</string>
     <string name="error">Erro</string>
     <string name="title_activity_teste">Teste</string>
+    <string name="inform_a_title">Informe um título</string>
+    <string name="inform_a_title_message">Por favor, forneça um título para o local escolhido</string>
+    <string name="choosen_place_title">Título do lugar escolhido</string>
+    <string name="errormsg_invalid_title">Título inválido</string>
+    <string name="errormsg_place_title_required">É obrigatório o fornecimento de um título para o local escolhido!</string>
 
 
 </resources>

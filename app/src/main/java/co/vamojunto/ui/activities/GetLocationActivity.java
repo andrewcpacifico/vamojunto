@@ -37,10 +37,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,6 +48,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -68,6 +69,7 @@ import co.vamojunto.helpers.GooglePlacesHelper;
 import co.vamojunto.model.Place;
 import co.vamojunto.ui.adapters.SearchPlaceAdapter;
 import co.vamojunto.util.Globals;
+import co.vamojunto.util.UIUtil;
 
 /**
  * Screen where the user can search for a location, the main UI is a google maps Fragment, and if
@@ -91,9 +93,7 @@ public class GetLocationActivity extends AppCompatActivity
 
     public static final int GET_LOCATION_REQUEST_CODE = 3127;
 
-    private RecyclerView mPlacesRecyclerView;
     private SearchPlaceAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private GooglePlacesHelper mGooglePlacesHelper;
 
     private ImageButton mBtnClear;
@@ -101,11 +101,29 @@ public class GetLocationActivity extends AppCompatActivity
     private ImageView mSearchIcon;
 
     /**
+     * A {@link Place} instance with UFAM data. This place is used when the user clicks on the
+     * fixed item on the search place screen.
+     *
+     * @since 0.5.0
+     */
+    private Place mUfamPlace;
+
+    /**
+     * Flag used to lock search triggered when the search box text is changed. This flag is used
+     * when the user selects an item on the search results, that action sets the search box text
+     * to selected place title, so there is no need for other search. This flag possibles that
+     * behaviour.
+     *
+     * @since 0.5.0
+     */
+    private boolean mLockSearch = false;
+
+    /**
      * Avoid multiple searches in parallel
      *
      * @since 0.5.0
      */
-    private static boolean isSearching = false;
+    private boolean isSearching = false;
 
     /**
      * Stores the last values searched, this value is compared to the text on the search box
@@ -139,11 +157,8 @@ public class GetLocationActivity extends AppCompatActivity
      */
     private Location mLastLocation;
 
-    /** Booleano para verificar se o app está resolvendo algum erro. */
-    private boolean mResolvingError = false;
-
     /** Guarda uma instância de um local, caso o usuário tenha feito uma busca. */
-    private Place mLocal;
+    private Place mPlace;
 
     /**
      * Handler to run code on main thread, inside callbacks.
@@ -158,7 +173,12 @@ public class GetLocationActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_location);
 
+        mUfamPlace = new Place(-3.0904041362806165, -59.96392708271741);
+        mUfamPlace.setEndereco("Av. Rodrigo Otávio, Coroado - Manaus, AM");
+        mUfamPlace.setTitulo("UFAM - Univ. Federal do Amazonas");
+
         mHandler = new Handler();
+        mPlace = null;
         mMapVisible = true;
         mLastSearch = "";
         initComponents();
@@ -186,9 +206,7 @@ public class GetLocationActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
-        }
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -198,13 +216,31 @@ public class GetLocationActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SearchPlaceActivity.REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            mLocal = Place.getStoredInstance(SearchPlaceActivity.PLACE);
-
-            if (mLocal != null)
-                posicionaMapaLocal(mLocal);
+    public void onBackPressed() {
+        if (! mMapVisible) {
+            switchView();
+        } else {
+            super.onBackPressed();
         }
+    }
+
+    /**
+     * Switch the screen default view between the map view, and the search for a place view.
+     *
+     * @since 0.5.0
+     */
+    private void switchView() {
+        if (mMapVisible) {
+            findViewById(R.id.list_places).setVisibility(View.VISIBLE);
+            findViewById(R.id.pin_layout).setVisibility(View.GONE);
+            findViewById(R.id.ok_button).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.list_places).setVisibility(View.GONE);
+            findViewById(R.id.pin_layout).setVisibility(View.VISIBLE);
+            findViewById(R.id.ok_button).setVisibility(View.VISIBLE);
+        }
+
+        mMapVisible = ! mMapVisible;
     }
 
     /**
@@ -212,7 +248,7 @@ public class GetLocationActivity extends AppCompatActivity
      *
      * @param p The place where the map have to be positioned.
      */
-    private void posicionaMapaLocal(Place p) {
+    private void changeMapPosition(Place p) {
         // helper to find the place coordinates
         GooglePlacesHelper placesHelper = new GooglePlacesHelper(this);
 
@@ -225,21 +261,25 @@ public class GetLocationActivity extends AppCompatActivity
         // show the loading dialog to user
         startLoading(getString(R.string.loadingmsg_positioning_map), tcs);
 
-        // gets the place coordinates
-        placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
-            @Override
-            public Void then(final Task<LatLng> task) {
-                if (task.isFaulted()) {
-                    tcs.setError(task.getError());
-                } else if (task.isCancelled()) {
-                    tcs.setCancelled();
-                } else {
-                    tcs.setResult(task.getResult());
-                }
+        if (! p.hasCoord()) {
+            // gets the place coordinates
+            placesHelper.getLocationAsync(p).continueWith(new Continuation<LatLng, Void>() {
+                @Override
+                public Void then(final Task<LatLng> task) {
+                    if (task.isFaulted()) {
+                        tcs.setError(task.getError());
+                    } else if (task.isCancelled()) {
+                        tcs.setCancelled();
+                    } else {
+                        tcs.setResult(task.getResult());
+                    }
 
-                return null;
-            }
-        });
+                    return null;
+                }
+            });
+        } else {
+            tcs.setResult(new LatLng(p.getLatitude(), p.getLongitude()));
+        }
 
         // procedure called when the place coordinates are retrieved
         tcs.getTask().continueWith(new Continuation<LatLng, Void>() {
@@ -260,25 +300,24 @@ public class GetLocationActivity extends AppCompatActivity
                             @Override
                             public void run() {
                                 mMap.animateCamera(
-                                    CameraUpdateFactory.newLatLngZoom(
-                                            task.getResult(),
-                                            Globals.DEFAULT_ZOOM_LEVEL
-                                    )
+                                        CameraUpdateFactory.newLatLngZoom(
+                                                task.getResult(),
+                                                Globals.DEFAULT_ZOOM_LEVEL
+                                        )
                                 );
 
-                                // changes the mLocal coordinates for the activity result
-                                mLocal.setLatitude(task.getResult().latitude);
-                                mLocal.setLongitude(task.getResult().longitude);
+                                // changes the mPlace coordinates for the activity result
+                                mPlace.setLatitude(task.getResult().latitude);
+                                mPlace.setLongitude(task.getResult().longitude);
                             }
                         });
                     }
                 } else {
                     // on task fault, displays a default error message to the user, and logs th error
-                    Handler handler = new Handler(GetLocationActivity.this.getMainLooper());
-                    handler.post(new Runnable() {
+                    mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Log.e(TAG, task.getError().getMessage());
+                            Log.e(TAG, "Error on search for place coordinates.", task.getError());
 
                             Toast.makeText(GetLocationActivity.this,
                                     getString(R.string.errormsg_default),
@@ -293,35 +332,34 @@ public class GetLocationActivity extends AppCompatActivity
     }
 
     /**
-     * Inicializa os componentes da tela
+     * Initialize the screen components
+     *
+     * @since 0.1.0
      */
     private void initComponents() {
-        mLocal = null;
-
-        // Constrói o GoogleApiClient
+        // initialize google api client settings
         buildGoogleApiClient();
 
-        // Inicializa as configurações do MapFragment
+        // initialize the google maps fragment
         initMap();
 
-        // Inicializa a Application Bar
+        // setup the app bar
         initAppBar();
 
         Button btnOk = (Button) findViewById(R.id.ok_button);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnOkOnClick(v);
+                btnOkOnClick();
             }
         });
 
-        // Verifica se um extra contendo a mensagem do botão foi enviado.
+        // check if some extra with button message was sent, and customize it
         if ( getIntent().hasExtra(BUTTON_MSG) ) {
             btnOk.setText(getIntent().getStringExtra(BUTTON_MSG));
         }
 
-        // Verifica se a Activity que chamou esta tela, enviou um extra com o resource id de uma
-        // imagem para o pin de escolha de localização.
+        // check if some extra with pin resource id was sent, and customize it
         if ( getIntent().hasExtra(PIN_RES_ID) ) {
             ImageView pinImg = (ImageView) findViewById(R.id.img_pin);
             int resId = getIntent().getIntExtra(PIN_RES_ID, -1);
@@ -330,6 +368,7 @@ public class GetLocationActivity extends AppCompatActivity
                 pinImg.setImageDrawable(getResources().getDrawable(resId));
         }
 
+        // inflate the search box edit text and define its event listeners
         mSearchEditText = (EditText) findViewById(R.id.search_edit_text);
         mSearchEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -340,7 +379,6 @@ public class GetLocationActivity extends AppCompatActivity
                 mMapVisible = false;
             }
         });
-
         mSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -359,6 +397,12 @@ public class GetLocationActivity extends AppCompatActivity
         initSearchPlaceComponents();
     }
 
+    /**
+     * Handler for the text changed event on the screen search box.
+     *
+     * @param s The search box value.
+     * @since 0.5.0
+     */
     private void searchEditTextOnTextChanged(CharSequence s) {
         // hide the clear button if the search box is empty, and display it again if not
         if ( s.length() == 0) {
@@ -367,27 +411,43 @@ public class GetLocationActivity extends AppCompatActivity
             mBtnClear.setVisibility(View.VISIBLE);
         }
 
-        placeSearch(s.toString());
+        // see the mLockSearch documentation for a better understanding of this condition
+        if (! mLockSearch) {
+            placeSearch(s.toString());
+        } else {
+            mLockSearch = false;
+        }
     }
 
+    /**
+     * Initialize the components displayed when the user is searching for a place.
+     *
+     * @since 0.5.0
+     */
     private void initSearchPlaceComponents() {
-        mPlacesRecyclerView = (RecyclerView) findViewById(R.id.places_recyclerview);
-        mPlacesRecyclerView.setHasFixedSize(true);
+        RecyclerView placesRecyclerView = (RecyclerView) findViewById(R.id.places_recyclerview);
+        placesRecyclerView.setHasFixedSize(true);
 
-        mLayoutManager = new LinearLayoutManager(this);
-        mPlacesRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        placesRecyclerView.setLayoutManager(layoutManager);
 
         mAdapter = new SearchPlaceAdapter(this, null, new SearchPlaceAdapter.OnItemClickListener() {
             @Override
             public void OnItemClicked(View v, int position) {
                 Place p = mAdapter.getItem(position);
 
-                if ( p != null ) {
-                    Log.d(TAG, p.toString());
-                }
+                UIUtil.hideKeyboard(GetLocationActivity.this);
+
+                // lock the automatic search triggered by the search box text changing
+                mLockSearch = true;
+                mSearchEditText.setText(p.getTitulo());
+
+                mPlace = p;
+                switchView();
+                changeMapPosition(p);
             }
         });
-        mPlacesRecyclerView.setAdapter(mAdapter);
+        placesRecyclerView.setAdapter(mAdapter);
 
         mGooglePlacesHelper = new GooglePlacesHelper(this);
 
@@ -401,9 +461,23 @@ public class GetLocationActivity extends AppCompatActivity
 
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mSearchIcon = (ImageView) findViewById(R.id.ic_search);
+
+        // a fixed item is displayed to the user can find the UFAM more quickly
+        findViewById(R.id.ufam_card).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UIUtil.hideKeyboard(GetLocationActivity.this);
+
+                // lock the automatic search triggered by the search box text changing
+                mLockSearch = true;
+                mSearchEditText.setText(mUfamPlace.getTitulo());
+
+                mPlace = mUfamPlace;
+                switchView();
+                changeMapPosition(mUfamPlace);
+            }
+        });
     }
-
-
 
     /**
      * Chamado sempre que o usuário altera o conteúdo do campo de busca. Recebe como parâmetro
@@ -470,10 +544,9 @@ public class GetLocationActivity extends AppCompatActivity
                                         mProgressBar.setVisibility(View.INVISIBLE);
                                         mSearchIcon.setVisibility(View.VISIBLE);
 
-                                        // Verifica se o usuário alterou o valor do campo de busca enquanto
-                                        // a última busca era processada. Caso tenha alterado, realiza
-                                        // uma outra busca.
-
+                                        // check if user changed the search box value while a search
+                                        // was being executed, if that so, do another search with
+                                        // current value
                                         if (!mSearchEditText.getText().toString().equals(mLastSearch)) {
                                             placeSearch(mSearchEditText.getText().toString());
                                         }
@@ -490,19 +563,6 @@ public class GetLocationActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onBackPressed() {
-        if (! mMapVisible) {
-            mMapVisible = true;
-
-            findViewById(R.id.list_places).setVisibility(View.GONE);
-            findViewById(R.id.pin_layout).setVisibility(View.VISIBLE);
-            findViewById(R.id.ok_button).setVisibility(View.VISIBLE);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
      */
@@ -513,11 +573,11 @@ public class GetLocationActivity extends AppCompatActivity
             float zoom = Globals.DEFAULT_ZOOM_LEVEL;
 
             // Verifica se foi passada uma localização inicial
-            mLocal = Place.getStoredInstance(INITIAL_PLACE);
-            if (mLocal != null) {
-                if (mLocal.hasCoord()) {
-                    lat = mLocal.getLatitude();
-                    lng = mLocal.getLongitude();
+            mPlace = Place.getStoredInstance(INITIAL_PLACE);
+            if (mPlace != null) {
+                if (mPlace.hasCoord()) {
+                    lat = mPlace.getLatitude();
+                    lng = mPlace.getLongitude();
                 }
             } else {
                 // Obtém as últimas configurações do mapa do usuário.
@@ -620,7 +680,6 @@ public class GetLocationActivity extends AppCompatActivity
                 .build();
     }
 
-
     /**
      * Inicializa as propriedades da Application Bar, o título da barra pode ser personalizado
      * enviando um Extra contendo uma string, pela Activity que solicitou a exibição desta tela.
@@ -643,26 +702,45 @@ public class GetLocationActivity extends AppCompatActivity
     }
 
     /**
-     * Executado quando o botão da parte de baixo da tela é clicado.Verifica se o usuário fez uma busca
-     * por um local, então retorna o resultado.
+     * Called when the button used to save the location is clicked.
      *
-     * @param v Instância do botão
+     * @since 0.1.0
      */
-    private void btnOkOnClick(View v) {
-        // Obtém a posição marcada pelo pin
+    private void btnOkOnClick() {
+        // get the pin position
         LatLng pos = mMap.getCameraPosition().target;
-        Place resPlace = new Place(pos.latitude, pos.longitude);
+        final Place resPlace = new Place(pos.latitude, pos.longitude);
 
-        // Verifica se o usuário fez uma busca por local, e se modificou a posição do mapa, após a busca
-        if (resPlace.equals(mLocal)) {
-            resPlace.setTitulo(mLocal.getTitulo());
-            resPlace.setEndereco(mLocal.getEndereco());
-            resPlace.setGooglePlaceId(mLocal.getGooglePlaceId());
-        }
+        String title = (mPlace != null)
+                ? mPlace.getTitulo()
+                : "";
 
-        Place.storeInstance(RES_PLACE, resPlace);
-        setResult(Activity.RESULT_OK);
-        finish();
+        resPlace.setTitulo(title);
+
+        // a dialog displayed to user provide a title for the choosen place
+        new MaterialDialog.Builder(this)
+                .title(R.string.inform_a_title)
+                .content(R.string.inform_a_title_message)
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .negativeText(R.string.cancel)
+                .input(getString(R.string.choosen_place_title), title, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        if (input.toString().equals("")) {
+                            new MaterialDialog.Builder(GetLocationActivity.this)
+                                    .title(R.string.errormsg_invalid_title)
+                                    .content(R.string.errormsg_place_title_required)
+                                    .iconRes(R.drawable.ic_error)
+                                    .show();
+                        } else {
+                            resPlace.setTitulo(input.toString());
+
+                            Place.storeInstance(RES_PLACE, resPlace);
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        }
+                    }
+                }).show();
     }
 
     /**
@@ -692,29 +770,12 @@ public class GetLocationActivity extends AppCompatActivity
         mProDialog = null;
     }
 
-
-
-/***************************************************************************************************
- *
- * Implementação dos métodos da interface GoogleApiClient.ConnectionCallbacks
- *
- **************************************************************************************************/
-
-    /**
-     * Executado quando a conexão da GoogleApiClient é finalizada. Obtém a localização atual do
-     * usuário, e armazena no campo mLastLocation.
-     * @param bundle
-     */
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "onConnected");
 
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        // Posiciona o mapa na localização atual do usuário, apenas se for a primeira vez que o
-        // evento está sendo executado, ou caso o usuário tenha utilizado o dialog exibido para
-        // ativar o serviço de localização no aparelho.
         initMapLocation();
     }
 
@@ -722,12 +783,6 @@ public class GetLocationActivity extends AppCompatActivity
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "onConnectionSuspended");
     }
-
-/***************************************************************************************************
- *
- * Implementação dos métodos da interface GoogleApiClient.OnConnectionFailedListener
- *
- **************************************************************************************************/
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {

@@ -73,53 +73,73 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Flag that indicates whether or not the starting point field is being edited. This flag
      * is used on activity result, to define where to place the coordinates chosen by user
      * after a GetPositionActivity calling.
+     *
+     * @since 0.1.0
      */
-    private boolean mStartingPointEditing;
+    private boolean mEditingStartingPoint;
 
     /**
      * Flag that indicates whether or not the destination field is being edited. This flag
      * is used on activity result, to define where to place the coordinates chosen by user
      * after a GetPositionActivity calling.
+     *
+     * @since 0.1.0
      */
-    private boolean mDestinationEditing;
+    private boolean mEditingDestination;
 
     /**
      * The EditText that holds the starting point of the ride request.
+     *
+     * @since 0.1.0
      */
     private EditText mStartingPointEditText;
 
     /**
      * The EditText that holds the destination point of the ride request.
+     *
+     * @since 0.1.0
      */
     private EditText mDestinationEditText;
 
     /**
      * The EditText that holds the time when the user needs a ride.
+     *
+     * @since 0.1.0
      */
     private EditText mTimeEditText;
 
     /**
      * The EditText that holds the date when the user needs a ride.
+     *
+     * @since 0.1.0
      */
     private EditText mDateEditText;
 
     /**
      * The EditText that holds additional details about the ride request.
+     *
+     * @since 0.1.0
      */
     private EditText mDetailsEditText;
 
     /**
      * The starting point of the ride
+     *
+     * @since 0.1.0
      */
     private Place mStartingPoint;
 
     /**
      * The destination of the ride
+     *
+     * @since 0.1.0
      */
     private Place mDestination;
 
     /**
      * A progress dialog, displayed when any data is being loaded.
+     *
+     * @since 0.1.0
      */
     private ProgressDialog mProDialog;
 
@@ -127,22 +147,24 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         // Required empty public constructor
     }
 
-/***************************************************************************************************
- *
- * Fragment's lifecycle methods
- *
- **************************************************************************************************/
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Checks if the result was sent by the GetLocationActivity
+        // result sent by GetLocationActivity
         if (requestCode == GetLocationActivity.GET_LOCATION_REQUEST_CODE) {
             if ( resultCode == Activity.RESULT_OK ) {
                 Place p = Place.getStoredInstance(GetLocationActivity.RES_PLACE);
 
-                // converts the place's coordinates
-                if (p.hasCoord())
-                    getPlaceTitle(p);
+                if (mEditingStartingPoint) {
+                    mEditingStartingPoint = false;
+
+                    mStartingPoint = p;
+                    mStartingPointEditText.setText(p.getTitulo());
+                } else if (mEditingDestination) {
+                    mEditingDestination = false;
+
+                    mDestination = p;
+                    mDestinationEditText.setText(p.getTitulo());
+                }
             }
         }
     }
@@ -158,15 +180,11 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         return rootView;
     }
 
-/***************************************************************************************************
- *
- * Screen components events
- *
- **************************************************************************************************/
-
     /**
      * Handles the OnClick event for the mDateEditText. Shows a DatePickerDialog with the field content
      * as the initial value.
+     *
+     * @since 0.1.0
      */
     private void mDateEditTextOnClick() {
         mDateEditText.setError(null);
@@ -185,6 +203,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     /**
      * Handles the OnClick event for the mTimeEditText. Shows a TimePickerDialog with the field content
      * as the initial value.
+     *
+     * @since 0.1.0
      */
     private void mTimeEditTextOnClick() {
         mTimeEditText.setError(null);
@@ -201,6 +221,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     /**
      * Handles the OnClick event for the saveButton. If the data is valid, send it to the cloud, then
      * if no error occurs, returns a RideRequest instance as an Intent Extra, and finishes the Activity.
+     *
+     * @since 0.1.0
      */
     private void saveButtonOnClick() {
         if ( isDataValid() ) {
@@ -249,9 +271,11 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     /**
      * Handles the OnClick event for the mStartingPointEditText. The GetLocationActivity is displayed
      * to user selects a place, and use it as the ride starting point.
+     *
+     * @since 0.1.0
      */
     private void mStartingPointEditTextOnClick() {
-        mStartingPointEditing = true;
+        mEditingStartingPoint = true;
         // hides the error icon
         mStartingPointEditText.setError(null);
 
@@ -270,9 +294,11 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     /**
      * Handles the OnClick event for the mDestinationEditText. The GetLocationActivity is displayed
      * to user selects a place, and use it as the ride destination.
+     *
+     * @since 0.1.0
      */
     private void mDestinationEditTextOnClick() {
-        mDestinationEditing = true;
+        mEditingDestination = true;
         // hides the error icon
         mDestinationEditText.setError(null);
 
@@ -298,9 +324,10 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Itializes the componentes.
      *
      * @param rootView The Fragment's inflated layout.
+     * @since 0.1.0
      */
     private void initComponents(View rootView) {
-        mDestinationEditing = mStartingPointEditing = false;
+        mEditingDestination = mEditingStartingPoint = false;
         mStartingPoint = mDestination = null;
 
         mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
@@ -356,6 +383,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * field found.
      *
      * @return <code>true</code> if all form data is valid, and <code>false</code> otherwise.
+     * @since 0.1.0
      */
     public boolean isDataValid() {
         // checks if the starting point was set
@@ -424,6 +452,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Reads the content of the mDateEditText field, and converts it to an Calendar object.
      *
      * @return A Calendar with the date stored on the mDateEditText.
+     * @since 0.1.0
      */
     private Calendar getDateEditTextValue() {
         // gets the date as a String
@@ -446,6 +475,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Reads the content of the mTimeEditText field, and converts it to an Calendar object.
      *
      * @return A Calendar with the time stored on the mDateEditText.
+     * @since 0.1.0
      */
     private Calendar getTimeEditTextValue() {
         // gets the time as a String
@@ -468,6 +498,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Sets text of the mDateEditText field, from a specified Calendar
      *
      * @param date A Calendar instance to initialize the field.
+     * @since 0.1.0
      */
     private void setDateEditTextValue(Calendar date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.date_format));
@@ -478,6 +509,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * Sets text of the mTimeEditText field, from a specified Calendar
      *
      * @param time A Calendar instance to initialize the field.
+     * @since 0.1.0
      */
     private void setTimeEditTextValue(Calendar time) {
         SimpleDateFormat timeFormat = new SimpleDateFormat(getString(R.string.time_format));
@@ -492,6 +524,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * reverse geocoding process.     *
      *
      * @param p The {@link co.vamojunto.model.Place} to get the title from.
+     * @since 0.1.0
      */
     private void getPlaceTitle(Place p) {
         // checks whether location is being edited, the starting point, or the destination point
@@ -499,14 +532,14 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         final EditText editingEditText;
         final Place editingPlace;
 
-        if ( mStartingPointEditing ) {
-            mStartingPointEditing = false;
+        if (mEditingStartingPoint) {
+            mEditingStartingPoint = false;
             mStartingPoint = p;
 
             editingPlace = mStartingPoint;
             editingEditText = mStartingPointEditText;
         } else {
-            mDestinationEditing = false;
+            mEditingDestination = false;
             mDestination = p;
 
             editingPlace = mDestination;
@@ -544,6 +577,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
 
     /**
      * Shows a dialog indicating that the main screen is bein loaded.
+     *
+     * @since 0.1.0
      */
     private void startLoading() {
         mProDialog = new ProgressDialog(getActivity());
@@ -555,6 +590,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
 
     /**
      * Finishes the loading dialog;
+     *
+     * @since 0.1.0
      */
     private void stopLoading() {
         mProDialog.dismiss();
@@ -569,6 +606,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * @param year The year chosen by user.
      * @param month The month chosen by user.
      * @param day The day chosen by user.
+     *
+     * @since 0.1.0
      */
     @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
@@ -587,6 +626,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
      * @param view The TimePicker instance.
      * @param hourOfDay The time chosen by user
      * @param minute The minute chosen by user
+     *
+     * @since 0.1.0
      */
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
