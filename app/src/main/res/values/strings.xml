@@ -242,6 +242,23 @@
     <string name="choosen_place_title">Título do lugar escolhido</string>
     <string name="errormsg_invalid_title">Título inválido</string>
     <string name="errormsg_place_title_required">É obrigatório o fornecimento de um título para o local escolhido!</string>
+    <string name="title_activity_contact">Fale conosco</string>
+    <string name="name">Nome</string>
+    <string name="message_subject">Título</string>
+    <string name="message">Mensagem</string>
+    <string name="sending_message">Enviando mensagem...</string>
+    <string name="message_sent">Mensagem enviada</string>
+    <string name="contact_message_sent">Agradecemos a sua colaboração! A sua mensagem de contato foi enviada com sucesso. Aguarde que entraremos em contato em breve. ;-)</string>
+
+    <!-- Contact type array -->
+    <string-array name="contact_types">
+        <item>Sugestão</item>
+        <item>Pedido</item>
+        <item>Bug</item>
+        <item>Elogio</item>
+        <item>Reclamação</item>
+        <item>Outro</item>
+    </string-array>
 
 
 </resources>

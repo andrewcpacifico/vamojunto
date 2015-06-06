@@ -80,13 +80,13 @@
                     fab:fab_size="mini"
                     fab:fab_label="@string/request_ride" />
 
-                <!--<com.github.clans.fab.FloatingActionButton-->
-                    <!--android:id="@+id/fab_send_message"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:src="@drawable/ic_edit"-->
-                    <!--fab:fab_size="mini"-->
-                    <!--fab:fab_label="Enviar uma mensagem" />-->
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fab_send_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_message_white_24dp"
+                    fab:fab_size="mini"
+                    fab:fab_label="Enviar uma mensagem" />
 
             </com.github.clans.fab.FloatingActionMenu>
         </RelativeLayout>

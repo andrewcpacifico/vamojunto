@@ -171,8 +171,8 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".ui.activities.Teste"
-            android:label="@string/title_activity_teste" >
+            android:name=".ui.activities.ContactActivity"
+            android:label="@string/title_activity_contact" >
         </activity>
     </application>
 

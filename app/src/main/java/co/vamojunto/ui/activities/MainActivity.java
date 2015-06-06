@@ -19,7 +19,6 @@
 
 package co.vamojunto.ui.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -33,15 +32,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.google.android.gms.wallet.fragment.Dimension;
-import com.parse.ParseInstallation;
-import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -106,13 +101,6 @@ public class MainActivity extends ActionBarActivity {
     private Handler mHandler;
 
     private FloatingActionMenu mFloatingMenu;
-
-
-/*************************************************************************************************
- *
- * Activity's events
- *
- *************************************************************************************************/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -187,6 +175,17 @@ public class MainActivity extends ActionBarActivity {
                     startActivityForResult(intent, Globals.NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE);
                 }
             });
+
+            FloatingActionButton fabSendMessage = (FloatingActionButton) findViewById(R.id.fab_send_message);
+            fabSendMessage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mFloatingMenu.close(true);
+
+                    Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
     }
 
@@ -198,12 +197,6 @@ public class MainActivity extends ActionBarActivity {
             super.onBackPressed();
         }
     }
-
-/***************************************************************************************************
- *
- * Other methods
- *
- **************************************************************************************************/
 
     /**
      * Setups the NavigationDrawer
@@ -318,4 +311,5 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
     }
+
 }
