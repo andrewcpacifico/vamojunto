@@ -19,8 +19,10 @@
 
 package co.vamojunto.ui.activities;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -33,9 +35,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.wallet.fragment.Dimension;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
@@ -195,7 +199,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    /***************************************************************************************************
+/***************************************************************************************************
  *
  * Other methods
  *
@@ -207,6 +211,18 @@ public class MainActivity extends ActionBarActivity {
      * @since 0.1.0
      */
     private void initDrawer() {
+        // calculates the navigation drawer width
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        int screenWidth = size.x;
+        int actionBarSize = getResources().getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
+        int drawerWidth = Math.min(screenWidth - actionBarSize, 6 * actionBarSize);
+        Log.d(TAG, "Drawer width: " + drawerWidth);
+        View drawer = findViewById(R.id.drawer);
+        ViewGroup.LayoutParams params = drawer.getLayoutParams();
+        params.width = drawerWidth;
+        drawer.setLayoutParams(params);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
 

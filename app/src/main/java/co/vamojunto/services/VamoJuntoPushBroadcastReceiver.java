@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import co.vamojunto.R;
+import co.vamojunto.model.RideOffer;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
@@ -282,6 +283,9 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      * Returns the intent specific to notifications sent when a seat is requested on some ride
      * offered by user.
      *
+     * <b>05/06/2015</b> - Added the functionality to store the seat request on the local database,
+     * to quickly find these requests when the user open the ride details screen.
+     *
      * @param context The context of notification.
      * @return The intent for this type of notification.
      * @since 0.1.0
@@ -290,6 +294,7 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         Intent intent = null;
         try {
             String rideId = mData.getString("ride_id");
+            RideOffer.incSeatRequests(context, rideId);
 
             intent = new Intent(context, RideDetailsActivity.class);
             intent.putExtra(RideDetailsActivity.EXTRA_RIDE_ID, rideId);

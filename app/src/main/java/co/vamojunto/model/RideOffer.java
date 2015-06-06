@@ -19,6 +19,9 @@
 
 package co.vamojunto.model;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.parse.FindCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseCloud;
@@ -34,6 +37,7 @@ import java.util.Map;
 
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.util.Globals;
 import co.vamojunto.util.TextUtil;
 
 /**
@@ -41,9 +45,9 @@ import co.vamojunto.util.TextUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  *
- * @version 1.0.0 First Version
- * @version 1.1.0 Added the status field, and the functionality to cancel a ride offer.
- * @version 1.2.0 Excluding cancelled offers from getFriendOffers and getOffersByCompany methods.
+ * @version 1.0 First Version
+ * @version 2.0 Added the status field, and the functionality to cancel a ride offer.
+ * @version 3.0 Excluding cancelled offers from getFriendOffers and getOffersByCompany methods.
  *
  * @since 0.1.0
  */
@@ -239,7 +243,7 @@ public class RideOffer extends ParseObject {
         query.findInBackground(new FindCallback<RideOffer>() {
             @Override
             public void done(List<RideOffer> rideOffers, ParseException e) {
-                if ( e == null ) {
+                if (e == null) {
                     tcs.setResult(rideOffers);
                 } else {
                     tcs.setError(e);
@@ -354,7 +358,7 @@ public class RideOffer extends ParseObject {
 
                     // iterate over the RidePassenger records to get only the rides, and adds them
                     // to resultList
-                    for (RidePassenger passengerEntry: passengerList) {
+                    for (RidePassenger passengerEntry : passengerList) {
                         resultList.add(passengerEntry.getRide());
                     }
 
@@ -551,6 +555,55 @@ public class RideOffer extends ParseObject {
         }
 
         return rideQuery.findInBackground();
+    }
+
+    /**
+     * Increment a counter on the local datastore, for the number of seat requests sent to this
+     * ride.
+     *
+     * @since 0.5.0
+     */
+    public static void incSeatRequests(Context context, String offerId) {
+        String prefKey = "seatRequestCount" + offerId;
+        SharedPreferences settings = context.getSharedPreferences(Globals.DEFAULT_PREF_NAME, 0);
+        int currentCount = settings.getInt(prefKey, 0);
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(prefKey, currentCount+1);
+
+        editor.apply();
+    }
+
+    /**
+     * Set the seat request count for the ride offer to zero.
+     *
+     * @param context Context where this method was called.
+     * @param offerId The id of the offer to clear.
+     * @since 0.5.0
+     */
+    public static void clearSeatRequests(Context context, String offerId) {
+        String prefKey = "seatRequestCount" + offerId;
+        SharedPreferences settings = context.getSharedPreferences(Globals.DEFAULT_PREF_NAME, 0);
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.remove(prefKey);
+
+        editor.apply();
+    }
+
+    /**
+     * Return the seat request count for this ride offer.
+     *
+     * @param context Context where this method was called.
+     * @param offerId The id of the offer.
+     * @return The number of unread seat requests.
+     * @since 0.5.0
+     */
+    public static int getSeatRequestsCount(Context context, String offerId) {
+        String prefKey = "seatRequestCount" + offerId;
+        SharedPreferences settings = context.getSharedPreferences(Globals.DEFAULT_PREF_NAME, 0);
+
+        return settings.getInt(prefKey, 0);
     }
 
 }

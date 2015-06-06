@@ -36,7 +36,7 @@ import bolts.Task;
  * Model class for a seat request
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.0
  * @since 0.1.0
  */
 @ParseClassName("SeatRequest")
@@ -160,6 +160,8 @@ public class SeatRequest extends ParseObject {
 
     /**
      * Confirms the seat request on the ride.
+     *
+     * @since 0.1.0
      */
     public Task<Void> confirm() {
         // changes the status on this instance
@@ -176,6 +178,8 @@ public class SeatRequest extends ParseObject {
 
     /**
      * Rejects the seat request on the ride
+     *
+     * @since 0.1.0
      */
     public Task<Void> reject() {
         // changes the status on this instance

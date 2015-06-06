@@ -237,13 +237,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     private TextView mErrorMsgTextView;
 
     /**
-     * Progress dialog displayed when some network task is being executed.
-     *
-     * @since 0.1.0
-     */
-    private ProgressDialog mProgressDialog;
-
-    /**
      * Handler used to run code on the main thread
      *
      * @since 0.1.0
@@ -257,6 +250,11 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      */
     private MenuItem mDeleteMenuItem;
 
+    /**
+     * Inflated layout.
+     *
+     * @since 0.1.0
+     */
     private View mRootView;
 
     @Override
@@ -290,9 +288,11 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     public void onStart() {
         super.onStart();
 
-        // if the ride data was already fetched, show the ride passengers on screen
+        // if the ride data was already fetched, show the ride passengers on screen, and update
+        // the driver menu on the app bar
         if (mRideOffer != null) {
             showPassengers();
+            displayDriverMenu();
         }
     }
 
@@ -329,7 +329,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
         displayDriverMenu();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -417,7 +416,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         confirmDialog.show();
     }
 
-
     /**
      * Initializes the screen
      *
@@ -486,6 +484,9 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             if (mRideOffer.getDriver().equals(User.getCurrentUser()) && mRideOffer.isActive()) {
                 mDeleteMenuItem.setVisible(true);
                 mNotificationMenuItem.setVisible(true);
+
+                updateNotificationCount(RideOffer.getSeatRequestsCount(getActivity(),
+                        mRideOffer.getId()));
             } else {
                 mDeleteMenuItem.setVisible(false);
                 mNotificationMenuItem.setVisible(false);
@@ -497,7 +498,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
      * Update the notification count on actionBar icon.
      *
      * @param count The new notification count.
-     * @since 0.4.000
+     * @since 0.4.0
      */
     private void updateNotificationCount(int count) {
         if (count == 0) {
@@ -545,47 +546,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         }
 
         displayDriverMenu();
-
-        // configures the bottom screen button based on the following cases:
-        //   - if the user is not the driver of this ride, and the ride still have seats available,
-        // the button will be displayed and will be used to request a seat on the ride
-        //   - if the user is not the driver of this ride, but the ride do not have any seats
-        // available, the button will be hide
-        //   - if the user is the driver of this ride, the button will always be displayed and
-        // will be used to redirect the user to a screen where he can view the seat requests
-        // made to this ride.
-//        if ( ! mRide.getDriver().equals(User.getCurrentUser()) ) {
-//            // case 1, the user is not the driver, and there is seats available
-//            if (mRide.getSeatsAvailable() > 0) {
-//                // sets the button action, to request a seat on the ride
-//                mRequestSeatButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        requestSeatButtonOnClick();
-//                    }
-//                });
-//                // case 2, the user is not the driver, but there is no seats available
-//            } else {
-//                // hide the button
-//                mRequestSeatButton.setVisibility(View.GONE);
-//            }
-//            // case 3, the user is the driver
-//        } else {
-//            // changes the button label
-//            mRequestSeatButton.setText(getString(R.string.view_requests));
-//
-//            // sets the button action, to show the SeatRequestsActivity
-//            mRequestSeatButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    // sends the ride to SeatRequestsActivity
-//                    Ride.storeInstance(SeatRequestsActivity.INPUT_RIDE, mRide);
-//
-//                    Intent intent = new Intent(getActivity(), SeatRequestsActivity.class);
-//                    startActivity(intent);
-//                }
-//            });
-//        }
 
         if (mRideOffer.getSeatsAvailable() > 0) {
             mSeatsAvailableTextView.setText(getString(R.string.seats_available) + ": "
@@ -652,7 +612,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                     Toast.LENGTH_LONG).show();
             return;
         } else {
-            startLoading(getString(R.string.sending_seat_request));
+            UIUtil.startLoading(getActivity(), getString(R.string.sending_seat_request));
         }
 
         // checks if the current user is already a passenger of the ride
@@ -662,7 +622,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                     getString(R.string.errormsg_already_passenger),
                     Toast.LENGTH_LONG).show();
 
-            stopLoading();
+            UIUtil.stopLoading();
             return;
         }
 
@@ -683,7 +643,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         }).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                stopLoading();
+                UIUtil.stopLoading();
 
                 // checks if the user successfully sent the request
                 if (!task.isCancelled() && !task.isFaulted()) {
@@ -776,30 +736,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     }
 
     /**
-     * Displays a ProgressDialog on the screen
-     *
-     * @param msg The message to display on ProgressDialog
-     * @since 0.1.0
-     */
-    private void startLoading(String msg) {
-        mProgressDialog = new ProgressDialog(getActivity());
-        mProgressDialog.setMessage(msg);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
-    }
-
-    /**
-     * Dismisses the ProgressDialog
-     *
-     * @since 0.1.0
-     */
-    private void stopLoading() {
-        mProgressDialog.dismiss();
-        mProgressDialog = null;
-    }
-
-    /**
      * Fetches the ride data from cloud, and updates the screen to show the data.
      *
      * @since 0.1.0
@@ -876,5 +812,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
             return true;
         }
     }
+
 }
 

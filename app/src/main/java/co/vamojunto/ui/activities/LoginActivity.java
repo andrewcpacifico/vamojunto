@@ -197,15 +197,15 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                                     if (user == null) {
                                         Log.i(TAG, "User null after parse login, this error should not have happened...");
                                     } else {
+                                        // associate the device with a user
+                                        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                                        installation.put("user", user);
+                                        installation.saveInBackground();
+
                                         // if is the first time user logs in, fetch some data from
                                         // facebook account to finish the signup
                                         if (user.isNew()) {
                                             Log.i(TAG, "New user Registered with facebook login...");
-
-                                            // associate the device with a user
-                                            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-                                            installation.put("user", user);
-                                            installation.saveInBackground();
 
                                             mHandler.post(new Runnable() {
                                                 @Override

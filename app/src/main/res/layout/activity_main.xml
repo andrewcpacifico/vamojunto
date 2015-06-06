@@ -23,9 +23,7 @@
     android:id="@+id/nav_drawer_layout"
     android:elevation="7sp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-
+    android:layout_height="match_parent" >
     <FrameLayout
         android:id="@+id/master_container"
         android:layout_width="match_parent"
@@ -95,6 +93,8 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/drawer"
+
         android:layout_gravity="left"
         android:layout_width="320dp"
         android:layout_height="match_parent"

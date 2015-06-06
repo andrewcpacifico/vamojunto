@@ -346,6 +346,7 @@ public class SeatRequestsFragment extends Fragment {
                         // have been sent, just show a message to the user
                         if (lst.size() > 0) {
                             mAdapter.setDataset(lst);
+                            RideOffer.clearSeatRequests(getActivity(), mRideOffer.getId());
                         } else {
                             mViewFlipper.setDisplayedChild(VIEW_NO_REQUEST_MESSAGE);
                         }

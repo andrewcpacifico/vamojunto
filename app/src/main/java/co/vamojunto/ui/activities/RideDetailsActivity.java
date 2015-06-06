@@ -31,7 +31,7 @@ import co.vamojunto.ui.fragments.RideDetailsFragment;
  * Activity where the user can view the details of a specific ride.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.0
  * @since 0.1.0
  */
 public class RideDetailsActivity extends ActionBarActivity {
