@@ -73,4 +73,23 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="ShowcaseTheme" parent="ShowcaseView.Light">
+        <item name="sv_backgroundColor">#cc000000</item>
+        <item name="sv_showcaseColor">@color/ColorPrimary</item>
+        <item name="sv_buttonText">Ok</item>
+        <item name="sv_tintButtonColor">true</item>
+        <item name="sv_titleTextAppearance">@style/ShowCaseTitle</item>
+        <item name="sv_detailTextAppearance">@style/ShowCaseText</item>
+        <item name="sv_buttonBackgroundColor">@color/ColorPrimary</item>
+        <item name="sv_buttonForegroundColor">#fff</item>
+    </style>
+
+    <style name="ShowCaseTitle" parent="TextAppearance.ShowcaseView.Title">
+        <item name="android:textColor">@color/ColorPrimary</item>
+    </style>
+
+    <style name="ShowCaseText" parent="TextAppearance.ShowcaseView.Detail">
+        <item name="android:textColor">#fff</item>
+    </style>
+
 </resources>

@@ -32,9 +32,20 @@ import co.vamojunto.model.User;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 2.0
  */
 public class FriendsOffersFragment extends AbstractListRideOffersFragment {
+
+    /**
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters. Avoid to use the class constructor.
+     *
+     * @return A new instance of fragment FriendsOffersFragment.
+     * @since 0.6.0
+     */
+    public static FriendsOffersFragment newInstance() {
+        return new FriendsOffersFragment();
+    }
 
     @Override
     protected boolean isOfflineFeed() {

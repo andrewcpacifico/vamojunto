@@ -26,9 +26,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -38,7 +39,9 @@ import android.widget.ViewFlipper;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.exceptions.NotImplementedException;
 import co.vamojunto.model.UserCompany;
+import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
@@ -46,9 +49,10 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.3.0
- * @version 1.0.0
+ * @version 2.0
  */
-public abstract class AbstractFeedFragment extends Fragment {
+public abstract class AbstractFeedFragment extends Fragment
+        implements MenuItem.OnMenuItemClickListener {
 
     private static final String TAG = "AbstractFeedFragment";
 
@@ -112,6 +116,8 @@ public abstract class AbstractFeedFragment extends Fragment {
      * @since 0.3.0
      */
     private Button mErrorScreenRetryButton;
+    private MyPagerAdapter mPagerAdapter;
+    private ViewPager mPager;
 
     public AbstractFeedFragment() {
         // Required empty public constructor
@@ -149,6 +155,7 @@ public abstract class AbstractFeedFragment extends Fragment {
         });
 
         initComponents(rootView);
+        setupAppBar();
 
         return rootView;
     }
@@ -193,10 +200,11 @@ public abstract class AbstractFeedFragment extends Fragment {
      * @since 0.3.0
      */
     private void displayDefaultScreen(View rootView) {
+        mPagerAdapter = new MyPagerAdapter(getChildFragmentManager(), this);
 
         // assigning ViewPager View and setting the adapter
-        ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
-        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager(), this));
+        mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mPager.setAdapter(mPagerAdapter);
 
         // assigning the Sliding Tab Layout View
         SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
@@ -211,19 +219,39 @@ public abstract class AbstractFeedFragment extends Fragment {
         });
 
         // setting the ViewPager For the SlidingTabsLayout
-        tabs.setViewPager(pager);
-
-        // changes the action bar title
-        ((ActionBarActivity) getActivity()).getSupportActionBar()
-                .setTitle(getTitle());
-
-        setHasOptionsMenu(true);
+        tabs.setViewPager(mPager);
 
         mFlipper.setDisplayedChild(VIEW_DEFAULT);
     }
 
     protected Handler getHandler() {
         return mHandler;
+    }
+
+    protected Toolbar getAppBar() {
+        return ((VamoJuntoActivity)getActivity()).getAppBar();
+    }
+
+    protected void setupAppBar() {
+        Toolbar appBar = getAppBar();
+        appBar.getMenu().clear();
+
+        appBar.inflateMenu(R.menu.menu_list_rides);
+        appBar.getMenu().findItem(R.id.search_menu).setOnMenuItemClickListener(this);
+
+        appBar.setTitle(R.string.app_name);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.search_menu) {
+            FilterFeedFragment filterFragment = new FilterFeedFragment();
+            filterFragment.show(mPagerAdapter.getFragment(mPager.getCurrentItem()));
+        }
+
+        return false;
     }
 
     /**
@@ -267,37 +295,43 @@ public abstract class AbstractFeedFragment extends Fragment {
      * Define the authorization status for user accessing the feed. The {@link UserCompany.Status}
      * are used to define the user authorization.
      *
+     * The default status is {@link co.vamojunto.model.UserCompany.Status#APPROVED}, subclasses have
+     * to override this method to change it.
+     *
      * @return A Task containing the result for the user status searching.
      * @since 0.3.0
      */
-    protected abstract Task<UserCompany.Status> isAuthorized();
+    protected Task<UserCompany.Status> isAuthorized() {
+        return Task.forResult(UserCompany.Status.APPROVED);
+    }
 
     /**
      * Inflate the components on the screen displayed to user if h eis not authorized to access
      * the feed. Usually this screen will have a registration form, and on this method the components
      * of this form are inflated.
      *
+     * An empty implementation is provided, so if the feed is always enabled, nothing have to be
+     * done, but if the feed have a not authorized screen, this method have to be overridden.
+     *
      * @param rootView The inflated layout for the not authorized screen.
      * @since 0.3.0
      */
-    protected abstract void initNotAuthorizedComponents(View rootView);
+    protected void initNotAuthorizedComponents(View rootView) { }
 
     /**
      * Return the layout resource of the screen displayed to user if he is not authorized to access
      * the feed.
      *
      * @return The layout resource.
+     * @throws NotImplementedException If the subclass have a not authorized screen, this method
+     *         have to be overridden.
      * @since 0.3.0
      */
-    protected abstract @LayoutRes int getNotAuthorizedLayoutRes();
-
-    /**
-     * Return a String to use as the title of the screen.
-     *
-     * @return The title of the screen.
-     * @since 0.3.0
-     */
-    protected abstract String getTitle();
+    protected @LayoutRes int getNotAuthorizedLayoutRes() throws NotImplementedException {
+        throw new NotImplementedException(
+            "If the feed have a not authorized screen, this method have to be implemented"
+        );
+    }
 
     /**
      * Return the fragment that displays the list of ride offers on this feed.
@@ -316,16 +350,19 @@ public abstract class AbstractFeedFragment extends Fragment {
      *
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
      * @since 0.3.0
-     * @version 1.0.0
+     * @version 3.0
      */
     private static class MyPagerAdapter extends FragmentPagerAdapter {
 
         private AbstractFeedFragment mContainerFragment;
 
+        private FilterableFeedFragment mFeedFragments[];
+
         public MyPagerAdapter(FragmentManager fm, AbstractFeedFragment containerFragment) {
             super(fm);
 
             mContainerFragment = containerFragment;
+            mFeedFragments = new FilterableFeedFragment[2];
         }
 
         @Override
@@ -342,18 +379,28 @@ public abstract class AbstractFeedFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return mContainerFragment.getListOffersFragment();
+                mFeedFragments[0] = mContainerFragment.getListOffersFragment();
             } else if (position == 1) {
-                return mContainerFragment.getListRequestsFragment();
+                mFeedFragments[1] = mContainerFragment.getListRequestsFragment();
             }
 
-            else return null;
+            return mFeedFragments[position];
         }
 
         @Override
         public int getCount() {
             return 2;
         }
+
+        /**
+         * TODO
+         * @param position
+         * @return
+         */
+        public FilterableFeedFragment getFragment(int position) {
+            return mFeedFragments[position];
+        }
     }
 
 }
+

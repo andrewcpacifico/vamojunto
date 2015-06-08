@@ -44,7 +44,7 @@ import co.vamojunto.R;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 1.0
  */
 public class FilterFeedFragment extends Fragment {
 

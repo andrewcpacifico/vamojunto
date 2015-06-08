@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import co.vamojunto.R;
+import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
@@ -80,7 +81,7 @@ public class MinhasCaronasFragment extends Fragment {
         tabs.setViewPager(pager);
 
         // changes the action bar title
-        ((ActionBarActivity)getActivity()).getSupportActionBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
+        ((VamoJuntoActivity) getActivity()).getAppBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
 
         setHasOptionsMenu(true);
 

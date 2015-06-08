@@ -65,6 +65,13 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     }
 
     @Override
+    protected void setupAppBar() {
+        super.setupAppBar();
+
+        getAppBar().setTitle(R.string.screentitle_ufam_feed);
+    }
+
+    @Override
     protected Task<UserCompany.Status> isAuthorized() {
         final Task<UserCompany.Status>.TaskCompletionSource tcs = Task.create();
 
@@ -185,11 +192,6 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
     @Override
     protected int getNotAuthorizedLayoutRes() {
         return R.layout.layout_ufam_registration;
-    }
-
-    @Override
-    protected String getTitle() {
-        return getString(R.string.screentitle_ufam_feed);
     }
 
     @Override

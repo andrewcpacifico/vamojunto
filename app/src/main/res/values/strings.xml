@@ -249,6 +249,8 @@
     <string name="sending_message">Enviando mensagem...</string>
     <string name="message_sent">Mensagem enviada</string>
     <string name="contact_message_sent">Agradecemos a sua colaboração! A sua mensagem de contato foi enviada com sucesso. Aguarde que entraremos em contato em breve. ;-)</string>
+    <string name="tooltiptitle_manage_friends">Gerenciamento de amigos</string>
+    <string name="tooltipmsg_manage_friends">Neste ícone você tem acesso à tela de gerenciamento de amigos. Lá você encontra os seus amigos do Facebook, e pode escolher quem gostaria de seguir no aplicativo.</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">

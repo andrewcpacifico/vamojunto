@@ -46,6 +46,7 @@ import co.vamojunto.util.Globals;
 /**
  * @author Andrew C. Pacifico (andrewcpacifico@gmail.com)
  * @since 0.1.0
+ * @version 1.0
  */
 public class MyApplication extends Application {
     private static final String TAG = "MyApplication";

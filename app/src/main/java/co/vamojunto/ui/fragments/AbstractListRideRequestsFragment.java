@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,6 +50,7 @@ import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
+import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 import co.vamojunto.util.TextUtil;
@@ -186,25 +188,6 @@ public abstract class AbstractListRideRequestsFragment extends FilterableFeedFra
             }
         });
         mErrorScreenIcon = (ImageView) rootView.findViewById(R.id.error_screen_message_icon);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        inflater.inflate(R.menu.menu_list_rides, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.search_menu) {
-            FilterFeedFragment filterFragment = new FilterFeedFragment();
-            filterFragment.show(AbstractListRideRequestsFragment.this);
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -20,23 +20,20 @@
 package co.vamojunto.ui.fragments;
 
 
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Toast;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.ui.activities.ManageFriendsActivity;
-import co.vamojunto.ui.widget.SlidingTabLayout;
+import co.vamojunto.util.Globals;
+import co.vamojunto.util.UIUtil;
 
 /**
  * Fragment to display the feed from user friends. All data posted by the user friends have to be
@@ -44,9 +41,9 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.0
+ * @version 2.0
  */
-public class FriendsFeedFragment extends Fragment {
+public class FriendsFeedFragment extends AbstractFeedFragment implements MenuItem.OnMenuItemClickListener {
 
     private static final String TAG = "MyFriendsFeedFragment";
 
@@ -54,104 +51,73 @@ public class FriendsFeedFragment extends Fragment {
         // Required empty public constructor
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_my_friends_feed, container, false);
-
-        // assigning ViewPager View and setting the adapter
-        ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
-        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
-
-        // assigning the Sliding Tab Layout View
-        SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
-        tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
-
-        // setting Custom Color for the Scroll bar indicator of the Tab View
-        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
-            @Override
-            public int getIndicatorColor(int position) {
-                return getResources().getColor(R.color.ColorPrimaryDark);
-            }
-        });
-
-        // setting the ViewPager For the SlidingTabsLayout
-        tabs.setViewPager(pager);
-
-        // changes the action bar title
-        ((ActionBarActivity)getActivity()).getSupportActionBar()
-                .setTitle(getString(R.string.my_friends_feed));
-
-        setHasOptionsMenu(true);
-
-        return rootView;
+    /**
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters. Avoid to use the class constructor.
+     *
+     * @return A new instance of fragment FriendsFeedFragment.
+     * @since 0.6.0
+     */
+    public static FriendsFeedFragment newInstance() {
+        return new FriendsFeedFragment();
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
+    protected void setupAppBar() {
+        super.setupAppBar();
 
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_my_friends_feed, menu);
+        Toolbar appBar = getAppBar();
+        appBar.setTitle(getString(R.string.my_friends_feed));
+
+        appBar.inflateMenu(R.menu.menu_my_friends_feed);
+        appBar.getMenu().findItem(R.id.action_manage_friends).setOnMenuItemClickListener(this);
+
+        // get the default preferences for app
+        final SharedPreferences settings = getActivity().getSharedPreferences(
+            Globals.DEFAULT_PREF_NAME,
+            Context.MODE_PRIVATE
+        );
+
+        // check if it is the first exhibition of this feed, if it is true, display the screen
+        // tooltips for the user
+        boolean firstTime = settings.getBoolean(TAG + "firstTime", true);
+        if (firstTime) {
+            UIUtil.showCase(
+                getActivity(),
+                getString(R.string.tooltiptitle_manage_friends),
+                getString(R.string.tooltipmsg_manage_friends),
+                appBar.findViewById(R.id.action_manage_friends)
+            );
+
+            // defines an editor to preferences
+            final SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(TAG + "firstTime", false);
+            editor.apply();
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handles action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+    protected AbstractListRideOffersFragment getListOffersFragment() {
+        return FriendsOffersFragment.newInstance();
+    }
+
+    @Override
+    protected AbstractListRideRequestsFragment getListRequestsFragment() {
+        return FriendsRequestsFragment.newInstance();
+    }
+
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.action_manage_friends) {
             Intent intent = new Intent(getActivity(), ManageFriendsActivity.class);
-            getActivity().startActivity(intent);
+            startActivity(intent);
+
+            return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return super.onMenuItemClick(item);
     }
-
-    /**
-     * Adapter to fill the pages on this Fragment tabs.  Two tabs are displayed, one where the
-     * user can view the rides offered by his friends, and another where the user can view the
-     * rides requested by his friends.
-     *
-     * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
-     * @since 0.1.0
-     * @version 1.0.0
-     */
-    public class MyPagerAdapter extends FragmentPagerAdapter {
-
-        public MyPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if (position == 0)
-                return getString(R.string.ride_offers);
-            else if (position == 1)
-                return getString(R.string.ride_requests);
-
-            return "";
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0) {
-                Fragment f = new FriendsOffersFragment();
-
-                return f;
-            }
-            else if (position == 1)
-                return new FriendsRequestsFragment();
-
-            else return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-    }
-
 }

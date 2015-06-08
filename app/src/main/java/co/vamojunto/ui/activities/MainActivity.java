@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -56,7 +57,7 @@ import co.vamojunto.util.Globals;
  * @since 0.1.0
  * @version 1.2.0
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends VamoJuntoActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -84,109 +85,64 @@ public class MainActivity extends ActionBarActivity {
     public static final String EXTRA_INITIAL_VIEW = TAG + ".InitialView";
 
     /**
-     * Application bar
-     */
-    private Toolbar mToolbar;
-
-    /**
      * NavigationDrawer instance
      */
     private DrawerLayout mDrawerLayout;
 
-    /**
-     * Authenticated user
-     */
-    private User mCurrentUser;
-
-    private Handler mHandler;
-
     private FloatingActionMenu mFloatingMenu;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                fragment.onActivityResult(requestCode, resultCode, data);
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mHandler = new Handler();
-
-        // checks if the user is authenticated, if not, displays the login screen.
-        mCurrentUser = User.getCurrentUser();
-        if (mCurrentUser == null) {
-            Log.i(TAG, "User not authenticated. Displaying the login screen...");
-
-            // starts the login screen to the user
-            Intent intent = new Intent(this, LoginActivity.class);
-            this.startActivity(intent);
-            this.finish();
-
-        // if user is authenticated, setups the main screen
-        } else {
-            setContentView(R.layout.activity_main);
-
-            // checks if an initial view was sent to activity
-            if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
-                int viewCode = getIntent().getIntExtra(EXTRA_INITIAL_VIEW, -1);
-                displayView(viewCode);
-            } else if (savedInstanceState == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new FriendsFeedFragment())
-                        .commit();
-            }
-
-            // setups the application bar
-            mToolbar = (Toolbar) findViewById(R.id.tool_bar);
-            setSupportActionBar(mToolbar);
-
-            // setups the application's NavigationDrawer
-            initDrawer();
-
-            mFloatingMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
-            mFloatingMenu.setClosedOnTouchOutside(true);
-
-            FloatingActionButton fabOfferRide = (FloatingActionButton) findViewById(R.id.fab_offer_ride);
-            fabOfferRide.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mFloatingMenu.close(true);
-
-                    Intent intent = new Intent(MainActivity.this, NewRideActivity.class);
-                    startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
-                }
-            });
-
-            FloatingActionButton fabRequestRide = (FloatingActionButton) findViewById(R.id.fab_request_ride);
-            fabRequestRide.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mFloatingMenu.close(true);
-
-                    Intent intent = new Intent(MainActivity.this, NewRideRequestActivity.class);
-                    startActivityForResult(intent, Globals.NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE);
-                }
-            });
-
-            FloatingActionButton fabSendMessage = (FloatingActionButton) findViewById(R.id.fab_send_message);
-            fabSendMessage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mFloatingMenu.close(true);
-
-                    Intent intent = new Intent(MainActivity.this, ContactActivity.class);
-                    startActivity(intent);
-                }
-            });
+        // checks if an initial view was sent to activity
+        if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
+            int viewCode = getIntent().getIntExtra(EXTRA_INITIAL_VIEW, -1);
+            displayView(viewCode);
+        } else if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new FriendsFeedFragment())
+                    .commit();
         }
+
+        // setups the application's NavigationDrawer
+        initDrawer();
+
+        mFloatingMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
+        mFloatingMenu.setClosedOnTouchOutside(true);
+
+        FloatingActionButton fabOfferRide = (FloatingActionButton) findViewById(R.id.fab_offer_ride);
+        fabOfferRide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatingMenu.close(true);
+
+                Intent intent = new Intent(MainActivity.this, NewRideActivity.class);
+                startActivityForResult(intent, Globals.NEW_RIDE_ACTIVITY_REQUEST_CODE);
+            }
+        });
+
+        FloatingActionButton fabRequestRide = (FloatingActionButton) findViewById(R.id.fab_request_ride);
+        fabRequestRide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatingMenu.close(true);
+
+                Intent intent = new Intent(MainActivity.this, NewRideRequestActivity.class);
+                startActivityForResult(intent, Globals.NEW_RIDE_REQ_ACTIVITY_REQUEST_CODE);
+            }
+        });
+
+        FloatingActionButton fabSendMessage = (FloatingActionButton) findViewById(R.id.fab_send_message);
+        fabSendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatingMenu.close(true);
+
+                Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                startActivity(intent);
+            }
+            });
     }
 
     @Override
@@ -210,7 +166,6 @@ public class MainActivity extends ActionBarActivity {
         int screenWidth = size.x;
         int actionBarSize = getResources().getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
         int drawerWidth = Math.min(screenWidth - actionBarSize, 6 * actionBarSize);
-        Log.d(TAG, "Drawer width: " + drawerWidth);
         View drawer = findViewById(R.id.drawer);
         ViewGroup.LayoutParams params = drawer.getLayoutParams();
         params.width = drawerWidth;
@@ -219,10 +174,11 @@ public class MainActivity extends ActionBarActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        Bitmap imgUsuario = mCurrentUser.getProfileImage();
+        User currentUser = User.getCurrentUser();
+        Bitmap imgUsuario = currentUser.getProfileImage();
 
-        RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(this, mCurrentUser.getName(),
-                mCurrentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
+        RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(this, currentUser.getName(),
+                currentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View v, int position) {
                 navigationDrawerItemClicked(position);
@@ -236,7 +192,7 @@ public class MainActivity extends ActionBarActivity {
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.nav_drawer_layout);
 
-        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.openDrawer, R.string.closeDrawer) {
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mAppBar, R.string.openDrawer, R.string.closeDrawer) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
@@ -297,7 +253,7 @@ public class MainActivity extends ActionBarActivity {
             // the second item on navigation drawer displays the user's friends feed screen
             case VIEW_FRIENDS_FEED:
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, new FriendsFeedFragment()).commit();
+                        .replace(R.id.container, FriendsFeedFragment.newInstance()).commit();
                 break;
 
             case VIEW_UFAM_FEED:
