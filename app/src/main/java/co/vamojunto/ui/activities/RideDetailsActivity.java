@@ -31,10 +31,10 @@ import co.vamojunto.ui.fragments.RideDetailsFragment;
  * Activity where the user can view the details of a specific ride.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0
+ * @version 2.0
  * @since 0.1.0
  */
-public class RideDetailsActivity extends ActionBarActivity {
+public class RideDetailsActivity extends VamoJuntoActivity {
 
     public static final String TAG = "RideDetailsActivity";
 
@@ -55,29 +55,19 @@ public class RideDetailsActivity extends ActionBarActivity {
     public static final String EXTRA_RIDE_ID = TAG + ".rideId";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ride_details);
+    protected int getContentView() {
+        return R.layout.activity_ride_details;
+    }
+
+    @Override
+    protected void onCreated(Bundle savedInstanceState) {
+        super.onCreated(savedInstanceState);
 
         RideDetailsFragment fragment = new RideDetailsFragment();
         fragment.setArguments(getIntent().getExtras());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
         }
-
-        setupAppBar();
-    }
-
-    /**
-     * Initializes the activity's App Bar
-     *
-     * @since 0.1.0
-     */
-    private void setupAppBar() {
-        Toolbar toolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
-
-        setSupportActionBar(toolbarActionBar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**

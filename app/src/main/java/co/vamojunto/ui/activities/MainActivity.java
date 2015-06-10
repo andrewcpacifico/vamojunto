@@ -92,8 +92,13 @@ public class MainActivity extends VamoJuntoActivity {
     private FloatingActionMenu mFloatingMenu;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected int getContentView() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    protected void onCreated(Bundle savedInstanceState) {
+        super.onCreated(savedInstanceState);
 
         // checks if an initial view was sent to activity
         if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
@@ -142,7 +147,7 @@ public class MainActivity extends VamoJuntoActivity {
                 Intent intent = new Intent(MainActivity.this, ContactActivity.class);
                 startActivity(intent);
             }
-            });
+        });
     }
 
     @Override

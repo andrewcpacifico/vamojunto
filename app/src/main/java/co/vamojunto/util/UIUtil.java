@@ -22,9 +22,13 @@ package co.vamojunto.util;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Point;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.RelativeLayout;
 
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
@@ -96,9 +100,29 @@ public class UIUtil {
      * @since 0.6.0
      */
     public static Task<Void> showCase(Activity activity, String title, String message, View target) {
+        return showCase(activity, title, message, target, false);
+    }
+
+    /**
+     * Display a tooltip for a given View.
+     *
+     * @param activity
+     * @param title
+     * @param message
+     * @param target
+     * @return
+     * @since 0.6.0
+     */
+    public static Task<Void> showCase(
+            Activity activity,
+            String title,
+            String message,
+            View target,
+            boolean buttonOnLeft
+    ) {
         final Task<Void>.TaskCompletionSource tcs = Task.create();
 
-        new ShowcaseView.Builder(activity)
+        ShowcaseView showcaseView = new ShowcaseView.Builder(activity)
                 .setTarget(new ViewTarget(target))
                 .setContentTitle(title)
                 .setContentText(message)
@@ -106,7 +130,8 @@ public class UIUtil {
                 .hideOnTouchOutside()
                 .setShowcaseEventListener(new OnShowcaseEventListener() {
                     @Override
-                    public void onShowcaseViewHide(ShowcaseView showcaseView) { }
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                    }
 
                     @Override
                     public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
@@ -114,9 +139,28 @@ public class UIUtil {
                     }
 
                     @Override
-                    public void onShowcaseViewShow(ShowcaseView showcaseView) { }
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                    }
                 })
                 .build();
+
+        if (buttonOnLeft) {
+            Resources r = activity.getResources();
+            int margin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    16,
+                    r.getDisplayMetrics()
+            );
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            layoutParams.setMargins(margin, 0, 0, margin);
+
+            showcaseView.setButtonPosition(layoutParams);
+        }
 
         return tcs.getTask();
     }

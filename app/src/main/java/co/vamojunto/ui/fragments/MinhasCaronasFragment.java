@@ -28,6 +28,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,11 +47,18 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
+ * @version 2.0
  */
 public class MinhasCaronasFragment extends Fragment {
 
     private static final String TAG = "MinhasCaronasFragment";
-    private ProgressDialog mProDialog;
+
+    /**
+     * Application Bar instance
+     *
+     * @since 0.6.0
+     */
+    private Toolbar mAppBar;
 
     public MinhasCaronasFragment() {
         // Required empty public constructor
@@ -67,7 +75,8 @@ public class MinhasCaronasFragment extends Fragment {
 
         // assigning the Sliding Tab Layout View
         SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
-        tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+        tabs.setDistributeEvenly(true);
+        tabs.setSelectedIndicatorColors(getResources().getColor(R.color.white));
 
         // setting Custom Color for the Scroll bar indicator of the Tab View
         tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
@@ -80,17 +89,28 @@ public class MinhasCaronasFragment extends Fragment {
         // setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
 
-        // changes the action bar title
-        ((VamoJuntoActivity) getActivity()).getAppBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
-
-        setHasOptionsMenu(true);
+        setupAppBar();
 
         return rootView;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
+    private Toolbar getAppBar() {
+        if (mAppBar == null) {
+            mAppBar = ((VamoJuntoActivity) getActivity()).getAppBar();
+        }
+
+        return mAppBar;
+    }
+
+    /**
+     * Configure the application bar when this fragment is inflated.
+     *
+     * @since 0.6.0
+     */
+    private void setupAppBar() {
+        // changes the action bar title
+        getAppBar().setTitle(getString(R.string.minhas_caronas_fragment_title));
+        getAppBar().getMenu().clear();
     }
 
     @Override

@@ -25,11 +25,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.DialogPreference;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -60,8 +62,10 @@ import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.activities.SeatRequestsActivity;
+import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.widget.ExpandableHeightGridView;
 import co.vamojunto.util.DateUtil;
+import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
 import co.vamojunto.util.UIUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -73,7 +77,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @version 1.1.0
  * @since 0.1.0
  */
-public class RideDetailsFragment extends android.support.v4.app.Fragment {
+public class RideDetailsFragment extends android.support.v4.app.Fragment
+        implements Toolbar.OnMenuItemClickListener {
 
     private static final String TAG = "RideDetailsFragment";
 
@@ -275,6 +280,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         mHandler = new Handler();
 
         initComponents(mRootView);
+        setupAppBar();
 
         return mRootView;
     }
@@ -297,10 +303,54 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+    public boolean onMenuItemClick(MenuItem item) {
+        // handles action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-        inflater.inflate(R.menu.menu_ride_details, menu);
+        if (id == R.id.action_delete) {
+            deleteMenuItemAction();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private Toolbar getAppBar() {
+        return ((VamoJuntoActivity) getActivity()).getAppBar();
+    }
+
+    /**
+     * Customize application bar for this fragment
+     *
+     * @since 0.6.0
+     */
+    private void setupAppBar() {
+        Toolbar appBar = ((VamoJuntoActivity) getActivity()).getAppBar();
+        appBar.setTitle(R.string.title_activity_ride_details);
+        appBar.setNavigationIcon(R.drawable.ic_action);
+        appBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity().isTaskRoot()) {
+                    // code to navigate up to MainActivity
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    startActivity(intent);
+                    getActivity().finish();
+                } else {
+                    getActivity().finish();
+                }
+            }
+        });
+
+        Menu menu = appBar.getMenu();
+        appBar.setOnMenuItemClickListener(this);
+        appBar.inflateMenu(R.menu.menu_ride_details);
 
         // the delete menu is not visible by default, later when the ride data is fetched, if the
         // user is the driver, the menu will be visible again
@@ -328,32 +378,6 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
         };
 
         displayDriverMenu();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handles action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            if (getActivity().isTaskRoot()) {
-                // code to navigate up to MainActivity
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_MY_RIDES);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                startActivity(intent);
-                getActivity().finish();
-            } else {
-                getActivity().finish();
-            }
-        } else if (id == R.id.action_delete) {
-            deleteMenuItemAction();
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -487,6 +511,43 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
 
                 updateNotificationCount(RideOffer.getSeatRequestsCount(getActivity(),
                         mRideOffer.getId()));
+
+                //
+                // display a tutorial for the notifications icon on the first time the user
+                // open the ride details activity for a owned ride offer
+                //
+                final SharedPreferences settings = getActivity().getSharedPreferences(
+                        Globals.DEFAULT_PREF_NAME,
+                        Context.MODE_PRIVATE
+                );
+                // check if the tutorial for the ask a seat fab, have been already displayed to user
+                boolean firstTime = settings.getBoolean(TAG + "seatreqnotif_firstTime", true);
+                // get an editor for the preferences
+                final SharedPreferences.Editor editor = settings.edit();
+                if (firstTime) {
+                    UIUtil.showCase(
+                            getActivity(),
+                            getString(R.string.tooltiptitle_seatreqnotif),
+                            getString(R.string.tooltipmsg_seatreqnotif),
+                            mNotificationMenuItem.getActionView()
+                    ).continueWith(new Continuation<Void, Void>() {
+                        @Override
+                        public Void then(Task<Void> task) throws Exception {
+                            UIUtil.showCase(
+                                    getActivity(),
+                                    getString(R.string.tooltiptitle_cancel_offer),
+                                    getString(R.string.tooltipmsg_cancel_offer),
+                                    getAppBar().findViewById(R.id.action_delete)
+                            );
+
+                            return null;
+                        }
+                    });
+                    //change the preference value
+                    editor.putBoolean(TAG + "seatreqnotif_firstTime", false);
+                    editor.putBoolean(TAG + "offerCancel_firstTime", false);
+                    editor.apply();
+                }
             } else {
                 mDeleteMenuItem.setVisible(false);
                 mNotificationMenuItem.setVisible(false);
@@ -543,6 +604,28 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment {
                     requestSeatButtonOnClick();
                 }
             });
+
+            // get the default preferences for app
+            final SharedPreferences settings = getActivity().getSharedPreferences(
+                    Globals.DEFAULT_PREF_NAME,
+                    Context.MODE_PRIVATE
+            );
+            // check if the tutorial for the ask a seat fab, have been already displayed to user
+            boolean firstTime = settings.getBoolean(TAG + "ask_seat_firstTime", true);
+            if (firstTime) {
+                UIUtil.showCase(
+                        getActivity(),
+                        getString(R.string.tooltiptitle_ask_seat),
+                        getString(R.string.tooltipmsg_ask_seat),
+                        fabAskSeat,
+                        true
+                );
+
+                // change the preference value
+                final SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean(TAG + "ask_seat_firstTime", false);
+                editor.apply();
+            }
         }
 
         displayDriverMenu();

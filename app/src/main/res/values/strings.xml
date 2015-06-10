@@ -251,6 +251,12 @@
     <string name="contact_message_sent">Agradecemos a sua colaboração! A sua mensagem de contato foi enviada com sucesso. Aguarde que entraremos em contato em breve. ;-)</string>
     <string name="tooltiptitle_manage_friends">Gerenciamento de amigos</string>
     <string name="tooltipmsg_manage_friends">Neste ícone você tem acesso à tela de gerenciamento de amigos. Lá você encontra os seus amigos do Facebook, e pode escolher quem gostaria de seguir no aplicativo.</string>
+    <string name="tooltiptitle_ask_seat">Pedido de lugar</string>
+    <string name="tooltipmsg_ask_seat">Neste botão você pode solicitar um lugar nesta carona. O motorista será notificado do pedido, e assim que respondê-la você será notificado.</string>
+    <string name="tooltiptitle_seatreqnotif">Pedidos de lugar</string>
+    <string name="tooltipmsg_seatreqnotif">Nesta opção, você pode acessar a tela contendo as solicitações de lugar para a sua oferta de carona. Lá é possível aceitar ou recusar cada pedido enviado.</string>
+    <string name="tooltiptitle_cancel_offer">Cancelar oferta de carona</string>
+    <string name="tooltipmsg_cancel_offer">Caso você não possa mais oferecer a carona, você pode cancelar a oferta neste item. Todos os usuários já confirmados como passageiros serão notificados do cancelamento. A carona continuará a ser exibida como cancelada por um tempo, e em seguida será excluída.</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">
