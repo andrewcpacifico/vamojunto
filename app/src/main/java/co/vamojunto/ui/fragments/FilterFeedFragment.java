@@ -119,8 +119,7 @@ public class FilterFeedFragment extends Fragment {
             }
         });
 
-        ImageButton okButton = (ImageButton) rootView.findViewById(R.id.ok_button);
-        okButton.setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.filter_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 performFilter();

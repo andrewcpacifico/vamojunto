@@ -199,7 +199,7 @@ public class GetLocationActivity extends AppCompatActivity
         editor.putLong(Globals.LAT_PREF_KEY, Double.doubleToRawLongBits(lat));
         editor.putLong(Globals.LNG_PREF_KEY, Double.doubleToRawLongBits(lng));
         editor.putFloat(Globals.ZOOM_PREF_KEY, zoom);
-        editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -562,7 +562,6 @@ public class GetLocationActivity extends AppCompatActivity
         }
     }
 
-
     /**
      * Inicializa as configurações do mapa. Instancia o objeto GoogleMap a partir do Fragment,
      */
@@ -692,7 +691,7 @@ public class GetLocationActivity extends AppCompatActivity
         else
             appBar.setTitle(getString(R.string.get_location_activity_title));
 
-        appBar.setNavigationIcon(R.drawable.ic_light_close);
+        appBar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         appBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

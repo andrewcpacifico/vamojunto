@@ -36,8 +36,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -75,8 +78,8 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
      * identificar para onde irá o resultado após a escolha de uma coordenada pelo usuário. */
     private boolean mEditingDestination;
 
-    private EditText mStartingPointEditText;
-    private EditText mDestinationEditText;
+    private TextView mStartingPointTextView;
+    private TextView mDestinationTextView;
     private EditText mHoraEditText;
     private EditText mDataEditText;
     private EditText mNumLugaresEditText;
@@ -104,12 +107,12 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
                     mEditingStartingPoint = false;
 
                     mStartingPoint = p;
-                    mStartingPointEditText.setText(p.getTitulo());
+                    mStartingPointTextView.setText(p.getTitulo());
                 } else if (mEditingDestination) {
                     mEditingDestination = false;
 
                     mDestination = p;
-                    mDestinationEditText.setText(p.getTitulo());
+                    mDestinationTextView.setText(p.getTitulo());
                 }
             }
         }
@@ -119,7 +122,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_nova_carona, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_new_ride_offer, container, false);
 
         initComponents(rootView);
 
@@ -238,7 +241,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
     private void origemEditTextOnClick(View v) {
         mEditingStartingPoint = true;
         // Oculta o ícone de erro
-        mStartingPointEditText.setError(null);
+        mStartingPointTextView.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.choose_starting_point));
@@ -262,7 +265,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
     private void destinoEditTextOnclick(View v) {
         mEditingDestination = true;
         // Oculta o ícone de erro
-        mDestinationEditText.setError(null);
+        mDestinationTextView.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.search_place));
@@ -290,8 +293,8 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         mEditingDestination = mEditingStartingPoint = false;
         mStartingPoint = mDestination = null;
 
-        mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
-        mDestinationEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mStartingPointTextView = (TextView) rootView.findViewById(R.id.startingPointTextView);
+        mDestinationTextView = (TextView) rootView.findViewById(R.id.destinationTextView);
         mHoraEditText = (EditText) rootView.findViewById(R.id.time_edit_text);
         mDataEditText = (EditText) rootView.findViewById(R.id.date_edit_text);
         mNumLugaresEditText = (EditText) rootView.findViewById(R.id.num_lugares_edit_text);
@@ -328,7 +331,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         });
 
         // Vincula o método que será executado no evento OnClick do EditText da origem da carona
-        mStartingPointEditText.setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.startingPointGroup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 origemEditTextOnClick(v);
@@ -336,7 +339,7 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
         });
 
         // Vincula o método que será executado no evento OnClick do EditText do destino da carona
-        mDestinationEditText.setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.destinationGroup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 destinoEditTextOnclick(v);
@@ -493,20 +496,16 @@ public class NewRideFragment extends Fragment implements TimePickerDialog.OnTime
     public boolean validaDados() {
         // Valida o campo origem do formullário.
         if ( mStartingPoint == null ) {
-            mStartingPointEditText.setError("Campo obrigatório");
-            // Como o campo não é selecionável, a mensagem de erro acabava não aparecendo, então
-            // utilizei um Toast.
-            Toast.makeText(getActivity(), getString(R.string.error_starting_point_missing), Toast.LENGTH_LONG).show();
+            mStartingPointTextView.setError(getString(R.string.errormsg_required_field));
+            mStartingPointTextView.requestFocus();
 
             return false;
         }
 
         // Valida o campo destino do formulário
         if ( mDestination == null ) {
-            mDestinationEditText.setError("Campo obrigatório");
-            mDestinationEditText.requestFocus();
-
-            Toast.makeText(getActivity(), getString(R.string.error_destination_missing), Toast.LENGTH_LONG).show();
+            mDestinationTextView.setError(getString(R.string.errormsg_required_field));
+            mDestinationTextView.requestFocus();
 
             return false;
         }

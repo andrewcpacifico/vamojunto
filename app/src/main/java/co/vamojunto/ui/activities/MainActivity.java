@@ -22,6 +22,7 @@ package co.vamojunto.ui.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
@@ -114,6 +115,11 @@ public class MainActivity extends VamoJuntoActivity {
         // setups the application's NavigationDrawer
         initDrawer();
 
+        // remove elevation from app bar because of view pager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mAppBar.setElevation(0);
+        }
+
         mFloatingMenu = (FloatingActionMenu) findViewById(R.id.floating_action_menu);
         mFloatingMenu.setClosedOnTouchOutside(true);
 
@@ -179,9 +185,6 @@ public class MainActivity extends VamoJuntoActivity {
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nav_drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-        User currentUser = User.getCurrentUser();
-        Task<Bitmap> imgUsuario = currentUser.getProfileImage();
 
         RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(
             this,

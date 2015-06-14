@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -88,18 +89,18 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     private boolean mEditingDestination;
 
     /**
-     * The EditText that holds the starting point of the ride request.
+     * The TextView that holds the starting point of the ride request.
      *
-     * @since 0.1.0
+     * @since 0.6.0
      */
-    private EditText mStartingPointEditText;
+    private TextView mStartingPointTextView;
 
     /**
-     * The EditText that holds the destination point of the ride request.
+     * The TextView that holds the destination point of the ride request.
      *
-     * @since 0.1.0
+     * @since 0.6.0
      */
-    private EditText mDestinationEditText;
+    private TextView mDestinationTextView;
 
     /**
      * The EditText that holds the time when the user needs a ride.
@@ -158,12 +159,12 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
                     mEditingStartingPoint = false;
 
                     mStartingPoint = p;
-                    mStartingPointEditText.setText(p.getTitulo());
+                    mStartingPointTextView.setText(p.getTitulo());
                 } else if (mEditingDestination) {
                     mEditingDestination = false;
 
                     mDestination = p;
-                    mDestinationEditText.setText(p.getTitulo());
+                    mDestinationTextView.setText(p.getTitulo());
                 }
             }
         }
@@ -277,7 +278,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     private void mStartingPointEditTextOnClick() {
         mEditingStartingPoint = true;
         // hides the error icon
-        mStartingPointEditText.setError(null);
+        mStartingPointTextView.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.choose_starting_point));
@@ -300,7 +301,7 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     private void mDestinationEditTextOnClick() {
         mEditingDestination = true;
         // hides the error icon
-        mDestinationEditText.setError(null);
+        mDestinationTextView.setError(null);
 
         Intent intent = new Intent(getActivity(), GetLocationActivity.class);
         intent.putExtra(GetLocationActivity.TITLE, getString(R.string.choose_destination));
@@ -330,8 +331,8 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
         mEditingDestination = mEditingStartingPoint = false;
         mStartingPoint = mDestination = null;
 
-        mStartingPointEditText = (EditText) rootView.findViewById(R.id.starting_point_edit_text);
-        mDestinationEditText = (EditText) rootView.findViewById(R.id.destination_edit_text);
+        mStartingPointTextView = (TextView) rootView.findViewById(R.id.startingPointTextView);
+        mDestinationTextView = (TextView) rootView.findViewById(R.id.destinationTextView);
         mTimeEditText = (EditText) rootView.findViewById(R.id.time_edit_text);
         mDateEditText = (EditText) rootView.findViewById(R.id.date_edit_text);
         mDetailsEditText = (EditText) rootView.findViewById(R.id.details_edit_text);
@@ -363,14 +364,14 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
             }
         });
 
-        mStartingPointEditText.setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.starting_point_group).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mStartingPointEditTextOnClick();
             }
         });
 
-        mDestinationEditText.setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.destination_group).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDestinationEditTextOnClick();
@@ -388,20 +389,16 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     public boolean isDataValid() {
         // checks if the starting point was set
         if ( mStartingPoint == null ) {
-            mStartingPointEditText.setError(getString(R.string.errormsg_required_field));
-            // since the field was not focusable, the error message ended up not being displayed
-            // so I used a Toast for it
-            Toast.makeText(getActivity(), getString(R.string.error_starting_point_missing), Toast.LENGTH_LONG).show();
+            mStartingPointTextView.setError(getString(R.string.errormsg_required_field));
+            mStartingPointTextView.requestFocus();
 
             return false;
         }
 
         // checks if the destination was set
         if ( mDestination == null ) {
-            mDestinationEditText.setError("Campo obrigatório");
-            mDestinationEditText.requestFocus();
-
-            Toast.makeText(getActivity(), getString(R.string.error_destination_missing), Toast.LENGTH_LONG).show();
+            mDestinationTextView.setError(getString(R.string.errormsg_required_field));
+            mDestinationTextView.requestFocus();
 
             return false;
         }
@@ -514,65 +511,6 @@ public class NewRideRequestFragment extends Fragment implements TimePickerDialog
     private void setTimeEditTextValue(Calendar time) {
         SimpleDateFormat timeFormat = new SimpleDateFormat(getString(R.string.time_format));
         mTimeEditText.setText(timeFormat.format(time.getTime()));
-    }
-
-    /**
-     * Gets the title of the result place sent by GetLocationActivity, and use it as text property
-     * of the starting point or destination fields.
-     *
-     * If the place is a GooglePlace, just use its already known title, if it is not, makes the
-     * reverse geocoding process.     *
-     *
-     * @param p The {@link co.vamojunto.model.Place} to get the title from.
-     * @since 0.1.0
-     */
-    private void getPlaceTitle(Place p) {
-        // checks whether location is being edited, the starting point, or the destination point
-        // to set text of the right EditText
-        final EditText editingEditText;
-        final Place editingPlace;
-
-        if (mEditingStartingPoint) {
-            mEditingStartingPoint = false;
-            mStartingPoint = p;
-
-            editingPlace = mStartingPoint;
-            editingEditText = mStartingPointEditText;
-        } else {
-            mEditingDestination = false;
-            mDestination = p;
-
-            editingPlace = mDestination;
-            editingEditText = mDestinationEditText;
-        }
-
-        // if p is a GooglePlace, just use the title, if not, makes the reverse geocoding process
-        if ( p.isGooglePlace() ) {
-            editingEditText.setText(p.getTitulo());
-        } else {
-            editingEditText.setText(getString(R.string.loading_address));
-
-            LatLng latLng = new LatLng(p.getLatitude(), p.getLongitude());
-            GeocodingHelper.reverseGeocodeInBackground(getActivity(), latLng).continueWith(
-                new Continuation<Address, Void>() {
-                    @Override
-                    public Void then(Task<Address> task) throws Exception {
-                        final String e = task.getResult().getAddressLine(0);
-
-                        editingEditText.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                editingEditText.setText(e);
-                                editingPlace.setTitulo(e);
-                                editingPlace.setEndereco(e);
-                            }
-                        });
-
-                        return null;
-                    }
-                }
-            );
-        }
     }
 
     /**

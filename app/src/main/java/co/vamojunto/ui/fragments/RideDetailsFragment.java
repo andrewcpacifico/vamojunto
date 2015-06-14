@@ -334,7 +334,7 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
     private void setupAppBar() {
         Toolbar appBar = ((VamoJuntoActivity) getActivity()).getAppBar();
         appBar.setTitle(R.string.title_activity_ride_details);
-        appBar.setNavigationIcon(R.drawable.ic_action);
+        appBar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         appBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

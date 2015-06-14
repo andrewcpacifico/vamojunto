@@ -20,12 +20,14 @@
 package co.vamojunto.ui.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -51,15 +53,13 @@ import co.vamojunto.ui.fragments.ManageFriendsFragment;
  * @since 0.1.0
  * @version 1.0.1
  */
-public class ManageFriendsActivity extends ActionBarActivity {
+public class ManageFriendsActivity extends VamoJuntoActivity {
 
     public static final String TAG = "ManageFriendsActivity";
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manage_friends);
+    protected void onCreated(Bundle savedInstanceState) {
+        super.onCreated(savedInstanceState);
 
         ManageFriendsFragment fragment = new ManageFriendsFragment();
         if (savedInstanceState == null) {
@@ -67,6 +67,11 @@ public class ManageFriendsActivity extends ActionBarActivity {
         }
 
         setupAppBar();
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_manage_friends;
     }
 
     @Override
@@ -88,22 +93,27 @@ public class ManageFriendsActivity extends ActionBarActivity {
      * @since 0.1.0
      */
     private void setupAppBar() {
-        Toolbar toolbarActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        // remove elevation from app bar because of view pager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mAppBar.setElevation(0);
+        }
 
-        setSupportActionBar(toolbarActionBar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mAppBar.setTitle(R.string.title_activity_manage_friends);
+        mAppBar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        mAppBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateBack();
+            }
+        });
     }
 
     /**
-     * Overriding the onBackPressed method, to make an "up" navigation when this activity is
-     * opened from a notification.
+     * Do the back navigation.
      *
-     * @since 0.1.0
+     * @since 0.6.0
      */
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
+    private void navigateBack() {
         if (isTaskRoot()) {
             // code to navigate up to MainActivity
             Intent intent = new Intent(this, MainActivity.class);
@@ -117,28 +127,17 @@ public class ManageFriendsActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * Overriding the onBackPressed method, to make an "up" navigation when this activity is
+     * opened from a notification.
+     *
+     * @since 0.1.0
+     */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handles action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onBackPressed() {
+        super.onBackPressed();
 
-        if (id == android.R.id.home) {
-            if (isTaskRoot()) {
-                // code to navigate up to MainActivity
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                startActivity(intent);
-                finish();
-            } else {
-                finish();
-            }
-        }
-
-        return super.onOptionsItemSelected(item);
+        navigateBack();
     }
 
 }

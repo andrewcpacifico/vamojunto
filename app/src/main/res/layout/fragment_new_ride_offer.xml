@@ -17,43 +17,44 @@
   ~ See LICENSE.txt
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="#ffffff"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/starting_point_group"
-        android:layout_below="@+id/tool_bar"
+        android:id="@+id/startingPointGroup"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
+        android:background="@drawable/white_button_background"
+        android:clickable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="16dp" >
 
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="5dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="16dp"
             android:src="@drawable/ic_pin_orig"/>
 
-        <EditText
-            android:id="@+id/starting_point_edit_text"
+        <TextView
+            android:id="@+id/startingPointTextView"
 
-            android:background="#00000000"
-            android:focusable="false"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:hint="@string/starting_point"
-            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
 
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            />
+            android:layout_width="match_parent" />
     </LinearLayout>
     <View
         android:id="@+id/separator_1"
 
-        android:layout_below="@id/starting_point_group"
+        android:layout_below="@id/startingPointGroup"
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
@@ -61,37 +62,38 @@
         />
 
     <LinearLayout
-        android:id="@+id/destination_group"
+        android:id="@+id/destinationGroup"
         android:layout_below="@+id/separator_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
+        android:background="@drawable/white_button_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="16dp" >
 
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="5dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="16dp"
             android:src="@drawable/ic_pin_dest"/>
 
-        <EditText
-            android:id="@+id/destination_edit_text"
+        <TextView
+            android:id="@+id/destinationTextView"
 
-            android:background="#00000000"
-            android:focusable="false"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:hint="@string/destination"
-            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
 
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            />
+            android:layout_width="match_parent" />
     </LinearLayout>
     <View
         android:id="@+id/separator"
 
-        android:layout_below="@id/destination_group"
+        android:layout_below="@id/destinationGroup"
         android:layout_width="match_parent"
         android:layout_height="1dp"
 
@@ -105,7 +107,7 @@
         android:layout_height="wrap_content"
 
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="16dp" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -115,9 +117,9 @@
             android:orientation="horizontal"
             android:layout_weight="0.5">
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="16dp"
                 android:src="@drawable/ic_calendar"/>
 
             <EditText
@@ -126,7 +128,7 @@
                 android:background="#00000000"
                 android:focusable="false"
                 android:hint="@string/date"
-                android:textSize="18sp"
+                android:textSize="16sp"
 
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
@@ -140,9 +142,9 @@
             android:orientation="horizontal"
             android:layout_weight="0.5">
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="16dp"
                 android:src="@drawable/ic_clock"/>
 
             <EditText
@@ -151,7 +153,7 @@
                 android:background="#00000000"
                 android:focusable="false"
                 android:hint="@string/time"
-                android:textSize="18sp"
+                android:textSize="16sp"
 
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
@@ -176,12 +178,12 @@
 
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="16dp" >
 
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="5dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="16dp"
             android:src="@drawable/ic_people"/>
 
         <EditText
@@ -189,7 +191,7 @@
 
             android:background="#00000000"
             android:hint="@string/num_lugares"
-            android:textSize="18sp"
+            android:textSize="16sp"
 
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
@@ -218,8 +220,8 @@
         android:gravity="top"
         android:hint="@string/more_details"
         android:inputType="textMultiLine"
-        android:padding="10dp"
-        />
+        android:padding="16dp"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/save_button"

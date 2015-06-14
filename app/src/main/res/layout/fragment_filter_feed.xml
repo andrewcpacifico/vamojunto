@@ -40,19 +40,35 @@
             android:layout_height="wrap_content"
 
             android:background="@drawable/clickable_transparent_background_selector"
-            android:padding="10dp"
-            android:src="@drawable/ic_light_close"/>
+            android:padding="16dp"
+            android:src="@drawable/ic_close_white_24dp"/>
 
-        <ImageButton
-            android:id="@+id/ok_button"
+        <LinearLayout
+            android:id="@+id/filter_button"
 
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
             android:background="@drawable/clickable_transparent_background_selector"
-            android:padding="10dp"
-            android:src="@drawable/ic_check_white"/>
+            android:clickable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+            <TextView
+                android:layout_marginRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/filter"
+                android:textColor="@color/white"
+                android:textSize="@dimen/abc_text_size_title_material_toolbar"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:src="@drawable/ic_done_white_24dp"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/title"
