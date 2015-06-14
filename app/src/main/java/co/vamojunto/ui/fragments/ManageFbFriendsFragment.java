@@ -43,8 +43,6 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseUser;
 
 import java.util.Arrays;
 import java.util.List;

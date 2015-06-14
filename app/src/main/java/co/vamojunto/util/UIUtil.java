@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,6 +144,16 @@ public class UIUtil {
                     }
                 })
                 .build();
+
+        // fix problem of button under navigation bar on Lollipop
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Resources resources = activity.getResources();
+            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            int height = (resourceId > 0)
+                ? resources.getDimensionPixelSize(resourceId)
+                : 0;
+            showcaseView.setPadding(0, 0, 0, height);
+        }
 
         if (buttonOnLeft) {
             Resources r = activity.getResources();

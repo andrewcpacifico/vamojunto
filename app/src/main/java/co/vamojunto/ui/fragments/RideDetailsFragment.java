@@ -21,22 +21,20 @@ package co.vamojunto.ui.fragments;
 
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.DialogPreference;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -159,11 +157,17 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
                 gridView = convertView;
             }
 
-            if (mDataset.get(position).getProfileImage() != null) {
-                CircleImageView passengerPicture =
-                        (CircleImageView) gridView.findViewById(R.id.passenger_picture);
-                passengerPicture.setImageBitmap(mDataset.get(position).getProfileImage());
-            }
+            final CircleImageView passengerPicture =
+                    (CircleImageView) gridView.findViewById(R.id.passenger_picture);
+
+            mDataset.get(position).getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+                @Override
+                public Void then(Task<Bitmap> task) throws Exception {
+                    passengerPicture.setImageBitmap(task.getResult());
+
+                    return null;
+                }
+            });
 
             TextView passengerName = (TextView) gridView.findViewById(R.id.passenger_name);
             passengerName.setText(mDataset.get(position).getName());
@@ -579,9 +583,14 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
         // finishes the method if mRide have no data to display
         if (mRideOffer == null) return;
 
-        // checks if the driver have a profile image
-        if (mRideOffer.getDriver().getProfileImage() != null)
-            mDriverImageView.setImageBitmap(mRideOffer.getDriver().getProfileImage());
+        mRideOffer.getDriver().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(Task<Bitmap> task) throws Exception {
+                mDriverImageView.setImageBitmap(task.getResult());
+
+                return null;
+            }
+        });
 
         mDriverNameTextView.setText(mRideOffer.getDriver().getName());
         mStartingPointTextView.setText(getString(R.string.from) + ": " +

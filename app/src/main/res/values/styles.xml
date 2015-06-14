@@ -26,10 +26,6 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="NoActionBar" parent="android:Theme.Holo.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-
     <style name="Login.HelpButton" parent="@android:style/Widget.Button">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

@@ -320,6 +320,7 @@ MERGED from com.android.support:appcompat-v7:22.2.0:20:5
 MERGED from com.android.support:support-v4:22.2.0:20:5
 MERGED from com.android.support:recyclerview-v7:22.2.0:20:5
 MERGED from com.android.support:support-v4:22.2.0:20:5
+MERGED from com.github.amlcurran.showcaseview:library:5.0.0:7:5
 MERGED from com.facebook.android:facebook-android-sdk:4.1.2:24:5
 MERGED from com.android.support:support-v4:22.2.0:20:5
 MERGED from com.android.support:appcompat-v7:22.2.0:20:5

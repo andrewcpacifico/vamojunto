@@ -29,9 +29,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -319,11 +316,13 @@ public abstract class AbstractListRideOffersFragment extends FilterableFeedFragm
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRidesTask != null) {
-                Log.i(TAG, "Loading rides...");
+                Log.i(TAG, "Loading ride offers...");
 
                 loadRidesTask.continueWith(new Continuation<List<RideOffer>, Void>() {
                     @Override
                     public Void then(final Task<List<RideOffer>> task) throws Exception {
+                        Log.i(TAG, "Loading ride offers finished.");
+
                         // check if Fragment is attached to some Activity, before change the view
                         if (getActivity() != null) {
                             // force the code to run on the main thread

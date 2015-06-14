@@ -20,6 +20,7 @@
 package co.vamojunto.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -33,6 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.User;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -317,13 +320,26 @@ public class FriendsRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         if (holder.holderType == VIEW_FRIEND) {
-            User u = mDataset.get(position - 1);
+            final User u = mDataset.get(position - 1);
 
             holder.mFriendName.setText(u.getName());
-            holder.mFriendPicture.setImageBitmap(u.getProfileImage());
             holder.mFollowCheckBox.setChecked(mChecked);
+
+            u.getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+                @Override
+                public Void then(final Task<Bitmap> task) throws Exception {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            holder.mFriendPicture.setImageBitmap(task.getResult());
+                        }
+                    });
+
+                    return null;
+                }
+            });
         } else {
             if (position == 0)
                 holder.mHeaderTextView.setText(mHeaderTitle);

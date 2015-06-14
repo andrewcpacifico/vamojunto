@@ -20,6 +20,7 @@
 package co.vamojunto.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,6 +31,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.SeatRequest;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -169,12 +172,21 @@ public class SeatRequestRecyclerViewAdapter extends RecyclerView.Adapter<SeatReq
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         SeatRequest request = mDataset.get(position);
 
         holder.mMessageTextView.setText(request.getMessage());
         holder.mUserNameTextView.setText(request.getUser().getName());
-        holder.mUserImage.setImageBitmap(request.getUser().getProfileImage());
+
+        request.getUser().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(Task<Bitmap> task) throws Exception {
+                holder.mUserImage.setImageBitmap(task.getResult());
+                notifyItemChanged(position);
+
+                return null;
+            }
+        });
     }
 
     @Override

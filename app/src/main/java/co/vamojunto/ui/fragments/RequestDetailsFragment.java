@@ -21,6 +21,7 @@ package co.vamojunto.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -564,24 +565,40 @@ public class RequestDetailsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        public void onBindViewHolder(final ViewHolder viewHolder, int position) {
             if (getItemViewType(position) == VIEW_DETAILS) {
                 if (mRequest != null) {
-                    viewHolder.requesterImage.setImageBitmap(mRequest.getRequester().getProfileImage());
                     viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
                     viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
                     viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
                     viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
                     viewHolder.detailsTextView.setText(mRequest.getDetails());
+
+                    mRequest.getRequester().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+                        @Override
+                        public Void then(Task<Bitmap> task) throws Exception {
+                            viewHolder.requesterImage.setImageBitmap(task.getResult());
+
+                            return null;
+                        }
+                    });
                 }
             } else {
                 // the message to display on this item
                 RequestMessage message = mMessageDataset.get(position - 1);
 
-                viewHolder.senderImageView.setImageBitmap(message.getSender().getProfileImage());
                 viewHolder.senderNameTextView.setText(message.getSender().getName());
                 viewHolder.messageTextView.setText(message.getMessage());
                 viewHolder.messageTimeTextView.setText(getFormattedDate(message.getCreatedAt()));
+
+                message.getSender().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+                    @Override
+                    public Void then(Task<Bitmap> task) throws Exception {
+                        viewHolder.senderImageView.setImageBitmap(task.getResult());
+
+                        return null;
+                    }
+                });
             }
         }
 

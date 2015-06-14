@@ -25,7 +25,6 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.location.Address;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,8 +39,6 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -49,13 +46,12 @@ import java.util.Date;
 
 import bolts.Continuation;
 import bolts.Task;
+import co.vamojunto.R;
+import co.vamojunto.model.Place;
+import co.vamojunto.model.RideOffer;
+import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.GetLocationActivity;
 import co.vamojunto.ui.activities.NewRideActivity;
-import co.vamojunto.R;
-import co.vamojunto.helpers.GeocodingHelper;
-import co.vamojunto.model.RideOffer;
-import co.vamojunto.model.Place;
-import co.vamojunto.model.User;
 
 /**
  * The main {@link android.support.v4.app.Fragment} for the {@link co.vamojunto.ui.activities.NewRideActivity}

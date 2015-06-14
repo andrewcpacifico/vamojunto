@@ -41,6 +41,7 @@ import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.List;
 
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.adapters.NavigationDrawerAdapter;
@@ -180,15 +181,17 @@ public class MainActivity extends VamoJuntoActivity {
         recyclerView.setHasFixedSize(true);
 
         User currentUser = User.getCurrentUser();
-        Bitmap imgUsuario = currentUser.getProfileImage();
+        Task<Bitmap> imgUsuario = currentUser.getProfileImage();
 
-        RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(this, currentUser.getName(),
-                currentUser.getEmail(), imgUsuario, new NavigationDrawerAdapter.OnItemClickListener() {
-            @Override
-            public void OnItemClick(View v, int position) {
-                navigationDrawerItemClicked(position);
+        RecyclerView.Adapter drawerAdapter = new NavigationDrawerAdapter(
+            this,
+            new NavigationDrawerAdapter.OnItemClickListener() {
+                @Override
+                public void OnItemClick(View v, int position) {
+                    navigationDrawerItemClicked(position);
+                }
             }
-        });
+        );
 
         recyclerView.setAdapter(drawerAdapter);
 

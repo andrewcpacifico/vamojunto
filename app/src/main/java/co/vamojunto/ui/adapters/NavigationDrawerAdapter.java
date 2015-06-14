@@ -22,6 +22,7 @@ package co.vamojunto.ui.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.User;
 
 /**
  * Adapter for the RecyclerView used on Application's NavigationDrawer.
@@ -67,10 +71,6 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             R.drawable.ic_people_black_24dp,
             R.drawable.ic_drawer_ufam
     };
-
-    private String mUserName;
-    private Bitmap mUserPicture;
-    private String mUserEmail;
 
     private OnItemClickListener mItemClickListener;
 
@@ -130,17 +130,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      * informados por parâmetro. Inicializa os títulos e ícones de cada um dos itens do menu
      * com valores pré-definidos.
      *
-     * @param nomeUsuario Nome do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
-     * @param emailUsuario Email do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
-     * @param imgUsuario Bitmap da imagem de perfil do usuário que está autenticado para ser exibido no cabeçalho do Navigation mDrawerLayout
      */
-    public NavigationDrawerAdapter(Context context, String nomeUsuario, String emailUsuario, Bitmap imgUsuario,
-                                   NavigationDrawerAdapter.OnItemClickListener clickListener) {
-        /* Inicializa os dados do usuário */
-        mUserName = nomeUsuario;
-        mUserEmail = emailUsuario;
-        mUserPicture = imgUsuario;
-
+    public NavigationDrawerAdapter(Context context, OnItemClickListener clickListener) {
         /* initialize the menu data */
         mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
 
@@ -154,36 +145,42 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             View v = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.drawer_list_row, parent, false); //Inflating the layout
 
-            ViewHolder vhItem = new ViewHolder(v, viewType, mItemClickListener); //Creating ViewHolder and passing the object of type view
-
-            return vhItem; // Returning the created object
+            return new ViewHolder(v, viewType, mItemClickListener); // Returning the created object
 
             //inflate your layout and pass it to view holder
         } else if (viewType == TYPE_HEADER) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_header, parent, false); //Inflating the layout
 
-            ViewHolder vhHeader = new ViewHolder(v, viewType, mItemClickListener); //Creating ViewHolder and passing the object of type view
-
-            return vhHeader; //returning the object created
+            return new ViewHolder(v, viewType, mItemClickListener); //returning the object created
         }
         return null;
 
     }
 
     @Override
-    public void onBindViewHolder(NavigationDrawerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final NavigationDrawerAdapter.ViewHolder holder, final int position) {
         // Verifica se o tipo do holder que vai ser vinculado é um item, ou cabeçalho.
         if (holder.mHolderType == TYPE_ITEM) {
             holder.mItemLabelTextView.setText(mNavTitles[position - 1]);
             holder.mItemIconView.setImageResource(mIcons[position - 1]);
         } else {
-            // Caso o usuário tenha se inscrito direto pelo aplicativo, e não tenha feito upload
-            // de uma imagem de perfil.
-            if ( mUserPicture != null )
-                holder.mImgUsuarioView.setImageBitmap(mUserPicture);
+            User currentUser = User.getCurrentUser();
+            holder.mNomeUsuarioView.setText(currentUser.getName());
+            holder.mEmailView.setText(currentUser.getEmail());
 
-            holder.mNomeUsuarioView.setText(mUserName);
-            holder.mEmailView.setText(mUserEmail);
+            currentUser.getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+                @Override
+                public Void then(final Task<Bitmap> task) throws Exception {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            holder.mImgUsuarioView.setImageBitmap(task.getResult());
+                        }
+                    });
+
+                    return null;
+                }
+            });
         }
     }
 

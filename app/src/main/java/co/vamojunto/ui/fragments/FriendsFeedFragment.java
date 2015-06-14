@@ -23,13 +23,9 @@ package co.vamojunto.ui.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import bolts.Continuation;
-import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.ui.activities.ManageFriendsActivity;
 import co.vamojunto.util.Globals;

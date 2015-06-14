@@ -20,6 +20,7 @@
 package co.vamojunto.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +33,8 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.RideOffer;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -94,7 +97,7 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
     }
 
     public interface OnItemClickListener {
-        public void OnItemClick(int position);
+        void OnItemClick(int position);
     }
 
     public RidesRecyclerViewAdapter(Context context, List<RideOffer> dataset, OnItemClickListener itemClickListener) {
@@ -186,18 +189,31 @@ public class RidesRecyclerViewAdapter extends RecyclerView.Adapter<RidesRecycler
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         RideOffer offer = mDataset.get(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
         holder.mDriverNameTextView.setText(offer.getDriver().getName());
-        holder.mDriverImageView.setImageBitmap(offer.getDriver().getProfileImage());
         holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + offer.getStartingPoint().getTitulo());
         holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + offer.getDestination().getTitulo());
         holder.mDateTextView.setText(dateFormat.format(offer.getDatetime().getTime()));
         holder.mTimeTextView.setText(timeFormat.format(offer.getDatetime().getTime()));
+
+        offer.getDriver().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(final Task<Bitmap> task) throws Exception {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.mDriverImageView.setImageBitmap(task.getResult());
+                    }
+                });
+
+                return null;
+            }
+        });
 
         if (! offer.isActive()) {
             holder.mCancelledStampTextView.setVisibility(View.VISIBLE);

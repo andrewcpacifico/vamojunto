@@ -20,6 +20,7 @@
 package co.vamojunto.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +32,8 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import bolts.Continuation;
+import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -195,18 +198,31 @@ public class RequestsRecyclerViewAdapter extends RecyclerView.Adapter<RequestsRe
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         RideRequest r = mDataset.get(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(mContext.getString(R.string.date_format));
         SimpleDateFormat timeFormat = new SimpleDateFormat(mContext.getString(R.string.time_format));
 
         holder.mNameTextView.setText(r.getRequester().getName());
-        holder.mRequestorImage.setImageBitmap(r.getRequester().getProfileImage());
         holder.mStartingPointTextView.setText(mContext.getString(R.string.de) + ": " + r.getStartingPoint().getTitulo());
         holder.mDestinationTextView.setText(mContext.getString(R.string.para) + ": " + r.getDestination().getTitulo());
         holder.mDateTextView.setText(dateFormat.format(r.getDatetime().getTime()));
         holder.mTimeTextView.setText(timeFormat.format(r.getDatetime().getTime()));
+
+        r.getRequester().getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
+            @Override
+            public Void then(final Task<Bitmap> task) throws Exception {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.mRequestorImage.setImageBitmap(task.getResult());
+                    }
+                });
+
+                return null;
+            }
+        });
     }
 
     @Override

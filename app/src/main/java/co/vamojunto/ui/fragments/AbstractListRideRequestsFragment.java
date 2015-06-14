@@ -25,12 +25,8 @@ import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,8 +45,6 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
-import co.vamojunto.ui.activities.RideDetailsActivity;
-import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.adapters.RequestsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
 import co.vamojunto.util.TextUtil;
@@ -312,11 +306,13 @@ public abstract class AbstractListRideRequestsFragment extends FilterableFeedFra
 
             // check if the getRideAsync was correctly implemented and returns a valid Task
             if (loadRideRequestsTask != null) {
-                Log.i(TAG, "Loading rides...");
+                Log.i(TAG, "Loading ride requests...");
 
                 loadRideRequestsTask.continueWith(new Continuation<List<RideRequest>, Void>() {
                     @Override
                     public Void then(final Task<List<RideRequest>> task) throws Exception {
+                        Log.i(TAG, "Loading ride requests finished.");
+
                         if (getActivity() != null) {
                             // force the code to run on the main thread
                             mHandler.post(new Runnable() {

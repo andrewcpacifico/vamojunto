@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import bolts.Capture;
 import bolts.Continuation;
@@ -96,20 +97,31 @@ public class User extends ParseUser {
         put(FIELD_NAME, name);
     }
 
-    public Bitmap getProfileImage() {
+    public Task<Bitmap> getProfileImage() {
+        final Task<Bitmap>.TaskCompletionSource tcs = Task.create();
+
         if (profileImage == null) {
             ParseFile imgUsuarioPFile = getParseFile(FIELD_PROFILE_IMG);
+
             // checks if the user have a profile image before convert it to an Bitmap
             if (imgUsuarioPFile != null) {
-                try {
-                    profileImage = BitmapFactory.decodeByteArray(imgUsuarioPFile.getData(), 0, imgUsuarioPFile.getData().length);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                imgUsuarioPFile.getDataInBackground().continueWith(new Continuation<byte[], Void>() {
+                    @Override
+                    public Void then(Task<byte[]> task) throws Exception {
+                        byte[] imgData = task.getResult();
+                        profileImage = BitmapFactory.decodeByteArray(imgData, 0, imgData.length);
+
+                        tcs.setResult(profileImage);
+
+                        return null;
+                    }
+                });
             }
+        } else {
+            tcs.setResult(profileImage);
         }
 
-        return profileImage;
+        return tcs.getTask();
     }
 
     public void setImgPerfil(Bitmap imgPerfil) {
