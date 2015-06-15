@@ -33,6 +33,7 @@ public class Globals {
     public static final String LNG_PREF_KEY = "lng";
     public static final String PARSE_PUSH_SUBSCRIBED = "push_subscribed";
     public static final String PARSE_SAVED_INSTALLATION = "parse_saved_install";
+    public static final String VERSION = "version";
     public static final String ZOOM_PREF_KEY = "zoom";
     // end of preference keys
 

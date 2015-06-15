@@ -41,6 +41,7 @@ import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.model.UserCompany;
+import co.vamojunto.util.GeneralUtil;
 import co.vamojunto.util.Globals;
 
 /**
@@ -63,6 +64,14 @@ public class MyApplication extends Application {
 
         // defines an editor to preferences
         final SharedPreferences.Editor editor = settings.edit();
+
+        String versionInstalled = settings.getString(Globals.VERSION, "undef");
+        if (! versionInstalled.equals("v0.6.0")) {
+            GeneralUtil.clearApplicationData(this);
+            editor.clear();
+            editor.putString(Globals.VERSION, "v0.6.0");
+            editor.apply();
+        }
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(getApplicationContext());
