@@ -384,7 +384,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                             startActivity(intent);
                             finish();
                         } else {
-                            String errorMsg = "";
+                            String errorMsg;
 
                             switch (e.getCode()) {
                                 case ParseException.INVALID_EMAIL_ADDRESS:
