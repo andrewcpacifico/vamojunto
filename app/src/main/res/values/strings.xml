@@ -258,6 +258,8 @@
     <string name="tooltiptitle_cancel_offer">Cancelar oferta de carona</string>
     <string name="tooltipmsg_cancel_offer">Caso você não possa mais oferecer a carona, você pode cancelar a oferta neste item. Todos os usuários já confirmados como passageiros serão notificados do cancelamento. A carona continuará a ser exibida como cancelada por um tempo, e em seguida será excluída.</string>
     <string name="filter">Filtrar</string>
+    <string name="errortitle_req_message_required">Campo obrigatório</string>
+    <string name="errormsg_req_message_required">É obrigatório enviar uma mensagem antes de enviar</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">

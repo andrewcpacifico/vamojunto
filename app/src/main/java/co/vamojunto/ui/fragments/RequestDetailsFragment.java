@@ -38,6 +38,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.parse.ParseQuery;
 
 import java.util.Calendar;
@@ -60,7 +61,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * A {@link android.support.v4.app.Fragment} where the user can view the details of a ride request
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
+ * @version 1.1
  * @since 0.1.0
  */
 public class RequestDetailsFragment extends Fragment {
@@ -300,27 +301,37 @@ public class RequestDetailsFragment extends Fragment {
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // the message to add on the recyclerview
-                RequestMessage message = new RequestMessage(
-                    mMessageEditText.getText().toString(),
-                    User.getCurrentUser(),
-                    mRequest
-                );
+                String typedMessage = mMessageEditText.getText().toString();
 
-                // adds message to recyclerview
-                final int position = mMessagesAdapter.addItem(message);
-                mMessageEditText.setText("");
-                mMessagesRecyclerView.scrollToPosition(mMessagesAdapter.getItemCount() - 1);
+                if (typedMessage.equals("")) {
+                    new MaterialDialog.Builder(getActivity())
+                            .title(R.string.errortitle_req_message_required)
+                            .content(R.string.errormsg_req_message_required)
+                            .positiveText(R.string.ok)
+                            .build().show();
+                } else {
+                    // the message to add on the recyclerview
+                    RequestMessage message = new RequestMessage(
+                            typedMessage,
+                            User.getCurrentUser(),
+                            mRequest
+                    );
 
-                // save message on cloud database
-                message.saveInBackground().continueWith(new Continuation<Void, Void>() {
-                    @Override
-                    public Void then(Task<Void> task) throws Exception {
-                        mMessagesAdapter.itemChanged(position);
+                    // adds message to recyclerview
+                    final int position = mMessagesAdapter.addItem(message);
+                    mMessageEditText.setText("");
+                    mMessagesRecyclerView.scrollToPosition(mMessagesAdapter.getItemCount() - 1);
 
-                        return null;
-                    }
-                });
+                    // save message on cloud database
+                    message.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                        @Override
+                        public Void then(Task<Void> task) throws Exception {
+                            mMessagesAdapter.itemChanged(position);
+
+                            return null;
+                        }
+                    });
+                }
             }
         });
     }
