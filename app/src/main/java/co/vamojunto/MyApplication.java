@@ -66,11 +66,11 @@ public class MyApplication extends Application {
         final SharedPreferences.Editor editor = settings.edit();
 
         String versionInstalled = settings.getString(Globals.VERSION, "undef");
-        if (! versionInstalled.equals("v0.6.0")) {
+        if (! versionInstalled.equals("v0.6.1")) {
             GeneralUtil.clearApplicationData(this);
             editor.clear();
-            editor.putString(Globals.VERSION, "v0.6.0");
-            editor.apply();
+            editor.putString(Globals.VERSION, "v0.6.1");
+            editor.commit();
         }
 
         // Enable Local Datastore.

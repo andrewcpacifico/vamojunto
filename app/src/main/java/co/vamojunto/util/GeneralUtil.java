@@ -44,12 +44,14 @@ public class GeneralUtil {
     }
 
     public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (String aChildren : children) {
-                boolean success = deleteDir(new File(dir, aChildren));
-                if (!success) {
-                    return false;
+        if (dir != null) {
+            if (dir.isDirectory()) {
+                String[] children = dir.list();
+                for (String aChildren : children) {
+                    boolean success = deleteDir(new File(dir, aChildren));
+                    if (!success) {
+                        return false;
+                    }
                 }
             }
 
