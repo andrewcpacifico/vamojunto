@@ -57,7 +57,7 @@ import co.vamojunto.util.Globals;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.2.0
+ * @version 2.1
  */
 public class MainActivity extends VamoJuntoActivity {
 
@@ -234,16 +234,19 @@ public class MainActivity extends VamoJuntoActivity {
      * @param position Position of the item clicked, used to define what action have to be executed.
      */
     private void navigationDrawerItemClicked(int position) {
-        displayView(position - 1);
+        // block click events on header for now
+        if (position > 1) {
+            displayView(position - 1);
 
-        // always closes the navigation drawer after the click, adds a delay to wait for animation
-        // before closing the drawer
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerLayout.closeDrawers();
-            }
-        });
+            // always closes the navigation drawer after the click, adds a delay to wait for animation
+            // before closing the drawer
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mDrawerLayout.closeDrawers();
+                }
+            });
+        }
     }
 
     /**
