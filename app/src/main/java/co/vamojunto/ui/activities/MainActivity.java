@@ -235,7 +235,7 @@ public class MainActivity extends VamoJuntoActivity {
      */
     private void navigationDrawerItemClicked(int position) {
         // block click events on header for now
-        if (position > 1) {
+        if (position > 0) {
             displayView(position - 1);
 
             // always closes the navigation drawer after the click, adds a delay to wait for animation

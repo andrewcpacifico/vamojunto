@@ -172,6 +172,10 @@
             android:name=".ui.activities.ContactActivity"
             android:label="@string/title_activity_contact" >
         </activity>
+        <activity
+            android:name=".ui.activities.ViewLocationActivity"
+            android:label="" >
+        </activity>
     </application>
 
 </manifest>

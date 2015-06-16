@@ -137,6 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
+                android:clickable="true"
                 android:text="UFAM"
                 android:textSize="@dimen/abc_text_size_small_material"
                 />
@@ -164,6 +165,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
+                android:clickable="true"
                 android:text="SIDIA Samsung Instituto de Desenvolvimento de Informática do Amazonas"
                 android:textSize="@dimen/abc_text_size_small_material"
                 />

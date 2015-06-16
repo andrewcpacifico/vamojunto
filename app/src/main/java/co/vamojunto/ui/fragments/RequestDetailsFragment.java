@@ -48,11 +48,13 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Place;
 import co.vamojunto.model.RequestMessage;
 import co.vamojunto.model.RideRequest;
 import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
+import co.vamojunto.ui.activities.ViewLocationActivity;
 import co.vamojunto.util.DateUtil;
 import co.vamojunto.util.NetworkUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -581,6 +583,15 @@ public class RequestDetailsFragment extends Fragment {
                 if (mRequest != null) {
                     viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
                     viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
+//                    viewHolder.startingPointTextView.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRequest.getStartingPoint());
+//                            Intent intent = new Intent(mContext, ViewLocationActivity.class);
+//                            mContext.startActivity(intent);
+//                        }
+//                    });
+
                     viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
                     viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
                     viewHolder.detailsTextView.setText(mRequest.getDetails());
