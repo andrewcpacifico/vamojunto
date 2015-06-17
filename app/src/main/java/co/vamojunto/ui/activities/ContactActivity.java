@@ -191,22 +191,22 @@ public class ContactActivity extends AppCompatActivity {
         mSubjectEditText.setError(null);
         mMessageEditText.setError(null);
 
-        if (mNameEditText.getText().toString().equals("")) {
+        if (mNameEditText.getText().toString().trim().equals("")) {
             mNameEditText.setError(getString(R.string.errormsg_required_field));
             mNameEditText.requestFocus();
 
             return false;
-        } else if (mEmailEditText.getText().toString().equals("")) {
+        } else if (mEmailEditText.getText().toString().trim().equals("")) {
             mEmailEditText.setError(getString(R.string.errormsg_required_field));
             mEmailEditText.requestFocus();
 
             return false;
-        } else if (mSubjectEditText.getText().toString().equals("")) {
+        } else if (mSubjectEditText.getText().toString().trim().equals("")) {
             mSubjectEditText.setError(getString(R.string.errormsg_required_field));
             mSubjectEditText.requestFocus();
 
             return false;
-        } else if (mMessageEditText.getText().toString().equals("")) {
+        } else if (mMessageEditText.getText().toString().trim().equals("")) {
             mMessageEditText.setError(getString(R.string.errormsg_required_field));
             mMessageEditText.requestFocus();
 

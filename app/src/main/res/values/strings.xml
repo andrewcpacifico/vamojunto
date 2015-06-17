@@ -260,6 +260,9 @@
     <string name="filter">Filtrar</string>
     <string name="errortitle_req_message_required">Campo obrigatório</string>
     <string name="errormsg_req_message_required">É obrigatório enviar uma mensagem antes de enviar</string>
+    <string name="message_to_driver">Mensagem para o motorista</string>
+    <string name="errormsg_invalid_message">Mensagem inválida</string>
+    <string name="errormsg_seat_req_msg_required">É obrigatório enviar uma mensagem para o motorista.</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">

@@ -711,7 +711,7 @@ public class GetLocationActivity extends AppCompatActivity implements
                 .input(getString(R.string.choosen_place_title), title, new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(MaterialDialog dialog, CharSequence input) {
-                        if (input.toString().equals("")) {
+                        if (input.toString().trim().equals("")) {
                             new MaterialDialog.Builder(GetLocationActivity.this)
                                     .title(R.string.errormsg_invalid_title)
                                     .content(R.string.errormsg_place_title_required)

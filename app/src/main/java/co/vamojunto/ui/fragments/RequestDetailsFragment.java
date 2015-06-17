@@ -303,7 +303,7 @@ public class RequestDetailsFragment extends Fragment {
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String typedMessage = mMessageEditText.getText().toString();
+                String typedMessage = mMessageEditText.getText().toString().trim();
 
                 if (typedMessage.equals("")) {
                     new MaterialDialog.Builder(getActivity())

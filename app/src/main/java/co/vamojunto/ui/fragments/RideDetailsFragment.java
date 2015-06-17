@@ -20,7 +20,6 @@
 package co.vamojunto.ui.fragments;
 
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,7 +39,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -164,8 +162,13 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
 
             mDataset.get(position).getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
                 @Override
-                public Void then(Task<Bitmap> task) throws Exception {
-                    passengerPicture.setImageBitmap(task.getResult());
+                public Void then(final Task<Bitmap> task) throws Exception {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            passengerPicture.setImageBitmap(task.getResult());
+                        }
+                    });
 
                     return null;
                 }
@@ -684,29 +687,27 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
      * @since 0.1.0
      */
     private void requestSeatButtonOnClick() {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+        new MaterialDialog.Builder(getActivity())
+                .content(R.string.enter_a_message_to_seat_request)
+                .title(R.string.type_a_message)
+                .positiveText(R.string.send_seat_request)
+                .negativeText(R.string.cancel)
+                .input(getString(R.string.message_to_driver), "", new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog materialDialog, CharSequence input) {
+                        String msg = input.toString().trim();
 
-        alert.setTitle(getString(R.string.type_a_message));
-        alert.setMessage(getString(R.string.enter_a_message_to_seat_request));
-
-        // Set an EditText view to get user input
-        final EditText input = new EditText(getActivity());
-        alert.setView(input);
-
-        alert.setPositiveButton(getString(R.string.send_seat_request), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                String msg = input.getText().toString();
-                requestSeat(msg);
-            }
-        });
-
-        alert.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // cancel
-            }
-        });
-
-        alert.show();
+                        if (msg.equals("")) {
+                            new MaterialDialog.Builder(getActivity())
+                                    .title(R.string.errormsg_invalid_message)
+                                    .content(R.string.errormsg_seat_req_msg_required)
+                                    .iconRes(R.drawable.ic_error)
+                                    .show();
+                        } else {
+                            requestSeat(msg);
+                        }
+                    }
+                }).build().show();
     }
 
     /**

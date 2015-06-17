@@ -53,6 +53,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
      * @since 0.1.0
      */
     private static final int MENU_ITEM_COUNT = 3;
+    private Handler mHandler;
 
     /**
      * Array containing the labels for each item on drawer.
@@ -134,7 +135,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public NavigationDrawerAdapter(Context context, OnItemClickListener clickListener) {
         /* initialize the menu data */
         mNavTitles = context.getResources().getStringArray(R.array.nav_drawer_items);
-
+        mHandler = new Handler();
         mItemClickListener = clickListener;
     }
 
@@ -171,7 +172,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             currentUser.getProfileImage().continueWith(new Continuation<Bitmap, Void>() {
                 @Override
                 public Void then(final Task<Bitmap> task) throws Exception {
-                    new Handler().post(new Runnable() {
+                    mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             holder.mImgUsuarioView.setImageBitmap(task.getResult());

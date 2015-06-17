@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.parse.Parse;
+import com.parse.ParseCrashReporting;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
@@ -72,6 +73,9 @@ public class MyApplication extends Application {
             editor.putString(Globals.VERSION, "v0.6.0");
             editor.commit();
         }
+
+        // Enable Crash Reporting
+        ParseCrashReporting.enable(this);
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(getApplicationContext());
