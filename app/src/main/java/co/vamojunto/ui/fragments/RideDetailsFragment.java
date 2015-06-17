@@ -54,6 +54,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.model.Place;
 import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.SeatRequest;
 import co.vamojunto.model.User;
@@ -61,6 +62,7 @@ import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
 import co.vamojunto.ui.activities.SeatRequestsActivity;
 import co.vamojunto.ui.activities.VamoJuntoActivity;
+import co.vamojunto.ui.activities.ViewLocationActivity;
 import co.vamojunto.ui.widget.ExpandableHeightGridView;
 import co.vamojunto.util.DateUtil;
 import co.vamojunto.util.Globals;
@@ -593,10 +595,29 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
         });
 
         mDriverNameTextView.setText(mRideOffer.getDriver().getName());
+
         mStartingPointTextView.setText(getString(R.string.from) + ": " +
                 mRideOffer.getStartingPoint().getTitulo());
+        mStartingPointTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRideOffer.getStartingPoint());
+                Intent intent = new Intent(getActivity(), ViewLocationActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mDestinationTextView.setText(getString(R.string.to) + ": " +
                 mRideOffer.getDestination().getTitulo());
+        mDestinationTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRideOffer.getDestination());
+                Intent intent = new Intent(getActivity(), ViewLocationActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mDatetimeTextView.setText(getString(R.string.when) + ": " +
                 DateUtil.getFormattedDateTime(getActivity(), mRideOffer.getDatetime()));
         mDetailsTextView.setText(getString(R.string.details) + ": " + mRideOffer.getDetails());

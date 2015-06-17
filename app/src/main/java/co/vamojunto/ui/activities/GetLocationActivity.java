@@ -80,8 +80,9 @@ import co.vamojunto.util.UIUtil;
  * @since 0.1.0
  * @version 2.0
  */
-public class GetLocationActivity extends AppCompatActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GetLocationActivity extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        OnMapReadyCallback {
 
     private static final String TAG = "GetLocationActivity";
 
@@ -145,7 +146,7 @@ public class GetLocationActivity extends AppCompatActivity
      *
      * @since 0.1.0
      */
-    private GoogleMap mMap;
+    protected GoogleMap mMap;
 
     /** Instância da Google Play Services API Client, utilizada para manipular o Location API */
     private GoogleApiClient mGoogleApiClient;
@@ -158,7 +159,7 @@ public class GetLocationActivity extends AppCompatActivity
     private Location mLastLocation;
 
     /** Guarda uma instância de um local, caso o usuário tenha feito uma busca. */
-    private Place mPlace;
+    protected Place mPlace;
 
     /**
      * Handler to run code on main thread, inside callbacks.
@@ -167,6 +168,9 @@ public class GetLocationActivity extends AppCompatActivity
 
     private ProgressDialog mProDialog;
     private EditText mSearchEditText;
+
+    protected SupportMapFragment mMapFragment;
+    private Toolbar mAppBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,7 +348,8 @@ public class GetLocationActivity extends AppCompatActivity
         initMap();
 
         // setup the app bar
-        initAppBar();
+        mAppBar = (Toolbar) findViewById(R.id.tool_bar);
+        initAppBar(mAppBar);
 
         Button btnOk = (Button) findViewById(R.id.ok_button);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -598,32 +603,13 @@ public class GetLocationActivity extends AppCompatActivity
             GoogleMapOptions mapOptions = new GoogleMapOptions()
                     .camera(position);
 
-            SupportMapFragment mapFragment = SupportMapFragment.newInstance(mapOptions);
+            mMapFragment = SupportMapFragment.newInstance(mapOptions);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.container, mapFragment);
+            transaction.add(R.id.container, mMapFragment);
             transaction.commit();
 
             // Obtém a instância do GoogleMap
-            mapFragment.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    mMap = googleMap;
-                    mMap.setMyLocationEnabled(true);
-                    mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                        @Override
-                        public boolean onMyLocationButtonClick() {
-                            // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
-                            // exibe um diálogo para o usuário solicitando que ele ative.
-                            final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                buildAlertMessageNoGps();
-                            }
-
-                            return false;
-                        }
-                    });
-                }
-            });
+            mMapFragment.getMapAsync(this);
         }
     }
 
@@ -659,10 +645,12 @@ public class GetLocationActivity extends AppCompatActivity
     protected void initMapLocation() {
         // Posiciona o mapa na posição atual do usuário, e dá um zoom de 17.0
         if (mLastLocation != null) {
-            LatLng coord = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            if (mPlace == null) {
+                LatLng coord = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            if (mMap != null)
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, 17.0f));
+                if (mMap != null)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, 17.0f));
+            }
         } else {
             Log.e(TAG, "mLastLocation ainda não foi inicializado.");
         }
@@ -683,9 +671,7 @@ public class GetLocationActivity extends AppCompatActivity
      * Inicializa as propriedades da Application Bar, o título da barra pode ser personalizado
      * enviando um Extra contendo uma string, pela Activity que solicitou a exibição desta tela.
      */
-    private void initAppBar() {
-        Toolbar appBar = (Toolbar) findViewById(R.id.tool_bar);
-
+    protected void initAppBar(Toolbar appBar) {
         if ( getIntent().hasExtra(TITLE) )
             appBar.setTitle(getIntent().getStringExtra(TITLE));
         else
@@ -788,4 +774,22 @@ public class GetLocationActivity extends AppCompatActivity
         Log.i(TAG, "onConnectionFailed");
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                // Verifica se os serviços de localização estão ativados no aparelho. Caso não estejam,
+                // exibe um diálogo para o usuário solicitando que ele ative.
+                final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    buildAlertMessageNoGps();
+                }
+
+                return false;
+            }
+        });
+    }
 }

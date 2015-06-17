@@ -582,17 +582,27 @@ public class RequestDetailsFragment extends Fragment {
             if (getItemViewType(position) == VIEW_DETAILS) {
                 if (mRequest != null) {
                     viewHolder.requesterNameTextView.setText(mRequest.getRequester().getName());
+
                     viewHolder.startingPointTextView.setText(mRequest.getStartingPoint().getTitulo());
-//                    viewHolder.startingPointTextView.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRequest.getStartingPoint());
-//                            Intent intent = new Intent(mContext, ViewLocationActivity.class);
-//                            mContext.startActivity(intent);
-//                        }
-//                    });
+                    viewHolder.startingPointTextView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRequest.getStartingPoint());
+                            Intent intent = new Intent(mContext, ViewLocationActivity.class);
+                            mContext.startActivity(intent);
+                        }
+                    });
 
                     viewHolder.destinationTextView.setText(mRequest.getDestination().getTitulo());
+                    viewHolder.destinationTextView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Place.storeInstance(ViewLocationActivity.INITIAL_PLACE, mRequest.getDestination());
+                            Intent intent = new Intent(mContext, ViewLocationActivity.class);
+                            mContext.startActivity(intent);
+                        }
+                    });
+
                     viewHolder.datetimeTextView.setText(DateUtil.getFormattedDateTime(mContext, mRequest.getDatetime()));
                     viewHolder.detailsTextView.setText(mRequest.getDetails());
 
