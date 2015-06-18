@@ -41,6 +41,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.exceptions.NotImplementedException;
 import co.vamojunto.model.UserCompany;
+import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.VamoJuntoActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
@@ -118,6 +119,7 @@ public abstract class AbstractFeedFragment extends Fragment
     private Button mErrorScreenRetryButton;
     private MyPagerAdapter mPagerAdapter;
     private ViewPager mPager;
+    private MenuItem mSearchMenuItem;
 
     public AbstractFeedFragment() {
         // Required empty public constructor
@@ -130,6 +132,9 @@ public abstract class AbstractFeedFragment extends Fragment
 
         mContainer = container;
         mHandler = new Handler();
+
+        initComponents(rootView);
+        setupAppBar();
 
         // check if the user is authorized to access the feed
         isAuthorized().continueWith(new Continuation<UserCompany.Status, Void>() {
@@ -145,6 +150,7 @@ public abstract class AbstractFeedFragment extends Fragment
                         } else if (approvationStatus == UserCompany.Status.REJECTED) {
                             changeContent(SCREEN_NOT_AUTHORIZED);
                         } else {
+                            getMainActivity().hideFloatingMenu();
                             displayErrorScreen(getString(R.string.ufam_feed_waiting_msg), false);
                         }
                     }
@@ -154,10 +160,14 @@ public abstract class AbstractFeedFragment extends Fragment
             }
         });
 
-        initComponents(rootView);
-        setupAppBar();
-
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        getMainActivity().showFloatingMenu();
     }
 
     protected void initComponents(View rootView) {
@@ -187,6 +197,7 @@ public abstract class AbstractFeedFragment extends Fragment
                 .inflate(layoutRes, mContainer, true);
 
         if (content == SCREEN_NOT_AUTHORIZED) {
+            getMainActivity().hideFloatingMenu();
             initNotAuthorizedComponents(rootView);
         } else {
             initComponents(rootView);
@@ -222,6 +233,9 @@ public abstract class AbstractFeedFragment extends Fragment
         tabs.setViewPager(mPager);
 
         mFlipper.setDisplayedChild(VIEW_DEFAULT);
+        mSearchMenuItem.setVisible(true);
+
+        getMainActivity().showFloatingMenu();
     }
 
     protected Handler getHandler() {
@@ -232,12 +246,18 @@ public abstract class AbstractFeedFragment extends Fragment
         return ((VamoJuntoActivity)getActivity()).getAppBar();
     }
 
+    protected MainActivity getMainActivity() {
+        return (MainActivity) getActivity();
+    }
+
     protected void setupAppBar() {
         Toolbar appBar = getAppBar();
         appBar.getMenu().clear();
 
         appBar.inflateMenu(R.menu.menu_list_rides);
-        appBar.getMenu().findItem(R.id.search_menu).setOnMenuItemClickListener(this);
+        mSearchMenuItem = appBar.getMenu().findItem(R.id.search_menu);
+        mSearchMenuItem.setOnMenuItemClickListener(this);
+        mSearchMenuItem.setVisible(false);
 
         appBar.setTitle(R.string.app_name);
     }
@@ -247,8 +267,11 @@ public abstract class AbstractFeedFragment extends Fragment
         int id = item.getItemId();
 
         if (id == R.id.search_menu) {
-            FilterFeedFragment filterFragment = new FilterFeedFragment();
-            filterFragment.show(mPagerAdapter.getFragment(mPager.getCurrentItem()));
+            // suck it NullPointerException
+            if (mPagerAdapter != null && mPager != null) {
+                FilterFeedFragment filterFragment = new FilterFeedFragment();
+                filterFragment.show(mPagerAdapter.getFragment(mPager.getCurrentItem()));
+            }
         }
 
         return false;

@@ -146,12 +146,12 @@ public class UFAMFeedFragment extends AbstractFeedFragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (matriculaEditText.getText().toString().equals("")) {
+                if (matriculaEditText.getText().toString().trim().equals("")) {
                     matriculaEditText.setError(getString(R.string.errormsg_required_field));
                     matriculaEditText.requestFocus();
 
                     return;
-                } else if (cursoEditText.toString().equals("")){
+                } else if (cursoEditText.toString().trim().equals("")){
                     cursoEditText.setError(getString(R.string.errormsg_required_field));
                     cursoEditText.requestFocus();
 

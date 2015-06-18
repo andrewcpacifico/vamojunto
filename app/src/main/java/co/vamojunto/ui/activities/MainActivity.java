@@ -19,7 +19,9 @@
 
 package co.vamojunto.ui.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Build;
@@ -39,9 +41,11 @@ import android.view.ViewGroup;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.parse.ParseInstallation;
 
 import java.util.List;
 
+import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.model.User;
@@ -101,6 +105,31 @@ public class MainActivity extends VamoJuntoActivity {
     @Override
     protected void onCreated(Bundle savedInstanceState) {
         super.onCreated(savedInstanceState);
+
+        // get the default preferences for app
+        final SharedPreferences settings = getSharedPreferences(
+                Globals.DEFAULT_PREF_NAME,
+                Context.MODE_PRIVATE
+        );
+
+        boolean linkedUserInstallation = settings.getBoolean(Globals.LINKED_USER_PREF_KEY, false);
+
+        if (! linkedUserInstallation) {
+            // associate the device with a user
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.put("user", User.getCurrentUser());
+            installation.saveInBackground().continueWith(new Continuation<Void, Void>() {
+                @Override
+                public Void then(Task<Void> task) throws Exception {
+                    // defines an editor to preferences
+                    final SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean(Globals.LINKED_USER_PREF_KEY, true);
+                    editor.apply();
+                    
+                    return null;
+                }
+            });
+        }
 
         // checks if an initial view was sent to activity
         if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
@@ -280,6 +309,14 @@ public class MainActivity extends VamoJuntoActivity {
                         .add(R.id.container, new MainFragment()).commit();
                 break;
         }
+    }
+
+    public void hideFloatingMenu() {
+        mFloatingMenu.hideMenuButton(true);
+    }
+
+    public void showFloatingMenu() {
+        mFloatingMenu.showMenuButton(true);
     }
 
 }
