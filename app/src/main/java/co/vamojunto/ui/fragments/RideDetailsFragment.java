@@ -52,6 +52,7 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 import co.vamojunto.R;
+import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.model.Place;
 import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.SeatRequest;
@@ -592,6 +593,16 @@ public class RideDetailsFragment extends android.support.v4.app.Fragment
             @Override
             public Void then(Task<Bitmap> task) throws Exception {
                 mDriverImageView.setImageBitmap(task.getResult());
+//                mDriverImageView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent facebookIntent = FacebookHelper.getOpenFacebookIntent(
+//                                getActivity(),
+//                                mRideOffer.getDriver().getFacebookId()
+//                        );
+//                        startActivity(facebookIntent);
+//                    }
+//                });
 
                 return null;
             }

@@ -19,21 +19,17 @@
 
 package co.vamojunto.helpers;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.parse.ParseFacebookUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,18 +37,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
-import co.vamojunto.model.User;
 
 /**
  * Helper to handle with Facebook actions.
@@ -135,19 +126,19 @@ public class FacebookHelper {
 
         Log.i(TAG, "starting a ME request for Facebook...");
         GraphRequest.newMeRequest(
-            AccessToken.getCurrentAccessToken(),
-            new GraphRequest.GraphJSONObjectCallback() {
-                @Override
-                public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
-                    Log.i(TAG, "ME request finished...");
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
+                        Log.i(TAG, "ME request finished...");
 
-                    if (jsonObject != null) {
-                        tcs.setResult(jsonObject);
-                    } else {
-                        tcs.setError(new Exception(graphResponse.getError().getErrorMessage()));
+                        if (jsonObject != null) {
+                            tcs.setResult(jsonObject);
+                        } else {
+                            tcs.setError(new Exception(graphResponse.getError().getErrorMessage()));
+                        }
                     }
                 }
-            }
         ).executeAsync();
 
         return tcs.getTask();
@@ -166,32 +157,45 @@ public class FacebookHelper {
         Log.i(TAG, "Looking for user friends...");
 
         GraphRequest.newMyFriendsRequest(
-            AccessToken.getCurrentAccessToken(),
-            new GraphRequest.GraphJSONArrayCallback() {
-                @Override
-                public void onCompleted(JSONArray jsonArray, GraphResponse graphResponse) {
-                    Log.i(TAG, "My friends request finished...");
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONArrayCallback() {
+                    @Override
+                    public void onCompleted(JSONArray jsonArray, GraphResponse graphResponse) {
+                        Log.i(TAG, "My friends request finished...");
 
-                    List<String> resultList;
+                        List<String> resultList;
 
-                    try {
-                        int nResults = jsonArray.length();
-                        resultList = new ArrayList<>(nResults);
+                        try {
+                            int nResults = jsonArray.length();
+                            resultList = new ArrayList<>(nResults);
 
-                        for (int i = 0; i < nResults; i++) {
-                            JSONObject jsonUser = jsonArray.getJSONObject(i);
-                            resultList.add(jsonUser.getString("id"));
+                            for (int i = 0; i < nResults; i++) {
+                                JSONObject jsonUser = jsonArray.getJSONObject(i);
+                                resultList.add(jsonUser.getString("id"));
+                            }
+
+                            tcs.setResult(resultList);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Error on parsing json.", e);
                         }
-
-                        tcs.setResult(resultList);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Error on parsing json.", e);
                     }
                 }
-            }
         ).executeAsync();
 
         return tcs.getTask();
     }
+
+//    public static Intent getOpenFacebookIntent(Context context, String userFbId) {
+//        PackageManager pm = context.getPackageManager();
+//        Uri uri;
+//        String facebookUrl = "https://www.facebook.com/app_scoped_user_id/" + userFbId;
+//        try {
+//            pm.getPackageInfo("com.facebook.katana", 0);
+//            uri = Uri.parse("fb://facewebmodal/f?href=" + facebookUrl);
+//        } catch (PackageManager.NameNotFoundException e) {
+//            uri = Uri.parse(facebookUrl);
+//        }
+//        return new Intent(Intent.ACTION_VIEW, uri);
+//    }
 
 }

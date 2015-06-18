@@ -25,10 +25,10 @@ android {
 
     defaultConfig {
         applicationId "co.vamojunto"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 22
         versionCode 15
-        versionName "0.7.1 beta"
+        versionName "0.7.2 beta"
     }
     buildTypes {
         release {
