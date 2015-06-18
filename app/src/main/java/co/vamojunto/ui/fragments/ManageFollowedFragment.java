@@ -48,6 +48,7 @@ import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
 import co.vamojunto.util.Globals;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.UIUtil;
 
 /**
  * A {@link android.support.v4.app.Fragment} where the user can manage the other users that he
@@ -109,13 +110,6 @@ public class ManageFollowedFragment extends Fragment {
      * @since 0.1.0
      */
     private ImageView mErrorScreenIcon;
-
-    /**
-     * A progress dialog, displayed when any data is being loaded.
-     *
-     * @since 0.1.0
-     */
-    private ProgressDialog mProDialog;
 
     /**
      * Required default constructor
@@ -192,13 +186,13 @@ public class ManageFollowedFragment extends Fragment {
 
                 // save changes, only if there is any new friend to follow
                 if (removed.size() > 0) {
-                    startLoading();
+                    UIUtil.startLoading(getActivity(), getString(R.string.loading));
 
                     Friendship.unfollow(User.getCurrentUser(), mFriendsAdapter.getUnfollowed())
                             .continueWith(new Continuation<Void, Void>() {
                                 @Override
                                 public Void then(Task<Void> task) throws Exception {
-                                    stopLoading();
+                                    UIUtil.stopLoading();
 
                                     // after the task conclusion, restarts the friends feed,
                                     // so the user can view the new friends on feed
@@ -253,37 +247,42 @@ public class ManageFollowedFragment extends Fragment {
             tskGetFollowed.continueWith(new Continuation<List<User>, Void>() {
                 @Override
                 public Void then(Task<List<User>> task) throws Exception {
-                    if (task.isCancelled() || task.isFaulted()) {
-                        displayErrorScreen();
-                        if (task.isFaulted()) {
-                            Log.e(TAG, "Error on fetch user friends.", task.getError());
+                    // check if Fragment is attached to some Activity, before change the view
+                    if (getActivity() != null) {
+                        if (task.isCancelled() || task.isFaulted()) {
+                            displayErrorScreen();
+                            if (task.isFaulted()) {
+                                Log.e(TAG, "Error on fetch user friends.", task.getError());
+                            }
+                        } else {
+                            List<User> lst = task.getResult();
+                            mFriendsAdapter.setDataset(lst);
+
+                            if (lst.size() == 0) {
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        displayNoFriends();
+                                    }
+                                });
+                            } else {
+                                // if it is the first time that current user friends have been fetched
+                                if (!fetchedFromCloud) {
+                                    SharedPreferences.Editor editor = settings.edit();
+                                    editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
+                                    editor.apply();
+                                }
+
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                    }
+                                });
+                            }
                         }
                     } else {
-                        List<User> lst = task.getResult();
-                        mFriendsAdapter.setDataset(lst);
-
-                        if (lst.size() == 0) {
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    displayNoFriends();
-                                }
-                            });
-                        } else {
-                            // if it is the first time that current user friends have been fetched
-                            if (!fetchedFromCloud) {
-                                SharedPreferences.Editor editor = settings.edit();
-                                editor.putBoolean(Globals.FETCHED_FRIENDS_PREF_KEY, true);
-                                editor.apply();
-                            }
-
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
-                                }
-                            });
-                        }
+                        Log.e(TAG, "Fragment detached from Activity");
                     }
 
                     return null;
@@ -322,29 +321,6 @@ public class ManageFollowedFragment extends Fragment {
         mErrorScreenMsgTextView.setText(errorMsg);
 
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
-    }
-
-    /**
-     * Shows a dialog indicating that the main screen is bein loaded.
-     *
-     * @since 0.1.0
-     */
-    private void startLoading() {
-        mProDialog = new ProgressDialog(getActivity());
-        mProDialog.setMessage(getString(R.string.saving));
-        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProDialog.setCancelable(false);
-        mProDialog.show();
-    }
-
-    /**
-     * Finishes the loading dialog;
-     *
-     * @since 0.1.0
-     */
-    private void stopLoading() {
-        mProDialog.dismiss();
-        mProDialog = null;
     }
 
 }

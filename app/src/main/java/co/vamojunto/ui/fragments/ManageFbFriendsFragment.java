@@ -45,6 +45,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import bolts.Continuation;
@@ -305,7 +306,7 @@ public class ManageFbFriendsFragment extends Fragment {
             LoginManager.getInstance()
                 .logInWithReadPermissions(
                         getActivity(),
-                        Arrays.asList(FacebookHelper.Permissions.USER_FRIENDS)
+                        Collections.singletonList(FacebookHelper.Permissions.USER_FRIENDS)
                 );
         } else {
             // after search for the user friends, sets the list of friends as the recyclerview dataset

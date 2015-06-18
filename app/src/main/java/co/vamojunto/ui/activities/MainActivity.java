@@ -125,7 +125,7 @@ public class MainActivity extends VamoJuntoActivity {
                     final SharedPreferences.Editor editor = settings.edit();
                     editor.putBoolean(Globals.LINKED_USER_PREF_KEY, true);
                     editor.apply();
-                    
+
                     return null;
                 }
             });
