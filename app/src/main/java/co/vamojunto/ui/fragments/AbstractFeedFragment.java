@@ -143,15 +143,18 @@ public abstract class AbstractFeedFragment extends Fragment
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        UserCompany.Status approvationStatus = task.getResult();
+                        // check if fragment is attached to Activity
+                        if (getActivity() != null) {
+                            UserCompany.Status approvationStatus = task.getResult();
 
-                        if (approvationStatus == UserCompany.Status.APPROVED) {
-                            displayDefaultScreen(rootView);
-                        } else if (approvationStatus == UserCompany.Status.REJECTED) {
-                            changeContent(SCREEN_NOT_AUTHORIZED);
-                        } else {
-                            getMainActivity().hideFloatingMenu();
-                            displayErrorScreen(getString(R.string.ufam_feed_waiting_msg), false);
+                            if (approvationStatus == UserCompany.Status.APPROVED) {
+                                displayDefaultScreen(rootView);
+                            } else if (approvationStatus == UserCompany.Status.REJECTED) {
+                                changeContent(SCREEN_NOT_AUTHORIZED);
+                            } else {
+                                getMainActivity().hideFloatingMenu();
+                                displayErrorScreen(getString(R.string.ufam_feed_waiting_msg), false);
+                            }
                         }
                     }
                 });
