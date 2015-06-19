@@ -27,7 +27,7 @@ android {
         applicationId "co.vamojunto"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 15
+        versionCode 16
         versionName "0.7.2 beta"
     }
     buildTypes {

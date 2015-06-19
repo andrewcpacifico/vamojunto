@@ -208,37 +208,39 @@ public class ListMyRequestsFragment extends Fragment {
     public void loadMyRequests() {
         mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
 
-        //Loads the ride requests from the cloud, only if the user is connected to the Internet
+        // loads the ride requests from the cloud, only if the user is connected to the Internet
         if (NetworkUtil.isConnected(getActivity())) {
             RideRequest.getByRequesterAsync(User.getCurrentUser()).continueWith(new Continuation<List<RideRequest>, Void>() {
                 @Override
                 public Void then(final Task<List<RideRequest>> task) throws Exception {
+                    // check if Fragment is attached to activity
+                    if (getActivity() != null) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!task.isFaulted() && !task.isCancelled()) {
+                                    mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
 
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!task.isFaulted() && !task.isCancelled()) {
-                                mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+                                    List<RideRequest> requestList = task.getResult();
 
-                                List<RideRequest> requestList = task.getResult();
+                                    // sort the list by creation date
+                                    Collections.sort(requestList, new Comparator<RideRequest>() {
+                                        @Override
+                                        public int compare(RideRequest lhs, RideRequest rhs) {
+                                            return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
+                                        }
+                                    });
 
-                                // sort the list by creation date
-                                Collections.sort(requestList, new Comparator<RideRequest>() {
-                                    @Override
-                                    public int compare(RideRequest lhs, RideRequest rhs) {
-                                        return rhs.getCreatedAt().compareTo(lhs.getCreatedAt());
-                                    }
-                                });
+                                    mRequestsAdapter.setDataset(requestList);
+                                } else {
+                                    Log.e(TAG, "Error on load user requests", task.getError());
 
-                                mRequestsAdapter.setDataset(requestList);
-                            } else {
-                                Log.e(TAG, "Error on load user requests", task.getError());
+                                    displayErrorScreen();
+                                }
 
-                                displayErrorScreen();
                             }
-
-                        }
-                    });
+                        });
+                    }
 
                     return null;
                 }
