@@ -20,14 +20,15 @@
 package co.vamojunto.ui.fragments;
 
 
-import android.app.ProgressDialog;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,6 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,7 +66,7 @@ import co.vamojunto.util.UIUtil;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 1.0.1
+ * @version 2.0
  */
 public class ManageFbFriendsFragment extends Fragment {
 
@@ -123,13 +123,6 @@ public class ManageFbFriendsFragment extends Fragment {
     private ImageView mErrorScreenIcon;
 
     /**
-     * A progress dialog, displayed when any data is being loaded.
-     *
-     * @since 0.1.0
-     */
-    private ProgressDialog mProDialog;
-
-    /**
      * Define if fragment has loaded items to display once.
      *
      * @since 0.1.1
@@ -172,11 +165,6 @@ public class ManageFbFriendsFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     /**
@@ -241,35 +229,43 @@ public class ManageFbFriendsFragment extends Fragment {
 
         Button saveButton = (Button) rootView.findViewById(R.id.save_button);
         saveButton.setOnClickListener(new View.OnClickListener() {
-            // on button click, persists the changes made by the current user to the cloud database.
             @Override
             public void onClick(View v) {
-                List<User> added = mFriendsAdapter.getAdded();
+                saveButtonOnclick();
+            }
+        });
+    }
 
-                // save changes, only if there is any new friend to follow
-                if (added.size() > 0) {
-                    startLoading();
+    /**
+     * Called when the user clicks on the save button. The method persists the changes made by
+     * the current user to the cloud database.
+     *
+     * @since 0.8.0
+     */
+    private void saveButtonOnclick() {
+        List<User> added = mFriendsAdapter.getAdded();
 
-                    Friendship.follow(User.getCurrentUser(), added)
-                            .continueWith(new Continuation<Void, Void>() {
-                                @Override
-                                public Void then(Task<Void> task) throws Exception {
-                                    stopLoading();
+        // save changes, only if there is any new friend to follow
+        if (added.size() == 0) {
+            getActivity().finish();
+            return;
+        }
 
-                                    // code to navigate up to MainActivity
-                                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                                    intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        UIUtil.startLoading(getActivity());
+        Friendship.follow(User.getCurrentUser(), added).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                UIUtil.stopLoading();
 
-                                    startActivity(intent);
-                                    getActivity().finish();
+                // code to navigate up to MainActivity
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                                    return null;
-                                }
-                            });
-                } else {
-                    getActivity().finish();
-                }
+                startActivity(intent);
+                getActivity().finish();
+
+                return null;
             }
         });
     }
@@ -282,8 +278,9 @@ public class ManageFbFriendsFragment extends Fragment {
     public void loadFriends() {
         mViewFlipper.setDisplayedChild(VIEW_PROGRESS);
 
+        // no network connection, just display the error screen
         if (! NetworkUtil.isConnected(getActivity())) {
-            displayErrorScreen(getString(R.string.errormsg_no_internet_connection));
+            displayErrorScreen(R.string.errormsg_no_internet_connection);
         } else if (
             ! AccessToken
                 .getCurrentAccessToken()
@@ -298,7 +295,7 @@ public class ManageFbFriendsFragment extends Fragment {
 
                 @Override
                 public void onCancel() {
-                    displayErrorScreen(getString(R.string.errormsg_cant_load_fb_friends));
+                    displayErrorScreen(R.string.errormsg_cant_load_fb_friends);
                 }
 
                 @Override
@@ -315,76 +312,88 @@ public class ManageFbFriendsFragment extends Fragment {
                 );
         } else {
             // after search for the user friends, sets the list of friends as the recyclerview dataset
-            User.getCurrentUser().getFacebookFriends()
-                    .continueWith(new Continuation<List<User>, Void>() {
-                        @Override
-                        public Void then(Task<List<User>> task) throws Exception {
-                            // prevents error, on case that the user closes the fragment before the
-                            // task finished
-                            if (getActivity() != null && isAdded()) {
-                                if (task.isFaulted() || task.isCancelled()) {
-                                    displayErrorScreen();
-                                } else {
-                                    List<User> lst = task.getResult();
+            User.getCurrentUser().getFacebookFriends().continueWith(new Continuation<List<User>, Void>() {
+                @Override
+                public Void then(Task<List<User>> task) throws Exception {
+                    // prevents error, on case that the user closes the fragment before the
+                    // task finished
+                    if (getActivity() != null && isAdded()) {
+                        if (task.isFaulted() || task.isCancelled()) {
+                            displayErrorScreen();
+                        } else {
+                            final List<User> lst = task.getResult();
 
-                                    // checks if there is at least one user to display
-                                    if (lst.size() >= 1) {
-                                        mFriendsAdapter.setDataset(lst);
-
-                                        // after the loading, switches the viewflipper to display the list to user
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
-                                            }
-                                        });
-                                    } else {
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mErrorScreenMsgTextView
-                                                        .setText(getString(R.string.no_fb_friends));
-                                                mErrorScreenButton.setText(
-                                                        getString(R.string.invide_fb_friends)
-                                                );
-                                                mErrorScreenButton.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        UIUtil.startLoading(getActivity(), getString(R.string.loading));
-
-                                                        FacebookHelper.inviteFriends(getActivity()).continueWith(new Continuation<Void, Void>() {
-                                                            @Override
-                                                            public Void then(Task<Void> task) throws Exception {
-                                                                UIUtil.stopLoading();
-
-                                                                if (task.isCancelled() || task.isFaulted()) {
-                                                                    Toast.makeText(
-                                                                        getActivity(),
-                                                                        getString(R.string.errormsg_invite_fb_friends),
-                                                                        Toast.LENGTH_LONG
-                                                                    ).show();
-                                                                }
-
-                                                                return null;
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                                mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
-
-                                                mViewFlipper.setDisplayedChild(VIEW_ERROR);
-                                            }
-                                        });
-                                    }
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    displayFriendsList(lst);
                                 }
-                            }
-
-                            return null;
+                            });
                         }
-                    });
+                    }
+
+                    return null;
+                }
+            });
         }
     }
 
+    /**
+     * Change the screen status, to display the list of facebook friends of current user. If there
+     * is more than one user to display, a list of users are displayed, if not, display a message
+     * and the option to user can invite his Facebook friends to try the app.
+     *
+     * @param userList The list of users to display on the screen.
+     * @since 0.8.0
+     */
+    private void displayFriendsList(List<User> userList) {
+        // checks if there is at least one user to display
+        if (userList.size() >= 1) {
+            mFriendsAdapter.setDataset(userList);
+
+            // after the loading, switches the viewflipper to display the list to user
+            mViewFlipper.setDisplayedChild(VIEW_DEFAULT);
+        } else {
+            displayErrorScreen(
+                R.string.no_fb_friends,
+                R.string.invite_fb_friends,
+                R.drawable.ic_sad,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        inviteFriendsButtonClick();
+                    }
+                }
+            );
+        }
+    }
+
+    /**
+     * Called when the user clicks on the invite Facebook friends button.
+     *
+     * @see FacebookHelper#inviteFriends(Activity)
+     * @since 0.8.0
+     */
+    private void inviteFriendsButtonClick() {
+        UIUtil.startLoading(getActivity(), getString(R.string.loading));
+
+        FacebookHelper.inviteFriends(getActivity()).continueWith(new Continuation<Void, Void>() {
+            @Override
+            public Void then(Task<Void> task) throws Exception {
+                UIUtil.stopLoading();
+
+                if (task.isCancelled() || task.isFaulted()) {
+                    Toast.makeText(
+                            getActivity(),
+                            getString(R.string.errormsg_invite_fb_friends),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+
+                return null;
+            }
+        });
+    }
 
     /**
      * Switches the viewFlipper to display the error screen, with the default message.
@@ -392,42 +401,33 @@ public class ManageFbFriendsFragment extends Fragment {
      * @since 0.1.0
      */
     private void displayErrorScreen() {
-        displayErrorScreen(getString(R.string.errormsg_default));
+        displayErrorScreen(R.string.errormsg_default);
     }
 
     /**
      * Switches the viewFlipper to display the error screen. and customizes the error message.
      *
-     * @param errorMsg The message displayed on the screen.
+     * @param errorMsgRes A string resource for the error message.
      * @since 0.1.0
      */
-    private void displayErrorScreen(String errorMsg) {
-        mErrorScreenMsgTextView.setText(errorMsg);
+    private void displayErrorScreen(@StringRes int errorMsgRes) {
+        mErrorScreenMsgTextView.setText(getString(errorMsgRes));
 
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
+    
+    private void displayErrorScreen(
+            @StringRes int errorMsgRes,
+            @StringRes int buttonMsgRes,
+            @DrawableRes int iconRes,
+            View.OnClickListener btnClickListener
+    ) {
+        mErrorScreenMsgTextView.setText(getString(errorMsgRes));
+        mErrorScreenButton.setText(getString(buttonMsgRes));
+        mErrorScreenButton.setOnClickListener(btnClickListener);
+        mErrorScreenIcon.setImageResource(iconRes);
 
-    /**
-     * Shows a dialog indicating that the main screen is bein loaded.
-     *
-     * @since 0.1.0
-     */
-    private void startLoading() {
-        mProDialog = new ProgressDialog(getActivity());
-        mProDialog.setMessage(getString(R.string.saving));
-        mProDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProDialog.setCancelable(false);
-        mProDialog.show();
-    }
-
-    /**
-     * Finishes the loading dialog;
-     *
-     * @since 0.1.0
-     */
-    private void stopLoading() {
-        mProDialog.dismiss();
-        mProDialog = null;
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
 
 }

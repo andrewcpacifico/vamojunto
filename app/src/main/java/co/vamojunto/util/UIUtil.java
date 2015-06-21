@@ -44,11 +44,20 @@ import co.vamojunto.R;
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
  * @since 0.1.0
- * @version 3.0
+ * @version 4.0
  */
 public class UIUtil {
 
     private static ProgressDialog mProDialog;
+
+    /**
+     * Display a progress dialog on the screen with a default loading, message.
+     *
+     * @since 0.8.0
+     */
+    public static void startLoading(Context context) {
+        startLoading(context, context.getString(R.string.loading));
+    }
 
     /**
      * Display a progress dialog on the screen.
