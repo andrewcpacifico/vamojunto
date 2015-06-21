@@ -39,6 +39,8 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.facebook.share.model.AppInviteContent;
+import com.facebook.share.widget.AppInviteDialog;
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Email;
@@ -58,6 +60,7 @@ import bolts.Task;
 import co.vamojunto.R;
 import co.vamojunto.helpers.FacebookHelper;
 import co.vamojunto.model.User;
+import co.vamojunto.util.UIUtil;
 
 
 /**

@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.facebook.AccessToken;
@@ -57,6 +58,7 @@ import co.vamojunto.model.User;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.adapters.FriendsRecyclerViewAdapter;
 import co.vamojunto.util.NetworkUtil;
+import co.vamojunto.util.UIUtil;
 
 /**
  * A simple {@link Fragment}, where the user can manage his Facebook friends, and choose to follow
@@ -169,9 +171,12 @@ public class ManageFbFriendsFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "onActivityResult");
-
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     /**
@@ -339,7 +344,32 @@ public class ManageFbFriendsFragment extends Fragment {
                                             public void run() {
                                                 mErrorScreenMsgTextView
                                                         .setText(getString(R.string.no_fb_friends));
-                                                mErrorScreenButton.setVisibility(View.GONE);
+                                                mErrorScreenButton.setText(
+                                                        getString(R.string.invide_fb_friends)
+                                                );
+                                                mErrorScreenButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        UIUtil.startLoading(getActivity(), getString(R.string.loading));
+
+                                                        FacebookHelper.inviteFriends(getActivity()).continueWith(new Continuation<Void, Void>() {
+                                                            @Override
+                                                            public Void then(Task<Void> task) throws Exception {
+                                                                UIUtil.stopLoading();
+
+                                                                if (task.isCancelled() || task.isFaulted()) {
+                                                                    Toast.makeText(
+                                                                        getActivity(),
+                                                                        getString(R.string.errormsg_invite_fb_friends),
+                                                                        Toast.LENGTH_LONG
+                                                                    ).show();
+                                                                }
+
+                                                                return null;
+                                                            }
+                                                        });
+                                                    }
+                                                });
                                                 mErrorScreenIcon.setImageResource(R.drawable.ic_sad);
 
                                                 mViewFlipper.setDisplayedChild(VIEW_ERROR);

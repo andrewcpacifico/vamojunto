@@ -19,6 +19,7 @@
 
 package co.vamojunto.helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,6 +31,8 @@ import android.util.Log;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.share.model.AppInviteContent;
+import com.facebook.share.widget.AppInviteDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -183,6 +186,29 @@ public class FacebookHelper {
         ).executeAsync();
 
         return tcs.getTask();
+    }
+
+    /**
+     * Redirect the user to the Facebook App, where he can invite his friends to try the app.
+     *
+     * @param activity Context Activity
+     * @return A Task with a delay of 5 seconds if the invite dialog was displayed, and a cancelled
+     *         task if not.
+     * @since 0.8.0
+     */
+    public static Task<Void> inviteFriends(Activity activity) {
+        String appLinkUrl = "https://fb.me/933402946682859";
+
+        if (AppInviteDialog.canShow()) {
+            AppInviteContent content = new AppInviteContent.Builder()
+                    .setApplinkUrl(appLinkUrl)
+                    .build();
+            AppInviteDialog.show(activity, content);
+
+            return Task.delay(5000);
+        } else {
+            return Task.cancelled();
+        }
     }
 
 //    public static Intent getOpenFacebookIntent(Context context, String userFbId) {

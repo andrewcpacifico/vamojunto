@@ -20,8 +20,8 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/white"
-    android:paddingRight="10dp"
-    android:paddingLeft="10dp"
+    android:paddingRight="16dp"
+    android:paddingLeft="16dp"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -31,36 +31,33 @@
 
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:id="@+id/error_screen_message"
+        android:layout_height="wrap_content"
+
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/error_screen_message_icon"
+
+            android:layout_height="64dp"
+            android:layout_width="64dp"
+            android:layout_marginBottom="16dp"
+
+            android:src="@drawable/ic_error" />
+
+        <TextView
+            android:id="@+id/error_screen_message_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
 
             android:gravity="center"
+            android:text="@string/errormsg_default"
+            android:textSize="@dimen/abc_text_size_medium_material" />
 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/error_screen_message_icon"
-
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-
-                android:src="@drawable/ic_error"
-                />
-            <TextView
-                android:id="@+id/error_screen_message_text_view"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:text="@string/errormsg_default"
-                android:textSize="@dimen/abc_text_size_medium_material"
-                />
-        </LinearLayout>
         <Button
             android:id="@+id/error_screen_retry_button"
 
-            android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
