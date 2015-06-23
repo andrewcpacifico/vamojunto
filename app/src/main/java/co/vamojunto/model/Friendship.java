@@ -220,18 +220,20 @@ public class Friendship extends ParseObject {
      *
      * @param user The user to add the friendships, usually this parameter have the current user.
      * @param followed The list of users that the current user wants to follow.
-     * @since 0.1.0
      */
     public static Task<Void> follow(User user, List<User> followed) {
         final Task<Void>.TaskCompletionSource tcs = Task.create();
 
-        final List<Friendship> lst = new ArrayList<>();
+        final List<Friendship> cloudLst = new ArrayList<>();
+        final List<Friendship> localLst = new ArrayList<>();
 
         for (User friend: followed) {
-            lst.add(new Friendship(user, friend));
+            localLst.add(new Friendship(user, friend));
+            cloudLst.add(new Friendship(friend, user));
         }
+        cloudLst.addAll(localLst);
 
-        Friendship.saveAllInBackground(lst).continueWith(new Continuation<Void, Void>() {
+        Friendship.saveAllInBackground(cloudLst).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCancelled()) {
@@ -239,7 +241,7 @@ public class Friendship extends ParseObject {
                 } else if (task.isFaulted()) {
                     tcs.setError(task.getError());
                 } else {
-                    Friendship.pinAll("myFriendships", lst);
+                    Friendship.pinAll("myFriendships", localLst);
                     Log.i(TAG, "Friends added");
 
                     tcs.setResult(null);

@@ -47,21 +47,24 @@ import co.vamojunto.ui.fragments.ManageFollowedFragment;
 import co.vamojunto.ui.fragments.ManageFriendsFragment;
 
 /**
- *
+ * Activity where the user can manage his friends on the app.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @since 0.1.0
- * @version 1.0.1
  */
 public class ManageFriendsActivity extends VamoJuntoActivity {
 
     public static final String TAG = "ManageFriendsActivity";
+    public static final String EXTRA_INITIAL_TAB = "initial_tab";
+
+    public static final int TAB_FOLLOW = 0;
+    public static final int TAB_FACEBOOK = 1;
 
     @Override
     protected void onCreated(Bundle savedInstanceState) {
         super.onCreated(savedInstanceState);
 
         ManageFriendsFragment fragment = new ManageFriendsFragment();
+        fragment.setArguments(getIntent().getExtras());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();
         }
@@ -89,8 +92,6 @@ public class ManageFriendsActivity extends VamoJuntoActivity {
 
     /**
      * Initializes the activity's App Bar
-     *
-     * @since 0.1.0
      */
     private void setupAppBar() {
         // remove elevation from app bar because of view pager
@@ -110,8 +111,6 @@ public class ManageFriendsActivity extends VamoJuntoActivity {
 
     /**
      * Do the back navigation.
-     *
-     * @since 0.6.0
      */
     private void navigateBack() {
         if (isTaskRoot()) {
@@ -130,8 +129,6 @@ public class ManageFriendsActivity extends VamoJuntoActivity {
     /**
      * Overriding the onBackPressed method, to make an "up" navigation when this activity is
      * opened from a notification.
-     *
-     * @since 0.1.0
      */
     @Override
     public void onBackPressed() {

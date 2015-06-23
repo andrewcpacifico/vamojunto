@@ -33,14 +33,13 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import co.vamojunto.R;
+import co.vamojunto.ui.activities.ManageFriendsActivity;
 import co.vamojunto.ui.widget.SlidingTabLayout;
 
 /**
  * A {@link Fragment} where the user can manage his friends.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- * @version 1.0.0
- * @since 0.1.0
  */
 public class ManageFriendsFragment extends Fragment {
 
@@ -68,6 +67,10 @@ public class ManageFriendsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage_friends, container, false);
 
+        int initialTab = (getArguments() != null)
+            ? getArguments().getInt(ManageFriendsActivity.EXTRA_INITIAL_TAB, -1)
+            : -1;
+
         // assigning ViewPager View and setting the adapter
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
@@ -87,6 +90,10 @@ public class ManageFriendsFragment extends Fragment {
         // setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
 
+        if (initialTab != -1) {
+            pager.setCurrentItem(initialTab);
+        }
+
         return rootView;
     }
 
@@ -96,8 +103,6 @@ public class ManageFriendsFragment extends Fragment {
      * already followed by him.
      *
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
-     * @since 0.1.0
-     * @version 1.0.0
      */
     public class MyPagerAdapter extends FragmentPagerAdapter {
 

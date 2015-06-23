@@ -171,6 +171,7 @@ public class GetLocationActivity extends AppCompatActivity implements
 
     protected SupportMapFragment mMapFragment;
     private Toolbar mAppBar;
+    private Button mOkButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,24 +345,22 @@ public class GetLocationActivity extends AppCompatActivity implements
         // initialize google api client settings
         buildGoogleApiClient();
 
-        // initialize the google maps fragment
-        initMap();
-
         // setup the app bar
         mAppBar = (Toolbar) findViewById(R.id.tool_bar);
         initAppBar(mAppBar);
 
-        Button btnOk = (Button) findViewById(R.id.ok_button);
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        mOkButton = (Button) findViewById(R.id.ok_button);
+        mOkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 btnOkOnClick();
             }
         });
+        mOkButton.setVisibility(View.GONE);
 
         // check if some extra with button message was sent, and customize it
         if ( getIntent().hasExtra(BUTTON_MSG) ) {
-            btnOk.setText(getIntent().getStringExtra(BUTTON_MSG));
+            mOkButton.setText(getIntent().getStringExtra(BUTTON_MSG));
         }
 
         // check if some extra with pin resource id was sent, and customize it
@@ -400,6 +399,9 @@ public class GetLocationActivity extends AppCompatActivity implements
         });
 
         initSearchPlaceComponents();
+
+        // initialize the google maps fragment
+        initMap();
     }
 
     /**
@@ -791,5 +793,7 @@ public class GetLocationActivity extends AppCompatActivity implements
                 return false;
             }
         });
+
+        mOkButton.setVisibility(View.VISIBLE);
     }
 }

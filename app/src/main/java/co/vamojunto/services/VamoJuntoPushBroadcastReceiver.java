@@ -37,17 +37,14 @@ import co.vamojunto.model.RideOffer;
 import co.vamojunto.ui.activities.MainActivity;
 import co.vamojunto.ui.activities.RequestDetailsActivity;
 import co.vamojunto.ui.activities.RideDetailsActivity;
+import co.vamojunto.ui.fragments.RideOfferDetailsFragment;
 
 /**
  * Custom PushBroadcastReceiver for application. This class handles all push notification sent
  * to application.
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- *
- * @version 1.0.0 First version
- * @version 1.0.1 Added support for notifications sent when a ride offer is cancelled, on that
- *                situation, all ride passengers are notified.
- *
+ * @version 2.0
  * @since 0.1.0
  */
 public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
@@ -81,6 +78,11 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
      * @since 0.4.0
      */
     private static final int RIDE_OFFER_CANCELLED = 4;
+
+    /**
+     * Code for notifications pushed when a message is sent to a ride offer.
+     */
+    private static final int OFFER_MSG_RECEIVED = 5;
 
     /**
      * Data sent by ParsePush
@@ -177,6 +179,9 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
         } else if (mCode == RIDE_OFFER_CANCELLED) {
             String driverName = mData.getString("driver_name");
             return context.getString(R.string.notifymsg_rideoffer_cancelled, driverName);
+        } else if (mCode == OFFER_MSG_RECEIVED) {
+            String senderName = mData.getString("user_from");
+            return context.getString(R.string.user_sent_you_a_message, senderName);
         }
 
         return "";
@@ -208,6 +213,10 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
             case RIDE_OFFER_CANCELLED:
                 intent = getRideOfferCancelledIntent(context);
+                break;
+
+            case OFFER_MSG_RECEIVED:
+                intent = getOfferDetailsIntent(context);
         }
 
         return intent;
@@ -250,6 +259,27 @@ public class VamoJuntoPushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
             intent = new Intent(context, RequestDetailsActivity.class);
             intent.putExtra(RequestDetailsActivity.EXTRA_REQUEST_ID, requestId);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error on parse input json", e);
+        }
+
+        return intent;
+    }
+
+    /**
+     * Returns an Intent to display a RideOfferDetailsActivity.
+     *
+     * @param context The context of notification.
+     * @return The resultIntent for notification.
+     */
+    private Intent getOfferDetailsIntent(Context context) {
+        Intent intent = null;
+
+        try {
+            String requestId = mData.getString("ride_id");
+
+            intent = new Intent(context, RideDetailsActivity.class);
+            intent.putExtra(RideDetailsActivity.EXTRA_RIDE_ID, requestId);
         } catch (JSONException e) {
             Log.e(TAG, "Error on parse input json", e);
         }

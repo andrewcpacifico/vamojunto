@@ -19,7 +19,6 @@
 
 package co.vamojunto.ui.fragments;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -248,7 +247,7 @@ public class ManageFollowedFragment extends Fragment {
                 @Override
                 public Void then(Task<List<User>> task) throws Exception {
                     // check if Fragment is attached to some Activity, before change the view
-                    if (getActivity() != null) {
+                    if (getActivity() != null && isAdded()) {
                         if (task.isCancelled() || task.isFaulted()) {
                             displayErrorScreen();
                             if (task.isFaulted()) {
