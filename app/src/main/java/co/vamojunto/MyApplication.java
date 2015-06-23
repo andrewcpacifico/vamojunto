@@ -36,6 +36,7 @@ import com.parse.SaveCallback;
 import co.vamojunto.model.Company;
 import co.vamojunto.model.Friendship;
 import co.vamojunto.model.RequestMessage;
+import co.vamojunto.model.RideMessage;
 import co.vamojunto.model.RideOffer;
 import co.vamojunto.model.RidePassenger;
 import co.vamojunto.model.RideRequest;
@@ -90,6 +91,7 @@ public class MyApplication extends Application {
         ParseObject.registerSubclass(Friendship.class);
         ParseObject.registerSubclass(RidePassenger.class);
         ParseObject.registerSubclass(RequestMessage.class);
+        ParseObject.registerSubclass(RideMessage.class);
         ParseObject.registerSubclass(Company.class);
         ParseObject.registerSubclass(UserCompany.class);
 

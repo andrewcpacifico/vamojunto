@@ -89,25 +89,11 @@ public class RequestDetailsFragment extends Fragment {
     private EditText mMessageEditText;
 
     /**
-     * Inflated ImageButton used to send the message to requester.
-     *
-     * @since 0.1.0
-     */
-    private ImageButton mSendMessageButton;
-
-    /**
      * RecyclerView to list the messages sent on this request wall.
      *
      * @since 0.1.0
      */
     private RecyclerView mMessagesRecyclerView;
-
-    /**
-     * LayoutManager for mMessagesRecyclerView
-     *
-     * @since 0.1.0
-     */
-    private LinearLayoutManager mMessagesLayoutManager;
 
     /**
      * Adapter for mMessagesRecyclerView
@@ -136,13 +122,6 @@ public class RequestDetailsFragment extends Fragment {
      * @since 0.1.0
      */
     private TextView mErrorScreenMsgTextView;
-
-    /**
-     * Inflated Button to retry fetch the ride request data from the cloud.
-     *
-     * @since 0.1.0
-     */
-    private Button mRetryButton;
 
     public RequestDetailsFragment() { /* required default constructor, do not delete or edit this */ }
 
@@ -266,8 +245,8 @@ public class RequestDetailsFragment extends Fragment {
     private void initComponents(View rootView) {
         // inflates the error screen widgets
         mErrorScreenMsgTextView = (TextView) rootView.findViewById(R.id.error_screen_message_text_view);
-        mRetryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
-        mRetryButton.setOnClickListener(new View.OnClickListener() {
+        Button retryButton = (Button) rootView.findViewById(R.id.error_screen_retry_button);
+        retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchRequestData();
@@ -276,12 +255,12 @@ public class RequestDetailsFragment extends Fragment {
 
         mFlipper = (ViewFlipper) rootView.findViewById(R.id.flipper);
 
-        mMessagesLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager messagesLayoutManager = new LinearLayoutManager(getActivity());
         mMessagesAdapter = new MessagesAdapter(getActivity(), mRequest);
 
         mMessagesRecyclerView = (RecyclerView) rootView.findViewById(R.id.request_details_recyclerview);
         mMessagesRecyclerView.setAdapter(mMessagesAdapter);
-        mMessagesRecyclerView.setLayoutManager(mMessagesLayoutManager);
+        mMessagesRecyclerView.setLayoutManager(messagesLayoutManager);
 
         mMessageEditText = (EditText) rootView.findViewById(R.id.message_edit_text);
         // on edittext click, scroll the recyclerview to last position
@@ -297,10 +276,10 @@ public class RequestDetailsFragment extends Fragment {
             }
         });
 
-        mSendMessageButton = (ImageButton) rootView.findViewById(R.id.send_message_button);
+        ImageButton sendMessageButton = (ImageButton) rootView.findViewById(R.id.send_message_button);
         // on sendMessageButton click, adds a new message to the recyclerview, and sends this
         // message to server, then it will be displayed on the ride request details screen.
-        mSendMessageButton.setOnClickListener(new View.OnClickListener() {
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String typedMessage = mMessageEditText.getText().toString().trim();
@@ -308,7 +287,7 @@ public class RequestDetailsFragment extends Fragment {
                 if (typedMessage.equals("")) {
                     new MaterialDialog.Builder(getActivity())
                             .title(R.string.errortitle_req_message_required)
-                            .content(R.string.errormsg_req_message_required)
+                            .content(R.string.errormsg_ride_message_required)
                             .positiveText(R.string.ok)
                             .build().show();
                 } else {

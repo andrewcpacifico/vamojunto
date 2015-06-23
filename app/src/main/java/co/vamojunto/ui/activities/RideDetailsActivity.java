@@ -21,11 +21,9 @@ package co.vamojunto.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 
 import co.vamojunto.R;
-import co.vamojunto.ui.fragments.RideDetailsFragment;
+import co.vamojunto.ui.fragments.RideOfferDetailsFragment;
 
 /**
  * Activity where the user can view the details of a specific ride.
@@ -63,7 +61,7 @@ public class RideDetailsActivity extends VamoJuntoActivity {
     protected void onCreated(Bundle savedInstanceState) {
         super.onCreated(savedInstanceState);
 
-        RideDetailsFragment fragment = new RideDetailsFragment();
+        RideOfferDetailsFragment fragment = RideOfferDetailsFragment.newInstance();
         fragment.setArguments(getIntent().getExtras());
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragment).commit();

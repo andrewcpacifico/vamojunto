@@ -44,11 +44,7 @@ import co.vamojunto.util.TextUtil;
  * System's Ride Model
  *
  * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
- *
- * @version 1.0 First Version
- * @version 2.0 Added the status field, and the functionality to cancel a ride offer.
- * @version 3.0 Excluding cancelled offers from getFriendOffers and getOffersByCompany methods.
- *
+ * @version 4.0
  * @since 0.1.0
  */
 @ParseClassName("Ride")
@@ -200,6 +196,33 @@ public class RideOffer extends ParseObject {
         put(FIELD_DESTINATION_LNG, destino.getLongitude());
         put(FIELD_DESTINATION_TITLE, destino.getTitulo());
         put(FIELD_LC_DESTINATION_TITLE, TextUtil.normalize(destino.getTitulo()));
+    }
+
+    /**
+     * Get a list of messages sent to this ride offer.
+     *
+     * @return A {@link Task} containing a {@link java.util.List} with all messages sent to
+     *         this request as result.
+     */
+    public Task<List<RideMessage>> getMessagesAsync() {
+        ParseQuery<RideMessage> query = ParseQuery.getQuery(RideMessage.class);
+        query.whereEqualTo(RideMessage.FIELD_OFFER, this);
+        query.orderByAscending("createdAt");
+        query.include(RideMessage.FIELD_SENDER);
+
+        return query.findInBackground();
+    }
+
+    /**
+     * Fetch the data of a ride offer with a given id.
+     *
+     * @param id The id of the offer.
+     * @return A Task containing the fetched ride offer, if succeed.
+     */
+    public static Task<RideOffer> fetchData(String id) {
+        ParseQuery<RideOffer> query = ParseQuery.getQuery(RideOffer.class);
+        query.include(RideOffer.FIELD_DRIVER);
+        return query.getInBackground(id);
     }
 
     /**

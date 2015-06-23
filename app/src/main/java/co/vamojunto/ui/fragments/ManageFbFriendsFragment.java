@@ -415,7 +415,7 @@ public class ManageFbFriendsFragment extends Fragment {
 
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
-    
+
     private void displayErrorScreen(
             @StringRes int errorMsgRes,
             @StringRes int buttonMsgRes,

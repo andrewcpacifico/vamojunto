@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015 Vamo Junto. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of Vamo Junto
+  ~ ("Confidential Information"). You shall not
+  ~ disclose such Confidential Information and shall use it only in
+  ~ accordance with the terms of the license agreement you entered into
+  ~ with Vamo Junto.
+  ~
+  ~ VAMO JUNTO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  ~ TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE, OR NON-INFRINGEMENT. VAMO JUNTO SHALL NOT BE LIABLE FOR
+  ~ ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  ~ DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ See LICENSE.txt
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:padding="16dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/driver_picture"
+
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+
+        android:src="@drawable/no_profile_pic" />
+
+    <TextView
+        android:id="@+id/driver_name_text_view"
+
+        android:layout_alignTop="@id/driver_picture"
+        android:layout_toRightOf="@id/driver_picture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+
+        android:text="Amado Batista"
+        android:textColor="@color/black"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:id="@+id/starting_point"
+
+        android:layout_below="@id/driver_picture"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:background="@drawable/white_button_background"
+        android:clickable="true"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+
+            android:layout_marginRight="16dp"
+            android:src="@drawable/ic_pin_orig"/>
+
+        <TextView
+            android:id="@+id/starting_point_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:singleLine="true"
+            android:text="UFAM"
+            android:textSize="@dimen/abc_text_size_small_material"
+            />
+    </LinearLayout>
+
+    <View android:id="@+id/vertical_line"
+        android:layout_alignLeft="@+id/starting_point"
+        android:layout_below="@id/starting_point"
+        android:layout_width="1dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="12dp"
+
+        android:background="@drawable/vertical_line" />
+
+    <LinearLayout
+        android:id="@+id/destination"
+
+        android:layout_alignLeft="@id/starting_point"
+        android:layout_below="@+id/vertical_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:background="@drawable/white_button_background"
+        android:clickable="true">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="16dp"
+            android:src="@drawable/ic_pin_dest"/>
+
+        <TextView
+            android:id="@+id/destination_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:singleLine="true"
+            android:text="SIDIA Samsung Instituto de Desenvolvimento de Informática do Amazonas"
+            android:textSize="@dimen/abc_text_size_small_material" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/datetime_text_view"
+
+        android:layout_alignLeft="@id/driver_name_text_view"
+        android:layout_below="@+id/driver_name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:gravity="center_vertical"
+        android:text="Segunda-feira, 09/03, as 12:30"
+        android:textSize="@dimen/abc_text_size_small_material" />
+
+    <TextView android:id="@+id/detailsLabel"
+        android:layout_below="@+id/destination"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="@string/details"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/details_text_view"
+
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/detailsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:ellipsize="end"
+        android:maxLines="8"
+        android:text="Detalhes: Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão.
+        Vou sair da UFAM, fazer a volta na bola do coroado e sigo pela Rodrigo Otávio. Caminho padrão."
+        android:textSize="@dimen/abc_text_size_small_material" />
+
+</RelativeLayout> <!-- end of main panel -->

@@ -166,10 +166,8 @@ public class MinhasCaronasFragment extends Fragment {
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0) {
-                return getString(R.string.minhas_caronas_fragment_tab1);
+                return getString(R.string.ride_offers);
             } else if (position == 1) {
-                return getString(R.string.minhas_caronas_fragment_tab2);
-            } else if (position == 2) {
                 return getString(R.string.minhas_caronas_fragment_tab3);
             }
 
@@ -182,8 +180,6 @@ public class MinhasCaronasFragment extends Fragment {
             if (position == 0) {
                 return new ListMyRidesFragment();
             } else if (position == 1) {
-                return new RidesAsPassengerFragment();
-            } else if (position == 2) {
                 return new ListMyRequestsFragment();
             }
 
@@ -193,7 +189,7 @@ public class MinhasCaronasFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
     }
 
