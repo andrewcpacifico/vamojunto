@@ -224,16 +224,16 @@ public class Friendship extends ParseObject {
     public static Task<Void> follow(User user, List<User> followed) {
         final Task<Void>.TaskCompletionSource tcs = Task.create();
 
-        final List<Friendship> cloudLst = new ArrayList<>();
+        //final List<Friendship> cloudLst = new ArrayList<>();
         final List<Friendship> localLst = new ArrayList<>();
 
         for (User friend: followed) {
             localLst.add(new Friendship(user, friend));
-            cloudLst.add(new Friendship(friend, user));
+            //cloudLst.add(new Friendship(friend, user));
         }
-        cloudLst.addAll(localLst);
+        //cloudLst.addAll(localLst);
 
-        Friendship.saveAllInBackground(cloudLst).continueWith(new Continuation<Void, Void>() {
+        Friendship.saveAllInBackground(localLst).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCancelled()) {

@@ -44,6 +44,7 @@ import co.vamojunto.ui.widget.SlidingTabLayout;
 public class ManageFriendsFragment extends Fragment {
 
     private static final String TAG = "ManageFriendsFragment";
+    private MyPagerAdapter mPagerAdapter;
 
     public ManageFriendsFragment() {
         // Required empty public constructor
@@ -67,13 +68,10 @@ public class ManageFriendsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage_friends, container, false);
 
-        int initialTab = (getArguments() != null)
-            ? getArguments().getInt(ManageFriendsActivity.EXTRA_INITIAL_TAB, -1)
-            : -1;
-
         // assigning ViewPager View and setting the adapter
+        mPagerAdapter = new MyPagerAdapter(getChildFragmentManager());
         ViewPager pager = (ViewPager) rootView.findViewById(R.id.pager);
-        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
+        pager.setAdapter(mPagerAdapter);
 
         // assigning the Sliding Tab Layout View
         SlidingTabLayout tabs = (SlidingTabLayout) rootView.findViewById(R.id.tabs);
@@ -90,12 +88,14 @@ public class ManageFriendsFragment extends Fragment {
         // setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(pager);
 
-        if (initialTab != -1) {
-            pager.setCurrentItem(initialTab);
-        }
-
         return rootView;
     }
+
+    public void reloadFriends() {
+        mPagerAdapter.getFollowed().loadFriends();
+        mPagerAdapter.getmFbFragment().loadFriends();
+    }
+
 
     /**
      * Adapter to fill the pages on this Fragment tabs.  Two tabs are displayed, one inflates the
@@ -105,6 +105,9 @@ public class ManageFriendsFragment extends Fragment {
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
      */
     public class MyPagerAdapter extends FragmentPagerAdapter {
+
+        private ManageFollowedFragment mFollowedFragment;
+        private ManageFbFriendsFragment mFbFragment;
 
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -122,10 +125,13 @@ public class ManageFriendsFragment extends Fragment {
 
         @Override
         public android.support.v4.app.Fragment getItem(int position) {
-            if (position == 0)
-                return new ManageFollowedFragment();
-            else if (position == 1)
-                return new ManageFbFriendsFragment();
+            if (position == 0) {
+                mFollowedFragment = new ManageFollowedFragment();
+                return mFollowedFragment;
+            } else if (position == 1) {
+                mFbFragment = new ManageFbFriendsFragment();
+                return mFbFragment;
+            }
 
             return null;
         }
@@ -133,6 +139,14 @@ public class ManageFriendsFragment extends Fragment {
         @Override
         public int getCount() {
             return 2;
+        }
+
+        public ManageFollowedFragment getFollowed() {
+            return mFollowedFragment;
+        }
+
+        public ManageFbFriendsFragment getmFbFragment() {
+            return mFbFragment;
         }
     }
 

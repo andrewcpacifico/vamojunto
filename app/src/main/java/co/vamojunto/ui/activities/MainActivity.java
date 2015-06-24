@@ -131,6 +131,19 @@ public class MainActivity extends VamoJuntoActivity {
             });
         }
 
+        boolean firstRun = settings.getBoolean(Globals.FIRST_RUN_PREF_KEY, true);
+        if (firstRun) {
+            final SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(Globals.FIRST_RUN_PREF_KEY, false);
+            editor.apply();
+
+            Intent intent = new Intent(this, ManageFriendsActivity.class);
+            startActivity(intent);
+
+            finish();
+            return;
+        }
+
         // checks if an initial view was sent to activity
         if (getIntent().hasExtra(EXTRA_INITIAL_VIEW)) {
             int viewCode = getIntent().getIntExtra(EXTRA_INITIAL_VIEW, -1);

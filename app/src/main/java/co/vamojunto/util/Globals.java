@@ -32,6 +32,7 @@ public class Globals {
     public static final String LAT_PREF_KEY = "lat";
     public static final String LNG_PREF_KEY = "lng";
     public static final String LINKED_USER_PREF_KEY = "linkedUser";
+    public static final String FIRST_RUN_PREF_KEY = "firstRun";
     public static final String PARSE_PUSH_SUBSCRIBED = "push_subscribed";
     public static final String PARSE_SAVED_INSTALLATION = "parse_saved_install";
     public static final String VERSION = "version";

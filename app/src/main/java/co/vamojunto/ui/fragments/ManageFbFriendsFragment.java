@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -182,7 +183,6 @@ public class ManageFbFriendsFragment extends Fragment {
         if (this.isVisible() && isVisibleToUser && ! mHasLoaded) {
             // loads the currentUser's friends
             loadFriends();
-            mHasLoaded = true;
         }
     }
 
@@ -247,7 +247,11 @@ public class ManageFbFriendsFragment extends Fragment {
 
         // save changes, only if there is any new friend to follow
         if (added.size() == 0) {
-            getActivity().finish();
+            new MaterialDialog.Builder(getActivity())
+                    .title(R.string.no_changing)
+                    .content(R.string.no_changing_to_persist)
+                    .build().show();
+
             return;
         }
 
@@ -255,15 +259,28 @@ public class ManageFbFriendsFragment extends Fragment {
         Friendship.follow(User.getCurrentUser(), added).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                UIUtil.stopLoading();
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        UIUtil.stopLoading();
 
-                // code to navigate up to MainActivity
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.putExtra(MainActivity.EXTRA_INITIAL_VIEW, MainActivity.VIEW_FRIENDS_FEED);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        ((ManageFriendsFragment) getParentFragment()).reloadFriends();
 
-                startActivity(intent);
-                getActivity().finish();
+                        new MaterialDialog.Builder(getActivity())
+                                .title(R.string.invite_fb_friends)
+                                .content(R.string.fb_friends_saved)
+                                .positiveText(R.string.invite_friends)
+                                .negativeText(R.string.cancel)
+                                .callback(new MaterialDialog.ButtonCallback() {
+                                    @Override
+                                    public void onPositive(MaterialDialog dialog) {
+                                        super.onPositive(dialog);
+
+                                        inviteFriendsButtonClick();
+                                    }
+                                }).build().show();
+                    }
+                });
 
                 return null;
             }
@@ -327,6 +344,7 @@ public class ManageFbFriendsFragment extends Fragment {
                                 @Override
                                 public void run() {
                                     displayFriendsList(lst);
+                                    mHasLoaded = true;
                                 }
                             });
                         }

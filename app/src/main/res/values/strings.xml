@@ -269,6 +269,10 @@
     <string name="no_additional_details">O motorista não forneceu nenhum detalhe adicional para esta oferta de carona.</string>
     <string name="user_sent_you_a_message">{senderName} enviou uma mensagem.</string>
     <string name="talk_with_us">Fale conosco</string>
+    <string name="fb_friends_saved">A operação foi realizada com sucesso. Aproveite e convite outros de seus amigos para utilizar o aplicativo.\\n\\nQuanto mais amigos participando, mais fácil encontrar uma carona.</string>
+    <string name="invite_friends">Convidar amigos</string>
+    <string name="no_changing">Nenhuma alteração</string>
+    <string name="no_changing_to_persist">Não há nenhuma alteração para ser salva.</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">

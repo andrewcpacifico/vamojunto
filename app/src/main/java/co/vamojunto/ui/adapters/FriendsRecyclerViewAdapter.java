@@ -195,8 +195,8 @@ public class FriendsRecyclerViewAdapter
      * @author Andrew C. Pacifico <andrewcpacifico@gmail.com>
      * @since 0.1.0
      */
-    public static interface OnItemClickListener {
-        public void onClick(ViewHolder holder);
+    public interface OnItemClickListener {
+        void onClick(ViewHolder holder);
     }
 
     /**
@@ -281,6 +281,11 @@ public class FriendsRecyclerViewAdapter
      */
     public List<User> getAdded() {
         return new ArrayList<>(mAddedFriends);
+    }
+
+    public void removeItems(List<User> users) {
+        mDataset.removeAll(users);
+        notifyItemRangeRemoved(0, users.size());
     }
 
     /**
