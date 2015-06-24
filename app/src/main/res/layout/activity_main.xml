@@ -86,7 +86,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_message_white_24dp"
                     fab:fab_size="mini"
-                    fab:fab_label="Enviar uma mensagem" />
+                    fab:fab_label="@string/talk_with_us" />
 
             </com.github.clans.fab.FloatingActionMenu>
         </RelativeLayout>

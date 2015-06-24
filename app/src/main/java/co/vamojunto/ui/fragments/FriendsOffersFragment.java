@@ -54,10 +54,6 @@ public class FriendsOffersFragment extends AbstractListRideOffersFragment {
 
     @Override
     protected Task<List<RideOffer>> getRidesAsync() {
-//        Task<List<RideOffer>>.TaskCompletionSource tcs = Task.create();
-//
-//        return tcs.getTask();
-
         return RideOffer.getFriendsOffersAsync(User.getCurrentUser());
     }
 

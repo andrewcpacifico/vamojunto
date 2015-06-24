@@ -306,7 +306,7 @@ public class MainActivity extends VamoJuntoActivity {
 
             default:
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MainFragment()).commit();
+                        .replace(R.id.container, FriendsFeedFragment.newInstance()).commit();
                 break;
         }
     }

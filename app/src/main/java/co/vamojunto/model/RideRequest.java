@@ -159,6 +159,7 @@ public class RideRequest extends ParseObject {
         ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
         query.include(FIELD_REQUESTER);
         query.whereEqualTo(FIELD_REQUESTER, u);
+        query.orderByDescending(FIELD_DATETIME);
 
         query.findInBackground(new FindCallback<RideRequest>() {
             @Override
@@ -189,6 +190,7 @@ public class RideRequest extends ParseObject {
         // gets all rides requested by the users followed by the currentUser
         ParseQuery<RideRequest> query = ParseQuery.getQuery(RideRequest.class);
         query.whereMatchesKeyInQuery(FIELD_REQUESTER, Friendship.FIELD_FOLLOWING, qFriendship);
+        query.orderByDescending(FIELD_DATETIME);
 
         // includes the requester data, to display on list screen
         query.include(FIELD_REQUESTER);
@@ -225,8 +227,7 @@ public class RideRequest extends ParseObject {
 
         // includes the requester data, to display on list screen
         query.include(FIELD_REQUESTER);
-
-        query.orderByDescending(FIELD_CREATED_AT);
+        query.orderByDescending(FIELD_DATETIME);
 
         // filter by starting point
         String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
@@ -266,7 +267,7 @@ public class RideRequest extends ParseObject {
         requestQuery.whereMatchesKeyInQuery(FIELD_REQUESTER, UserCompany.FIELD_USER, userCompanyQuery);
         requestQuery.whereNotEqualTo(FIELD_REQUESTER, User.getCurrentUser());
         requestQuery.include(FIELD_REQUESTER);
-        requestQuery.orderByDescending(FIELD_CREATED_AT);
+        requestQuery.orderByDescending(FIELD_DATETIME);
 
         return requestQuery.findInBackground();
     }
@@ -295,7 +296,7 @@ public class RideRequest extends ParseObject {
         requestQuery.whereMatchesKeyInQuery(FIELD_REQUESTER, UserCompany.FIELD_USER, userCompanyQuery);
         requestQuery.whereNotEqualTo(FIELD_REQUESTER, User.getCurrentUser());
         requestQuery.include(FIELD_REQUESTER);
-        requestQuery.orderByDescending(FIELD_CREATED_AT);
+        requestQuery.orderByDescending(FIELD_DATETIME);
 
         // filter by starting point
         String startingPointFIlter = filters.get(FIELD_LC_STARTING_POINT_TITLE);

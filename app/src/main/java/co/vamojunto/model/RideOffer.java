@@ -262,6 +262,7 @@ public class RideOffer extends ParseObject {
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
         query.whereEqualTo(FIELD_DRIVER, u);
+        query.orderByDescending(FIELD_DATETIME);
 
         query.findInBackground(new FindCallback<RideOffer>() {
             @Override
@@ -329,8 +330,7 @@ public class RideOffer extends ParseObject {
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
-
-        query.orderByDescending(FIELD_CREATED_AT);
+        query.orderByDescending(FIELD_DATETIME);
 
         query.findInBackground(new FindCallback<RideOffer>() {
             @Override
@@ -419,8 +419,7 @@ public class RideOffer extends ParseObject {
 
         // includes the driver data, to display on list screen
         query.include(FIELD_DRIVER);
-
-        query.orderByDescending(FIELD_CREATED_AT);
+        query.orderByDescending(FIELD_DATETIME);
 
         // filter by starting point
         String startingPoint = filterValues.get(FIELD_LC_STARTING_POINT_TITLE);
@@ -533,7 +532,7 @@ public class RideOffer extends ParseObject {
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
         rideQuery.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
         rideQuery.include(FIELD_DRIVER);
-        rideQuery.orderByDescending(FIELD_CREATED_AT);
+        rideQuery.orderByDescending(FIELD_DATETIME);
 
         return rideQuery.findInBackground();
     }
@@ -563,7 +562,7 @@ public class RideOffer extends ParseObject {
         rideQuery.whereNotEqualTo(FIELD_DRIVER, User.getCurrentUser());
         rideQuery.whereEqualTo(FIELD_STATUS, Status.ACTIVE.getValue());
         rideQuery.include(FIELD_DRIVER);
-        rideQuery.orderByDescending(FIELD_CREATED_AT);
+        rideQuery.orderByDescending(FIELD_DATETIME);
 
         // filter by starting point
         String startingPointFilter = filters.get(FIELD_LC_STARTING_POINT_TITLE);

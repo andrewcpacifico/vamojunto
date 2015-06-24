@@ -268,6 +268,7 @@
     <string name="ask_ride">Pedir carona</string>
     <string name="no_additional_details">O motorista não forneceu nenhum detalhe adicional para esta oferta de carona.</string>
     <string name="user_sent_you_a_message">{senderName} enviou uma mensagem.</string>
+    <string name="talk_with_us">Fale conosco</string>
 
     <!-- Contact type array -->
     <string-array name="contact_types">
