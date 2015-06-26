@@ -168,6 +168,7 @@ public class FacebookHelper {
 
                         if (jsonArray == null) {
                             tcs.setError(new Exception(graphResponse.getError().getErrorMessage()));
+                            return;
                         }
 
                         List<String> resultList;
