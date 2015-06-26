@@ -183,7 +183,7 @@ public class GetLocationActivity extends AppCompatActivity implements
         mUfamPlace.setTitulo("UFAM - Univ. Federal do Amazonas");
 
         mHandler = new Handler();
-        mPlace = null;
+        mPlace = Place.getStoredInstance(INITIAL_PLACE);
         mMapVisible = true;
         mLastSearch = "";
         initComponents();
@@ -578,8 +578,6 @@ public class GetLocationActivity extends AppCompatActivity implements
             double lng = Globals.MANAUS_LNG;
             float zoom = Globals.DEFAULT_ZOOM_LEVEL;
 
-            // Verifica se foi passada uma localização inicial
-            mPlace = Place.getStoredInstance(INITIAL_PLACE);
             if (mPlace != null) {
                 if (mPlace.hasCoord()) {
                     lat = mPlace.getLatitude();

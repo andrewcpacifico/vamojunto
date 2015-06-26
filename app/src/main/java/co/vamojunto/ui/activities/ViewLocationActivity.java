@@ -39,7 +39,6 @@ public class ViewLocationActivity extends GetLocationActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        findViewById(R.id.ok_button).setVisibility(View.GONE);
         findViewById(R.id.search_box).setVisibility(View.GONE);
         findViewById(R.id.pin_layout).setVisibility(View.GONE);
     }
@@ -54,6 +53,8 @@ public class ViewLocationActivity extends GetLocationActivity {
                     .title(mPlace.getTitulo()))
                     .showInfoWindow();
         }
+
+        findViewById(R.id.ok_button).setVisibility(View.GONE);
     }
 
     @Override

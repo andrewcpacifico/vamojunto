@@ -166,6 +166,10 @@ public class FacebookHelper {
                     public void onCompleted(JSONArray jsonArray, GraphResponse graphResponse) {
                         Log.i(TAG, "My friends request finished...");
 
+                        if (jsonArray == null) {
+                            tcs.setError(new Exception(graphResponse.getError().getErrorMessage()));
+                        }
+
                         List<String> resultList;
 
                         try {
